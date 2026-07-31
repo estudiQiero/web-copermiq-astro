@@ -113,6 +113,7 @@ img{ max-width:100%; display:block; }
 .hero-visual{
   position:relative; display:flex; flex-direction:column; justify-content:center; align-items:center;
   height:100%; padding:24px 0; gap:22px;
+  width:100%; text-align:center;
 }
 .hero-visual img{
   height:min(320px, 100%);
@@ -121,10 +122,12 @@ img{ max-width:100%; display:block; }
   /*border:1px solid rgba(233,240,247,0.14);*/
   box-shadow: 0 30px 70px rgba(0,0,0,0.45);
   transition: box-shadow .2s ease, transform .2s ease;
+  display:block; margin:0 auto;
 }
 .hero-portrait-link{
-  display:inline-block; line-height:0; border-radius:28px;
-  cursor:pointer;
+  display:block; line-height:0; border-radius:28px;
+  cursor:pointer; margin:0 auto;
+  width:min(320px, 100%);
 }
 .hero-portrait-link:hover img,
 .hero-portrait-link:focus-visible img{
@@ -410,7 +413,7 @@ section{ padding:96px 0; }
 /* ---------- Why Copermiq (brand story) ---------- */
 .why{
   background:var(--navy); color:var(--navy-text);
-  padding:96px 0;
+  padding:2em 0;
 }
 .why-wrap{ max-width:700px; }
 .why h2{
@@ -438,8 +441,29 @@ section{ padding:96px 0; }
   border-left-color:#9FD6BB;
 }
 
+/* Desplegable "Descubre toda la historia" */
+.why-details{ margin-top:8px; }
+.why-details summary.why-toggle{ list-style:none; }
+.why-details summary.why-toggle::-webkit-details-marker{ display:none; }
+.why-toggle{
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:'IBM Plex Mono', monospace; font-size:13px; font-weight:600;
+  letter-spacing:0.03em; text-transform:uppercase;
+  color:#9FD6BB; cursor:pointer;
+  padding:6px 0; margin-bottom:8px;
+  user-select:none;
+}
+.why-toggle:hover{ color:#F3F5F2; }
+.why-toggle:hover .why-chevron{ color:#F3F5F2; }
+.why-chevron{
+  width:16px; height:16px; color:#9FD6BB;
+  transition: transform .2s ease, color .15s ease;
+  flex-shrink:0;
+}
+.why-details[open] .why-chevron{ transform:rotate(180deg); }
+.why-more{ padding-top:14px; }
+
 @media (max-width:640px){
-  .why{ padding:64px 0; }
   .why h2{ font-size:28px; }
   .why-body p{ font-size:16px; }
   .why-pull{ font-size:20px !important; padding-left:16px; }
