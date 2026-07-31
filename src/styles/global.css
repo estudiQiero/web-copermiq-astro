@@ -120,6 +120,16 @@ img{ max-width:100%; display:block; }
   border-radius:28px;
   /*border:1px solid rgba(233,240,247,0.14);*/
   box-shadow: 0 30px 70px rgba(0,0,0,0.45);
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.hero-portrait-link{
+  display:inline-block; line-height:0; border-radius:28px;
+  cursor:pointer;
+}
+.hero-portrait-link:hover img,
+.hero-portrait-link:focus-visible img{
+  box-shadow: 0 30px 70px rgba(0,0,0,0.45), 0 0 0 3px rgba(159,214,187,0.55);
+  transform: translateY(-2px);
 }
 
 /* Cita histórica bajo el retrato — tipografía de época */
@@ -140,13 +150,6 @@ img{ max-width:100%; display:block; }
   font-family:'EB Garamond', 'Zilla Slab', serif; font-style:italic; font-weight:600;
   font-size:14px; color:#9FD6BB; letter-spacing:0.01em;
 }
-.hero-quote-link{
-  font-size:13px; font-weight:600; color:rgba(233,240,247,0.55);
-  border-bottom:1px solid rgba(233,240,247,0.25);
-  padding-bottom:1px; transition:color .15s ease, border-color .15s ease;
-}
-.hero-quote-link:hover{ color:#9FD6BB; border-color:#9FD6BB; }
-
 /* ---------- Trust strip ---------- */
 .trust-strip{ background:var(--paper); border-bottom:1px solid var(--paper-line); }
 .trust-strip .wrap{
