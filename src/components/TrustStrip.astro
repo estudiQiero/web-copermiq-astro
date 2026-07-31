@@ -1,0 +1,21 @@
+---
+const items = [
+  'Facturas rectificativas conformes a normativa',
+  'IVA e IRPF por línea de factura',
+  'Copia de seguridad exportable en JSON',
+  'App instalable (PWA) en iOS y Android',
+];
+---
+
+<div class="trust-strip">
+  <div class="wrap">
+    {items.map((text) => (
+      <div class="item">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 10.5L8 14.5L16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>{text}</span>
+      </div>
+    ))}
+  </div>
+</div>

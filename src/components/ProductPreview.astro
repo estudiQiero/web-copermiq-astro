@@ -1,0 +1,65 @@
+---
+const rows = [
+  { date: '02/07', client: 'Estudio Vela SL', amount: '1.240,00 €', status: 'paid' },
+  { date: '05/07', client: 'Marta Puig — Diseño', amount: '480,50 €', status: 'pending' },
+  { date: '11/07', client: 'Cafés del Norte', amount: '96,80 €', status: 'paid' },
+  { date: '18/07', client: 'Estudio Vela SL', amount: '1.240,00 €', status: 'pending' },
+];
+---
+
+<section class="preview">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Inicio, de un vistazo</span>
+      <h2>Tu negocio, resumido en una sola pantalla</h2>
+      <p>Así de directo es Copermiq: los números que importan arriba, y las próximas facturas y vencimientos justo debajo.</p>
+    </div>
+    <div class="preview-frame">
+      <div class="preview-topbar">
+        <span class="preview-dot"></span>
+        <span class="preview-dot"></span>
+        <span class="preview-dot"></span>
+        <span class="preview-title">copermiq.netlify.app / inicio</span>
+      </div>
+      <div class="preview-body">
+        <div class="kpi-row">
+          <div class="kpi accent">
+            <div class="label">Facturado (año)</div>
+            <div class="value">18.420 €</div>
+          </div>
+          <div class="kpi amber">
+            <div class="label">Pendiente de cobro</div>
+            <div class="value">1.720 €</div>
+          </div>
+          <div class="kpi red">
+            <div class="label">Gastos deducibles</div>
+            <div class="value">3.960 €</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Resultado neto</div>
+            <div class="value">14.460 €</div>
+          </div>
+        </div>
+        <div class="mock-table">
+          <div class="mock-row head">
+            <span>Fecha</span>
+            <span>Cliente</span>
+            <span class="amount">Importe</span>
+            <span class="status">Estado</span>
+          </div>
+          {rows.map((r) => (
+            <div class="mock-row">
+              <span class="mono">{r.date}</span>
+              <span>{r.client}</span>
+              <span class="amount mono">{r.amount}</span>
+              <span class="status">
+                <span class={`tag ${r.status}`}>{r.status === 'paid' ? 'Cobrada' : 'Pendiente'}</span>
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+    <p class="preview-caption">Recreación ilustrativa de la pantalla de Inicio — los datos son de ejemplo.</p>
+  </div>
+</section>

@@ -1,0 +1,49 @@
+---
+const items = [
+  {
+    title: 'Verificación en dos pasos',
+    desc: 'además de tu contraseña de usuario, protege el acceso a tu cuenta con 2FA.',
+    icon: 'M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z',
+  },
+  {
+    title: 'Datos fiscales bloqueados',
+    desc: 'Los campos de Mi negocio se bloquean al entrar y solo se desbloquean con tu contraseña.',
+    icon: 'M6 11V8a6 6 0 1 1 12 0v3 M5 11h14v9H5z',
+  },
+  {
+    title: 'Copias de seguridad',
+    desc: 'Políticas de seguridad descargables gratuitamente. Guarda tus datos en la nube o mándalas periódicamente por mail a tu correo personal.',
+    icon: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M5 20c0-3.5 3-6 7-6s7 2.5 7 6',
+  },
+];
+---
+
+<section>
+  <div class="wrap">
+    <div class="security" id="seguridad">
+      <div>
+        <h2>Tus datos, con la seguridad que merece tu contabilidad</h2>
+        <p>
+          Copermiq guarda tu negocio, clientes, facturas y gastos en una base de datos real, protegida y anónima,
+          con autenticación y copia de seguridad exportable en cualquier momento — no dependes de un
+          archivo local que se puede perder.
+        </p>
+      </div>
+      <div class="security-list">
+        {items.map((it) => (
+          <div class="security-item">
+            <div class="dot">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d={it.icon} stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <h4>{it.title}</h4>
+              <p>{it.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

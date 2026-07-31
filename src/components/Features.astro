@@ -1,0 +1,63 @@
+---
+const features = [
+  {
+    tone: '',
+    title: 'Borradores y facturas emitidas',
+    desc: 'Toda factura nace como borrador. Al facturar, obtiene su número correlativo definitivo y pasa a contar en el resumen del año — nada se pierde por el camino.',
+    icon: 'M6 3h9l3 3v15H6z M15 3v3h3 M9 12h6 M9 16h6',
+  },
+  {
+    tone: 'red',
+    title: 'Facturas rectificativas',
+    desc: 'Una factura emitida no se puede eliminar, como marca la ley. Crea una rectificativa con numeración propia (R-2026-001) y referencia automática a la original.',
+    icon: 'M4 12a8 8 0 1 1 3 6.2 M4 12v5h5',
+  },
+  {
+    tone: 'amber',
+    title: 'Gastos con IVA e IRPF por línea',
+    desc: 'Cada línea de gasto lleva su propio % de IVA, de IRPF y su deducibilidad. Inicio calcula tu resultado neto real: facturado menos gastos deducibles.',
+    icon: 'M4 6h16v12H4z M4 10h16 M8 14h4',
+  },
+  {
+    tone: '',
+    title: 'Panel con KPIs al día',
+    desc: 'Pendiente de facturar, pendiente de cobro y resultado neto, filtrables por mes, trimestre o año — directo desde la misma fuente que Borradores.',
+    icon: 'M4 19V10 M10 19V5 M16 19v-7 M4 19h16',
+  },
+  {
+    tone: 'amber',
+    title: 'Facturación periódica',
+    desc: 'Marca una factura como recurrente y Copermiq genera automáticamente sus próximas previsiones hasta un año vista, sin ocupar hueco hasta que se emiten.',
+    icon: 'M7 3v3 M17 3v3 M4 8h16 M4 6h16v14H4z M8 12h3v3H8z',
+  },
+  {
+    tone: 'red',
+    title: 'Copia de seguridad propia',
+    desc: 'Descarga negocio, clientes, facturas y gastos en un .json tuyo, y restáuralo cuando quieras: fusiona sin borrar nada que no esté en el archivo.',
+    icon: 'M12 3v12 M7 11l5 5 5-5 M5 20h14',
+  },
+];
+---
+
+<section id="funciones">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Funciones</span>
+      <h2>Todo lo que necesitas para llevar tus cuentas, en un solo sitio.</h2>
+      <p>Facturación y contabilidad sencilla para autónomos y pequeñas empresas.</p>
+    </div>
+    <div class="features-grid">
+      {features.map((f) => (
+        <div class="feature-card">
+          <div class={`feature-icon ${f.tone}`}>
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d={f.icon} stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3>{f.title}</h3>
+          <p>{f.desc}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,34 @@
+---
+const steps = [
+  {
+    title: 'Da de alta tu negocio y tus clientes',
+    desc: 'Tus datos fiscales, tus clientes y tus tarifas, listos una sola vez. Los campos fiscales quedan bloqueados hasta que los desbloqueas con tu contraseña.',
+  },
+  {
+    title: 'Factura y registra tus gastos',
+    desc: 'Crea facturas con IVA e IRPF por línea, márcalas como periódicas si se repiten, y anota cada gasto con su proveedor, categoría y % deducible.',
+  },
+  {
+    title: 'Mira tu resultado neto al instante',
+    desc: 'Inicio te muestra pendiente de facturar, pendiente de cobro y resultado neto ya filtrado por el periodo que elijas — sin abrir una sola hoja de cálculo.',
+  },
+];
+---
+
+<section id="como-funciona">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Cómo funciona</span>
+      <h2>De cero a facturado en tres pasos</h2>
+    </div>
+    <div class="steps">
+      {steps.map((s, i) => (
+        <div class="step">
+          <div class="step-num">{String(i + 1).padStart(2, '0')}</div>
+          <h3>{s.title}</h3>
+          <p>{s.desc}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

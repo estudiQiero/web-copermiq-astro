@@ -1,0 +1,138 @@
+---
+// Paleta real de la app (Preferencias → Interfaz): color + variante oscura de cada uno,
+// que es la que se aplica por defecto a la barra lateral.
+const palette = [
+  { key: 'verde', label: 'Verde', bg: '#134430', fg: '#EAF3EC' },
+  { key: 'azul', label: 'Azul oscuro', bg: '#142A42', fg: '#E9F0F7' },
+  { key: 'naranja', label: 'Naranja', bg: '#5C2E0E', fg: '#FBEEE0' },
+  { key: 'violeta', label: 'Violeta', bg: '#2E1F4D', fg: '#EDE7F7' },
+  { key: 'rosa', label: 'Rosa', bg: '#4A1F35', fg: '#F8E7EE' },
+  { key: 'grisOscuro', label: 'Gris oscuro', bg: '#1C1F22', fg: '#EDEEEE' },
+  { key: 'grisMedio', label: 'Gris medio', bg: '#4A5057', fg: '#F2F3F3' },
+  { key: 'marron', label: 'Marrón', bg: '#3B2A1E', fg: '#F1E7DC' },
+];
+
+const words = [
+  { es: 'Inicio', ca: 'Inici' },
+  { es: 'Facturas', ca: 'Factures' },
+  { es: 'Gastos', ca: 'Despeses' },
+  { es: 'Clientes', ca: 'Clients' },
+  { es: 'Preferencias', ca: 'Preferències' },
+];
+---
+
+<section id="personalizacion">
+  <div class="wrap">
+    <div class="custom-band">
+      <div class="section-head on-dark">
+        <span class="eyebrow eyebrow-dark">A tu manera</span>
+        <h2>Tus colores. Tu idioma. Tu Copermiq.</h2>
+        <p>La interfaz se adapta a ti, no al revés: elige el color de la barra lateral, el modo claro u oscuro del contenido, y el idioma en el que quieres trabajar. Pruébalo aquí mismo.</p>
+      </div>
+
+      <div class="custom-grid">
+        <div class="custom-card">
+          <h3 class="custom-title">Colores a tu gusto</h3>
+          <p class="custom-desc">Elige un color de barra lateral, e ilumina u oscurece el contenido de forma independiente — sin perder legibilidad en ningún modo. Toca los controles para probarlo.</p>
+
+          <div class="color-frame">
+            <div class="color-frame-sidebar" id="colorSidebar" style="background:#134430;">
+              <span class="color-frame-dot"></span>
+              <span class="color-frame-bar" style="width:60%;"></span>
+              <span class="color-frame-bar" style="width:40%;"></span>
+              <span class="color-frame-bar" style="width:50%;"></span>
+            </div>
+            <div class="color-frame-body" id="colorBody">
+              <span class="color-frame-line" style="width:70%;"></span>
+              <span class="color-frame-line" style="width:45%;"></span>
+              <span class="color-frame-card"></span>
+            </div>
+          </div>
+
+          <div class="swatch-row" id="swatchRow">
+            {palette.map((p) => (
+              <button
+                type="button"
+                class={`swatch ${p.key === 'verde' ? 'is-active' : ''}`}
+                style={`background:${p.bg}`}
+                data-bg={p.bg}
+                data-fg={p.fg}
+                aria-label={p.label}
+                title={p.label}
+              ></button>
+            ))}
+            <span class="swatch-label">Barra lateral</span>
+          </div>
+
+          <div class="toggle-mock" id="contentToggle">
+            <span class="toggle-label">Contenido</span>
+            <span class="toggle-pill">
+              <button type="button" class="toggle-option is-active" data-mode="light">Claro</button>
+              <button type="button" class="toggle-option" data-mode="dark">Oscuro</button>
+            </span>
+          </div>
+        </div>
+
+        <div class="custom-card">
+          <h3 class="custom-title">Castellano y català</h3>
+          <p class="custom-desc">Toda la app —menús, formularios, facturas— está disponible en castellano y en català. Cambia de idioma cuando quieras, sin perder ni un dato.</p>
+
+          <div class="lang-toggle" id="langToggle">
+            <button type="button" class="lang-option is-active" data-lang="es">Castellano</button>
+            <button type="button" class="lang-option" data-lang="ca">Català</button>
+          </div>
+
+          <div class="translate-table" id="translateTable">
+            {words.map((w) => (
+              <div class="translate-row">
+                <span class="mono col-es is-active">{w.es}</span>
+                <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="mono col-ca">{w.ca}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <p class="preview-caption on-dark">Recreación ilustrativa e interactiva de las opciones de color e idioma — no son capturas reales de la app.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  const sidebar = document.getElementById('colorSidebar');
+  const swatchRow = document.getElementById('swatchRow');
+  const body = document.getElementById('colorBody');
+  const contentToggle = document.getElementById('contentToggle');
+  const langToggle = document.getElementById('langToggle');
+  const translateTable = document.getElementById('translateTable');
+
+  swatchRow?.querySelectorAll('.swatch').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      swatchRow.querySelectorAll('.swatch').forEach((b) => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      const bg = btn.getAttribute('data-bg');
+      if (sidebar && bg) sidebar.style.background = bg;
+    });
+  });
+
+  contentToggle?.querySelectorAll('.toggle-option').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      contentToggle.querySelectorAll('.toggle-option').forEach((b) => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      const mode = btn.getAttribute('data-mode');
+      body?.classList.toggle('is-dark', mode === 'dark');
+    });
+  });
+
+  langToggle?.querySelectorAll('.lang-option').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      langToggle.querySelectorAll('.lang-option').forEach((b) => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      const lang = btn.getAttribute('data-lang');
+      translateTable?.querySelectorAll('.col-es').forEach((el) => el.classList.toggle('is-active', lang === 'es'));
+      translateTable?.querySelectorAll('.col-ca').forEach((el) => el.classList.toggle('is-active', lang === 'ca'));
+    });
+  });
+</script>
