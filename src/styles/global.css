@@ -239,9 +239,18 @@ section{ padding:96px 0; }
   display:flex; align-items:center; justify-content:center; gap:14px;
   margin:32px 0 40px;
 }
-.toggle-label-lg{ font-size:14px; font-weight:600; color:rgba(243,245,242,0.75); }
 .toggle-pill-lg{ padding:4px; }
 .toggle-pill-lg .toggle-option{ font-size:13.5px; padding:8px 20px; }
+
+/* Este toggle vive directamente sobre el fondo oscuro de la sección (fuera de
+   .custom-grid), así que no puede depender de las variables --demo-*: se
+   estilan explícitamente para que el botón inactivo no desaparezca en negro. */
+.toggle-pill-ondark{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.16);
+}
+.toggle-pill-ondark .toggle-option{ color:rgba(243,245,242,0.55); }
+.toggle-pill-ondark .toggle-option.is-active{ background:#F3F5F2; color:#182119; }
 
 .custom-grid{
   display:grid; grid-template-columns:1fr 1fr; gap:24px;
