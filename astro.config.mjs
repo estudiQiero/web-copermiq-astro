@@ -1,6 +1,6 @@
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  site: 'https://copermiq.netlify.app',
+  site: 'https://copermiq.com',
   compressHTML: true,
 });
