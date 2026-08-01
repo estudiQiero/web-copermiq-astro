@@ -74,17 +74,17 @@ img{ max-width:100%; display:block; }
 /* ---------- Header ---------- */
 .site-header{
   position:sticky; top:0; z-index:50;
-  background:rgba(246,247,246,0.85);
+  background:rgba(20,42,66,0.92);
   backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--paper-line);
+  border-bottom:1px solid rgba(233,240,247,0.12);
 }
 .site-header .wrap{ display:flex; align-items:center; justify-content:space-between; padding-top:14px; padding-bottom:14px; }
 .brand{ display:flex; align-items:center; gap:10px; }
 .brand img{ width:34px; height:34px; border-radius:8px; }
-.brand-name{ font-family:'Zilla Slab',serif; font-weight:700; font-size:18px; }
+.brand-name{ font-family:'Zilla Slab',serif; font-weight:700; font-size:18px; color:var(--navy-text); }
 .nav-links{ display:flex; align-items:center; gap:28px; }
-.nav-links a{ font-size:14.5px; font-weight:500; color:var(--ink-soft); }
-.nav-links a:hover{ color:var(--ink); }
+.nav-links a{ font-size:14.5px; font-weight:500; color:rgba(233,240,247,0.72); }
+.nav-links a:hover{ color:var(--navy-text); }
 .header-cta{ display:flex; align-items:center; gap:16px; }
 
 /* ---------- Hero ---------- */
@@ -504,13 +504,17 @@ section{ padding:96px 0; }
 .final-cta p{ color:var(--ink-soft); font-size:17px; max-width:480px; margin:0 auto 30px; }
 
 /* ---------- Footer ---------- */
-footer{ border-top:1px solid var(--paper-line); padding:40px 0; }
+footer{
+  background:var(--navy); color:var(--navy-text);
+  border-top:1px solid rgba(233,240,247,0.14);
+  padding:40px 0;
+}
 footer .wrap{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
 .footer-brand{ display:flex; align-items:center; gap:10px; }
 .footer-brand img{ width:26px; height:26px; border-radius:6px; }
-.footer-brand span{ font-family:'Zilla Slab',serif; font-weight:600; font-size:15px; }
-.footer-tagline{ font-size:13px; color:var(--ink-faint); }
-.footer-copy{ font-size:13px; color:var(--ink-faint); }
+.footer-brand span{ font-family:'Zilla Slab',serif; font-weight:600; font-size:15px; color:var(--navy-text); }
+.footer-tagline{ font-size:13px; color:rgba(233,240,247,0.6); }
+.footer-copy{ font-size:13px; color:rgba(233,240,247,0.6); }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 900px){
