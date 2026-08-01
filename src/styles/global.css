@@ -82,10 +82,49 @@ img{ max-width:100%; display:block; }
 .brand{ display:flex; align-items:center; gap:10px; }
 .brand img{ width:34px; height:34px; border-radius:8px; }
 .brand-name{ font-family:'Zilla Slab',serif; font-weight:700; font-size:18px; color:var(--navy-text); }
-.nav-links{ display:flex; align-items:center; gap:28px; }
-.nav-links a{ font-size:14.5px; font-weight:500; color:rgba(233,240,247,0.72); }
-.nav-links a:hover{ color:var(--navy-text); }
-.header-cta{ display:flex; align-items:center; gap:16px; }
+
+.header-actions{ display:flex; align-items:center; gap:6px; }
+
+.icon-btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:38px; height:38px; border-radius:999px;
+  background:transparent; border:1px solid transparent; padding:0;
+  color:var(--navy-text); cursor:pointer;
+  transition:background .15s ease;
+}
+.icon-btn svg{ width:20px; height:20px; }
+.icon-btn:hover{ background:rgba(233,240,247,0.1); }
+
+/* Hamburguesa con animación de cruz */
+.menu-toggle{
+  display:inline-flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:5px;
+  width:38px; height:38px; margin-left:2px;
+  border-radius:999px; background:transparent; border:1px solid transparent; padding:0;
+  cursor:pointer; transition:background .15s ease;
+}
+.menu-toggle:hover{ background:rgba(233,240,247,0.1); }
+.menu-bar{
+  display:block; width:19px; height:2px; border-radius:2px;
+  background:var(--navy-text);
+  transition: transform .28s ease, opacity .18s ease;
+}
+.site-header.menu-open .menu-bar:nth-child(1){ transform: translateY(7px) rotate(45deg); }
+.site-header.menu-open .menu-bar:nth-child(2){ opacity:0; }
+.site-header.menu-open .menu-bar:nth-child(3){ transform: translateY(-7px) rotate(-45deg); }
+
+/* Panel del menú (sin enlaces por ahora) */
+.site-menu{
+  max-height:0; overflow:hidden;
+  transition: max-height .3s ease, border-color .3s ease;
+  border-top:0 solid rgba(233,240,247,0.12);
+}
+.site-menu-links{ list-style:none; padding-top:0; padding-bottom:0; }
+.site-header.menu-open .site-menu{
+  max-height:240px;
+  border-top-width:1px;
+}
+.site-header.menu-open .site-menu-links{ padding-top:16px; padding-bottom:16px; }
 
 /* ---------- Hero ---------- */
 .hero{
