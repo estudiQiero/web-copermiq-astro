@@ -1,16 +1,41 @@
 ---
-const steps = [
+const groups = [
   {
-    title: 'Da de alta tu negocio y tus clientes',
-    desc: 'Tus datos fiscales, tus clientes y tus tarifas, listos una sola vez. Los campos fiscales quedan bloqueados hasta que los desbloqueas con tu contraseña.',
+    tone: '',
+    icon: ['M17 2l4 4-4 4', 'M3 12v-2a4 4 0 0 1 4-4h14', 'M7 22l-4-4 4-4', 'M21 12v2a4 4 0 0 1-4 4H3'],
+    title: 'Presupuestos que se convierten en factura',
+    items: [
+      'Numeración propia, fecha de validez y estado — Borrador, Enviado, Aceptado, Rechazado o Caducado.',
+      'Con un clic se convierten en factura, y nacen siempre como un borrador nuevo, sin perder ningún dato.',
+    ],
   },
   {
-    title: 'Factura y registra tus gastos',
-    desc: 'Crea facturas con IVA e IRPF por línea, márcalas como periódicas si se repiten, y anota cada gasto con su proveedor, categoría y % deducible.',
+    tone: 'amber',
+    icon: ['M12 2L2 7l10 5 10-5-10-5z', 'M2 17l10 5 10-5', 'M2 12l10 5 10-5'],
+    title: 'Facturas para cada caso',
+    items: [
+      'Borrador o emitida, con numeración automática por año.',
+      'Periódicas: se proyectan solas cada mes, trimestre, año o la frecuencia que elijas.',
+      'Rectificativas, con referencia a la factura original y motivo, tal como exige la normativa.',
+    ],
   },
   {
-    title: 'Mira tu resultado neto al instante',
-    desc: 'Inicio te muestra pendiente de facturar, pendiente de cobro y resultado neto ya filtrado por el periodo que elijas — sin abrir una sola hoja de cálculo.',
+    tone: 'red',
+    icon: ['M22 11.08V12a10 10 0 1 1-5.93-9.14', 'M22 4L12 14.01l-3-3'],
+    title: 'Cobro y PDF con tu marca',
+    items: [
+      'Estado de cobro por factura — cobrada o pendiente — con su fecha de cobro.',
+      'PDF cuidado con tu logo y tus datos fiscales, con marca de agua automática en los borradores.',
+    ],
+  },
+  {
+    tone: '',
+    icon: ['M22 2L11 13', 'M22 2L15 22L11 13L2 9L22 2Z'],
+    title: 'Envío con seguimiento',
+    items: [
+      'Envío por email desde la app, con el PDF real adjunto y el nombre de tu negocio.',
+      'Las respuestas del cliente te llegan a ti, no a Copermiq, y queda registrado cuándo y a quién se envió cada documento.',
+    ],
   },
 ];
 ---
@@ -19,14 +44,28 @@ const steps = [
   <div class="wrap">
     <div class="section-head">
       <span class="eyebrow">Cómo funciona</span>
-      <h2>De presupuesto a facturado en tres pasos</h2>
+      <h2>Facturación completa, de principio a fin</h2>
+      <p>De la primera propuesta al cobro final, con cada documento numerado, archivado y a tu nombre.</p>
     </div>
-    <div class="steps">
-      {steps.map((s, i) => (
-        <div class="step">
-          <div class="step-num">{String(i + 1).padStart(2, '0')}</div>
-          <h3>{s.title}</h3>
-          <p>{s.desc}</p>
+    <div class="how-grid">
+      {groups.map((g) => (
+        <div class="how-card">
+          <div class={`feature-icon ${g.tone}`}>
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {g.icon.map((d) => <path d={d} stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>)}
+            </svg>
+          </div>
+          <h3>{g.title}</h3>
+          <ul class="how-list">
+            {g.items.map((item) => (
+              <li>
+                <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 10.5L8 14.5L16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       ))}
     </div>

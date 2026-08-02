@@ -231,23 +231,20 @@ section{ padding:96px 0; }
 .feature-card p{ font-size:14.5px; color:var(--ink-soft); }
 
 /* ---------- How it works ---------- */
-.steps{
+.how-grid{
+  display:grid; grid-template-columns:repeat(2, 1fr); gap:22px;
+}
+.how-card{
   background:var(--card);
   border:1px solid var(--paper-line);
   border-radius:var(--radius-lg);
   box-shadow:var(--shadow);
-  display:grid; grid-template-columns:repeat(3,1fr);
+  padding:32px;
 }
-.step{ padding:36px 32px; position:relative; }
-.step + .step{ border-left:1px solid var(--paper-line); }
-.step-num{
-  font-family:'IBM Plex Mono', monospace; font-size:13px; font-weight:600;
-  color:var(--accent-deep); background:var(--accent-tint);
-  width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center;
-  margin-bottom:16px;
-}
-.step h3{ font-size:17px; margin-bottom:8px; }
-.step p{ font-size:14.5px; color:var(--ink-soft); }
+.how-card h3{ font-size:19px; margin-bottom:16px; }
+.how-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px; }
+.how-list li{ display:flex; align-items:flex-start; gap:10px; font-size:14.5px; color:var(--ink-soft); line-height:1.55; }
+.how-list svg{ width:16px; height:16px; color:var(--accent); flex-shrink:0; margin-top:3px; }
 
 /* ---------- Product preview mock ---------- */
 .preview{
@@ -561,10 +558,8 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
   .hero-visual{ order:-1; padding-top:24px; }
   .hero-visual img{ width:220px; }
   .hero-copy h1{ font-size:32px; }
-  .nav-links{ display:none; }
   .features-grid{ grid-template-columns:1fr 1fr; }
-  .steps{ grid-template-columns:1fr; }
-  .step + .step{ border-left:none; border-top:1px solid var(--paper-line); }
+  .how-grid{ grid-template-columns:1fr; }
   .security{ grid-template-columns:1fr; padding:40px 24px; border-radius:20px; }
   .kpi-row{ grid-template-columns:1fr 1fr; }
   .mock-row{ grid-template-columns:70px 1fr 90px; }
