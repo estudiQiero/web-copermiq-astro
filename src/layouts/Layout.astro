@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import AuthModal from '../components/AuthModal.astro';
 
 interface Props {
   title?: string;
@@ -43,5 +44,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   </head>
   <body>
     <slot />
+    <AuthModal />
   </body>
 </html>

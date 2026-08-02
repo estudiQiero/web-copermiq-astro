@@ -2,3 +2,9 @@ node_modules/
 dist/
 .astro/
 .DS_Store
+
+# Claves de Supabase reales — nunca se suben al repo (público).
+# La plantilla sin valores reales es .env.example, esa sí va en git.
+.env
+.env.*
+!.env.example

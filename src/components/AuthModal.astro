@@ -1,0 +1,209 @@
+---
+// Modal de registro / inicio de sesión.
+//
+// Usa el cliente compartido de src/lib/supabaseClient.js — la misma cuenta
+// creada o usada aquí sirve para entrar en app.copermiq.com, porque ambos
+// sitios apuntan al mismo proyecto de Supabase.
+//
+// De momento esto es solo la base de autenticación: no hay todavía compra
+// de plantillas ni Stripe (fase posterior).
+const APP_URL = 'https://app.copermiq.com';
+---
+
+<div id="auth-overlay" class="auth-overlay" hidden>
+  <div class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+    <button type="button" class="auth-close" aria-label="Cerrar">
+      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    <!-- Estado: sin sesión iniciada -->
+    <div id="auth-signed-out">
+      <div class="auth-tabs" role="tablist">
+        <button type="button" class="auth-tab is-active" data-auth-tab="login" role="tab" aria-selected="true">Iniciar sesión</button>
+        <button type="button" class="auth-tab" data-auth-tab="signup" role="tab" aria-selected="false">Crear cuenta</button>
+      </div>
+
+      <h3 id="auth-title" class="auth-heading">Accede a tu cuenta Copermiq</h3>
+      <p class="auth-sub">La misma cuenta funciona aquí y en <strong>app.copermiq.com</strong>.</p>
+
+      <form id="auth-login-form" class="auth-form" data-auth-panel="login">
+        <label>
+          Email
+          <input type="email" name="email" autocomplete="email" required />
+        </label>
+        <label>
+          Contraseña
+          <input type="password" name="password" autocomplete="current-password" required minlength="6" />
+        </label>
+        <button type="submit" class="btn btn-primary auth-submit">Iniciar sesión</button>
+      </form>
+
+      <form id="auth-signup-form" class="auth-form" data-auth-panel="signup" hidden>
+        <label>
+          Email
+          <input type="email" name="email" autocomplete="email" required />
+        </label>
+        <label>
+          Contraseña
+          <input type="password" name="password" autocomplete="new-password" required minlength="6" />
+        </label>
+        <button type="submit" class="btn btn-primary auth-submit">Crear cuenta</button>
+      </form>
+
+      <p id="auth-message" class="auth-message" role="alert"></p>
+    </div>
+
+    <!-- Estado: sesión ya iniciada -->
+    <div id="auth-signed-in" hidden>
+      <h3 class="auth-heading">Ya tienes sesión iniciada</h3>
+      <p class="auth-sub">Conectado como <span id="auth-user-email" class="auth-user-email"></span>.</p>
+      <a class="btn btn-primary auth-submit" href={APP_URL} target="_blank" rel="noopener">Ir a la app de Copermiq</a>
+      <button type="button" id="auth-logout" class="btn btn-ghost auth-submit">Cerrar sesión</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { supabase, isSupabaseConfigured } from '../lib/supabaseClient.js';
+
+  const overlay = document.getElementById('auth-overlay');
+  const closeBtn = document.querySelector('.auth-close');
+  const accountBtn = document.getElementById('account-toggle');
+
+  const signedOutView = document.getElementById('auth-signed-out');
+  const signedInView = document.getElementById('auth-signed-in');
+  const userEmailEl = document.getElementById('auth-user-email');
+
+  const tabs = document.querySelectorAll('.auth-tab');
+  const loginForm = document.getElementById('auth-login-form');
+  const signupForm = document.getElementById('auth-signup-form');
+  const messageEl = document.getElementById('auth-message');
+  const logoutBtn = document.getElementById('auth-logout');
+
+  function openModal() {
+    if (!overlay) return;
+    overlay.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    if (!overlay) return;
+    overlay.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  accountBtn?.addEventListener('click', openModal);
+  closeBtn?.addEventListener('click', closeModal);
+  overlay?.addEventListener('click', (event) => {
+    if (event.target === overlay) closeModal();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && overlay && !overlay.hidden) closeModal();
+  });
+
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      tabs.forEach((t) => {
+        t.classList.remove('is-active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('is-active');
+      tab.setAttribute('aria-selected', 'true');
+
+      const target = tab.getAttribute('data-auth-tab');
+      if (loginForm instanceof HTMLElement) loginForm.hidden = target !== 'login';
+      if (signupForm instanceof HTMLElement) signupForm.hidden = target !== 'signup';
+      setMessage('');
+    });
+  });
+
+  function setMessage(text, tone) {
+    if (!messageEl) return;
+    messageEl.textContent = text;
+    messageEl.className = 'auth-message' + (tone ? ' ' + tone : '');
+  }
+
+  // Traduce los mensajes de error de Supabase a español, para no mostrar
+  // texto técnico en inglés directamente al usuario.
+  function translateError(error) {
+    const msg = error?.message || '';
+    if (/already registered|user already exists/i.test(msg)) {
+      return 'Ese email ya tiene una cuenta. Prueba a iniciar sesión.';
+    }
+    if (/invalid login credentials/i.test(msg)) {
+      return 'Email o contraseña incorrectos.';
+    }
+    if (/password should be at least/i.test(msg)) {
+      return 'La contraseña debe tener al menos 6 caracteres.';
+    }
+    if (/email not confirmed/i.test(msg)) {
+      return 'Confirma tu email antes de iniciar sesión — revisa tu bandeja de entrada.';
+    }
+    if (/unable to validate email address|invalid email/i.test(msg)) {
+      return 'Ese email no parece válido.';
+    }
+    return msg || 'Ha ocurrido un error. Inténtalo de nuevo.';
+  }
+
+  if (!isSupabaseConfigured) {
+    setMessage(
+      'Configuración pendiente: faltan las claves de Supabase (ver src/lib/supabaseClient.js).',
+      'error'
+    );
+    loginForm?.querySelectorAll('input, button').forEach((el) => (el.disabled = true));
+    signupForm?.querySelectorAll('input, button').forEach((el) => (el.disabled = true));
+  }
+
+  loginForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!supabase) return;
+    setMessage('Comprobando…');
+    const formData = new FormData(loginForm);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: String(formData.get('email') || ''),
+      password: String(formData.get('password') || ''),
+    });
+    if (error) {
+      setMessage(translateError(error), 'error');
+      return;
+    }
+    setMessage('');
+    loginForm.reset();
+  });
+
+  signupForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!supabase) return;
+    setMessage('Creando cuenta…');
+    const formData = new FormData(signupForm);
+    const { error } = await supabase.auth.signUp({
+      email: String(formData.get('email') || ''),
+      password: String(formData.get('password') || ''),
+    });
+    if (error) {
+      setMessage(translateError(error), 'error');
+      return;
+    }
+    setMessage('Cuenta creada. Si tu proyecto pide confirmación, revisa tu email.', 'success');
+    signupForm.reset();
+  });
+
+  logoutBtn?.addEventListener('click', async () => {
+    if (!supabase) return;
+    await supabase.auth.signOut();
+  });
+
+  function renderSession(session) {
+    const isSignedIn = Boolean(session?.user);
+    if (signedOutView instanceof HTMLElement) signedOutView.hidden = isSignedIn;
+    if (signedInView instanceof HTMLElement) signedInView.hidden = !isSignedIn;
+    if (userEmailEl && isSignedIn) userEmailEl.textContent = session.user.email ?? '';
+  }
+
+  if (supabase) {
+    supabase.auth.getSession().then(({ data }) => renderSession(data.session));
+    supabase.auth.onAuthStateChange((_event, session) => renderSession(session));
+  }
+</script>
