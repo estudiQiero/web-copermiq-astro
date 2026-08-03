@@ -9,11 +9,15 @@
     </a>
 
     <div class="header-actions">
-      <button id="account-toggle" class="icon-btn" type="button" aria-label="Cuenta" aria-haspopup="dialog" aria-controls="auth-overlay">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.8"/>
-          <path d="M4.5 19.5c1.6-3.8 4.7-5.8 7.5-5.8s5.9 2 7.5 5.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
+      <button id="account-toggle" class="icon-btn account-btn" type="button" aria-label="Cuenta" aria-haspopup="dialog" aria-controls="auth-overlay">
+        <span class="account-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M4.5 19.5c1.6-3.8 4.7-5.8 7.5-5.8s5.9 2 7.5 5.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span class="status-dot" aria-hidden="true"></span>
+        </span>
+        <span id="account-username" class="account-username"></span>
       </button>
 
       <button class="icon-btn" type="button" aria-label="Carrito">

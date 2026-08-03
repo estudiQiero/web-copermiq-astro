@@ -1,13 +1,12 @@
 ---
 // Modal de registro / inicio de sesión.
 //
-// Usa el cliente compartido de src/lib/supabaseClient.js — la misma cuenta
-// creada o usada aquí sirve para entrar en app.copermiq.com, porque ambos
-// sitios apuntan al mismo proyecto de Supabase.
+// Usa el cliente compartido de src/lib/supabaseClient.js. Al iniciar sesión
+// (o registrarse, si el proyecto no exige confirmación por email) se
+// redirige a /cuenta — el perfil del usuario en esta misma web.
 //
 // De momento esto es solo la base de autenticación: no hay todavía compra
 // de plantillas ni Stripe (fase posterior).
-const APP_URL = 'https://app.copermiq.com';
 ---
 
 <div id="auth-overlay" class="auth-overlay" hidden>
@@ -26,7 +25,6 @@ const APP_URL = 'https://app.copermiq.com';
       </div>
 
       <h3 id="auth-title" class="auth-heading">Accede a tu cuenta Copermiq</h3>
-      <p class="auth-sub">La misma cuenta funciona aquí y en <strong>app.copermiq.com</strong>.</p>
 
       <form id="auth-login-form" class="auth-form" data-auth-panel="login">
         <label>
@@ -54,14 +52,6 @@ const APP_URL = 'https://app.copermiq.com';
 
       <p id="auth-message" class="auth-message" role="alert"></p>
     </div>
-
-    <!-- Estado: sesión ya iniciada -->
-    <div id="auth-signed-in" hidden>
-      <h3 class="auth-heading">Ya tienes sesión iniciada</h3>
-      <p class="auth-sub">Conectado como <span id="auth-user-email" class="auth-user-email"></span>.</p>
-      <a class="btn btn-primary auth-submit" href={APP_URL} target="_blank" rel="noopener">Ir a la app de Copermiq</a>
-      <button type="button" id="auth-logout" class="btn btn-ghost auth-submit">Cerrar sesión</button>
-    </div>
   </div>
 </div>
 
@@ -71,16 +61,12 @@ const APP_URL = 'https://app.copermiq.com';
   const overlay = document.getElementById('auth-overlay');
   const closeBtn = document.querySelector('.auth-close');
   const accountBtn = document.getElementById('account-toggle');
-
-  const signedOutView = document.getElementById('auth-signed-out');
-  const signedInView = document.getElementById('auth-signed-in');
-  const userEmailEl = document.getElementById('auth-user-email');
+  const accountUsernameEl = document.getElementById('account-username');
 
   const tabs = document.querySelectorAll('.auth-tab');
   const loginForm = document.getElementById('auth-login-form');
   const signupForm = document.getElementById('auth-signup-form');
   const messageEl = document.getElementById('auth-message');
-  const logoutBtn = document.getElementById('auth-logout');
 
   function openModal() {
     if (!overlay) return;
@@ -94,7 +80,15 @@ const APP_URL = 'https://app.copermiq.com';
     document.body.style.overflow = '';
   }
 
-  accountBtn?.addEventListener('click', openModal);
+  // Si ya hay sesión iniciada, el icono de cuenta lleva directamente al
+  // perfil (/cuenta) en vez de abrir el modal de login/registro.
+  accountBtn?.addEventListener('click', () => {
+    if (accountBtn.classList.contains('is-connected')) {
+      window.location.href = '/cuenta';
+      return;
+    }
+    openModal();
+  });
   closeBtn?.addEventListener('click', closeModal);
   overlay?.addEventListener('click', (event) => {
     if (event.target === overlay) closeModal();
@@ -161,7 +155,7 @@ const APP_URL = 'https://app.copermiq.com';
     if (!supabase) return;
     setMessage('Comprobando…');
     const formData = new FormData(loginForm);
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: String(formData.get('email') || ''),
       password: String(formData.get('password') || ''),
     });
@@ -171,6 +165,7 @@ const APP_URL = 'https://app.copermiq.com';
     }
     setMessage('');
     loginForm.reset();
+    if (data.session) window.location.href = '/cuenta';
   });
 
   signupForm?.addEventListener('submit', async (event) => {
@@ -178,7 +173,7 @@ const APP_URL = 'https://app.copermiq.com';
     if (!supabase) return;
     setMessage('Creando cuenta…');
     const formData = new FormData(signupForm);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: String(formData.get('email') || ''),
       password: String(formData.get('password') || ''),
     });
@@ -186,20 +181,23 @@ const APP_URL = 'https://app.copermiq.com';
       setMessage(translateError(error), 'error');
       return;
     }
-    setMessage('Cuenta creada. Si tu proyecto pide confirmación, revisa tu email.', 'success');
     signupForm.reset();
+    if (data.session) {
+      // El proyecto no exige confirmación por email: ya hay sesión activa.
+      window.location.href = '/cuenta';
+      return;
+    }
+    setMessage('Cuenta creada. Revisa tu email para confirmarla antes de iniciar sesión.', 'success');
   });
 
-  logoutBtn?.addEventListener('click', async () => {
-    if (!supabase) return;
-    await supabase.auth.signOut();
-  });
-
+  // Refleja el estado de sesión en el icono de cuenta de la cabecera:
+  // nombre de usuario + punto verde de "conectado".
   function renderSession(session) {
     const isSignedIn = Boolean(session?.user);
-    if (signedOutView instanceof HTMLElement) signedOutView.hidden = isSignedIn;
-    if (signedInView instanceof HTMLElement) signedInView.hidden = !isSignedIn;
-    if (userEmailEl && isSignedIn) userEmailEl.textContent = session.user.email ?? '';
+    accountBtn?.classList.toggle('is-connected', isSignedIn);
+    if (accountUsernameEl) {
+      accountUsernameEl.textContent = isSignedIn ? (session.user.email?.split('@')[0] ?? '') : '';
+    }
   }
 
   if (supabase) {

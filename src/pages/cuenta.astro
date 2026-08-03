@@ -1,0 +1,50 @@
+---
+// Perfil del usuario en la propia web. Página protegida en el cliente: si
+// no hay sesión de Supabase, se redirige a la home. De momento el
+// contenido va en blanco, a la espera de diseñarlo.
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="Tu cuenta — Copermiq" description="Tu perfil en Copermiq.">
+  <Header />
+
+  <main id="account-main" class="account-page" hidden>
+    <div class="wrap">
+      <button type="button" id="account-logout" class="btn btn-ghost">Cerrar sesión</button>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>
+
+<script>
+  import { supabase } from '../lib/supabaseClient.js';
+
+  const main = document.getElementById('account-main');
+  const logoutBtn = document.getElementById('account-logout');
+
+  logoutBtn?.addEventListener('click', async () => {
+    if (!supabase) return;
+    await supabase.auth.signOut();
+    window.location.href = '/';
+  });
+
+  async function guard() {
+    if (!supabase) {
+      // Sin claves de Supabase configuradas no podemos comprobar la sesión;
+      // no bloqueamos la página para no dejarla inaccesible en desarrollo.
+      if (main instanceof HTMLElement) main.hidden = false;
+      return;
+    }
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) {
+      window.location.href = '/';
+      return;
+    }
+    if (main instanceof HTMLElement) main.hidden = false;
+  }
+
+  guard();
+</script>

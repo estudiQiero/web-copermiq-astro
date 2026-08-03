@@ -35,6 +35,12 @@ body{
   font-size:16px;
   line-height:1.6;
   -webkit-font-smoothing:antialiased;
+  /* Layout de columna para que, en páginas con poco contenido (p. ej.
+     /cuenta), el footer quede siempre al fondo del viewport en vez de
+     subir pegado justo debajo del contenido. */
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
 }
 h1,h2,h3,.slab{ font-family:'Zilla Slab', Georgia, serif; margin:0; line-height:1em;}
 .mono{ font-family:'IBM Plex Mono', monospace; }
@@ -97,6 +103,30 @@ img{ max-width:100%; display:block; }
 }
 .icon-btn svg{ width:20px; height:20px; }
 .icon-btn:hover{ background:rgba(233,240,247,0.1); }
+
+/* Icono de cuenta: circular por defecto, se convierte en píldora con
+   nombre + punto verde de "conectado" cuando hay sesión iniciada. */
+.account-btn.is-connected{
+  width:auto; height:34px;
+  padding:0 14px 0 4px; gap:8px;
+  background:rgba(233,240,247,0.1);
+}
+.account-icon-wrap{ position:relative; display:inline-flex; width:20px; height:20px; flex-shrink:0; }
+.account-icon-wrap svg{ width:20px; height:20px; }
+.status-dot{
+  display:none;
+  position:absolute; bottom:-2px; right:-2px;
+  width:10px; height:10px; border-radius:50%;
+  background:#3FBE72;
+  border:2px solid #142A42;
+}
+.account-btn.is-connected .status-dot{ display:block; }
+.account-username{
+  display:none;
+  font-size:13.5px; font-weight:600; color:var(--navy-text);
+  white-space:nowrap; max-width:140px; overflow:hidden; text-overflow:ellipsis;
+}
+.account-btn.is-connected .account-username{ display:inline; }
 
 /* Hamburguesa con animación de cruz */
 .menu-toggle{
@@ -554,6 +584,17 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .footer-brand span{ font-family:'Zilla Slab',serif; font-weight:600; font-size:15px; color:var(--navy-text); }
 .footer-tagline{ font-size:13px; color:rgba(233,240,247,0.6); }
 .footer-copy{ font-size:13px; color:rgba(233,240,247,0.6); }
+
+/* ---------- Página de cuenta (/cuenta) ---------- */
+/* De momento en blanco: solo crece para empujar el footer al fondo del
+   viewport mientras no tenga contenido real. */
+.account-page{
+  flex:1 0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:64px 24px;
+}
 
 /* ---------- Auth modal ---------- */
 .auth-overlay{
