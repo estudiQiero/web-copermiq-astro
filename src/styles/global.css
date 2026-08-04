@@ -144,18 +144,43 @@ img{ max-width:100%; display:block; }
 .site-header.menu-open .menu-bar:nth-child(2){ opacity:0; }
 .site-header.menu-open .menu-bar:nth-child(3){ transform: translateY(-7px) rotate(-45deg); }
 
-/* Panel del menú (sin enlaces por ahora) */
+/* Panel del menú */
 .site-menu{
   max-height:0; overflow:hidden;
-  transition: max-height .3s ease, border-color .3s ease;
+  transition: max-height .35s ease, border-color .3s ease;
   border-top:0 solid rgba(233,240,247,0.12);
 }
-.site-menu-links{ list-style:none; padding-top:0; padding-bottom:0; }
+/* Nota: no reutiliza la clase .wrap a propósito — dentro de .site-header,
+   .wrap tiene display:flex (para la barra superior) y descolocaría este
+   panel, que necesita layout normal en columna. */
+.site-menu-links{
+  max-width:var(--maxw); margin:0 auto; padding:0 24px;
+  padding-top:0; padding-bottom:0;
+}
 .site-header.menu-open .site-menu{
-  max-height:240px;
+  max-height:900px;
   border-top-width:1px;
 }
-.site-header.menu-open .site-menu-links{ padding-top:16px; padding-bottom:16px; }
+.site-header.menu-open .site-menu-links{ padding-top:20px; padding-bottom:24px; }
+
+/* Primer bloque: CTA + los dos ticks de confianza (los mismos que están
+   ocultos, de momento, en el Hero). */
+.menu-primary{ display:flex; flex-direction:column; align-items:flex-start; gap:18px; }
+.menu-cta{ width:100%; justify-content:center; text-align:center; }
+.menu-trust{ display:flex; flex-direction:column; gap:10px; max-width:520px; }
+.menu-trust-item{ display:flex; align-items:flex-start; gap:10px; font-size:13.5px; color:rgba(233,240,247,0.65); line-height:1.5; }
+.menu-trust-item svg{ width:16px; height:16px; margin-top:2px; color:#9FD6BB; flex-shrink:0; }
+
+/* Separador muy sutil entre el bloque de CTA y los enlaces de secciones */
+.menu-divider{ height:1px; background:rgba(233,240,247,0.1); margin:22px 0; }
+
+.menu-nav-list{ list-style:none; display:flex; flex-direction:column; gap:2px; }
+.menu-nav-list a{
+  display:block; padding:10px 4px; border-radius:8px;
+  font-size:15px; color:var(--navy-text);
+  transition:background .15s ease, color .15s ease;
+}
+.menu-nav-list a:hover{ background:rgba(233,240,247,0.08); }
 
 /* ---------- Hero ---------- */
 .hero{
@@ -331,8 +356,11 @@ section{ padding:96px 0; }
 
 /* ---------- Customization (colors + language) ---------- */
 /* Fondo oscuro real de la app (body[data-theme="dark"] --paper de style.css),
-   a todo el ancho del viewport — no un panel recortado dentro de .wrap. */
-#personalizacion{
+   a todo el ancho del viewport — no un panel recortado dentro de .wrap.
+   .tinted-section es compartida con #preguntas-frecuentes (FAQ.astro): el
+   color elegido en el demo de la barra lateral se aplica a ambas secciones
+   a la vez (ver script de Customization.astro). */
+.tinted-section{
   background:#1B211D;
   padding:72px 0;
   transition:background .3s ease;
@@ -370,20 +398,49 @@ section{ padding:96px 0; }
    ser claro también (ver script de Customization.astro, que añade
    .is-light-bg calculando la luminosidad del color). Los textos "on-dark" se
    oscurecen para mantener el contraste. */
-#personalizacion.is-light-bg .section-head.on-dark h2{ color:var(--ink); }
-#personalizacion.is-light-bg .section-head.on-dark p{ color:var(--ink-soft); }
-#personalizacion.is-light-bg .eyebrow-dark{
+.tinted-section.is-light-bg .section-head.on-dark h2{ color:var(--ink); }
+.tinted-section.is-light-bg .section-head.on-dark p{ color:var(--ink-soft); }
+.tinted-section.is-light-bg .eyebrow-dark{
   background:rgba(30,42,34,0.08);
   color:var(--accent-deep);
   border-color:rgba(30,42,34,0.16);
 }
-#personalizacion.is-light-bg .preview-caption.on-dark{ color:rgba(30,42,34,0.45); }
-#personalizacion.is-light-bg .toggle-pill-ondark{
+.tinted-section.is-light-bg .preview-caption.on-dark{ color:rgba(30,42,34,0.45); }
+.tinted-section.is-light-bg .toggle-pill-ondark{
   background:rgba(30,42,34,0.06);
   border-color:rgba(30,42,34,0.18);
 }
-#personalizacion.is-light-bg .toggle-pill-ondark .toggle-option{ color:rgba(30,42,34,0.6); }
-#personalizacion.is-light-bg .toggle-pill-ondark .toggle-option.is-active{ background:var(--ink); color:#F3F5F2; }
+.tinted-section.is-light-bg .toggle-pill-ondark .toggle-option{ color:rgba(30,42,34,0.6); }
+.tinted-section.is-light-bg .toggle-pill-ondark .toggle-option.is-active{ background:var(--ink); color:#F3F5F2; }
+
+/* ---------- FAQ (acordeón) ---------- */
+.faq-groups{ max-width:760px; margin:0 auto; }
+.faq-category-title{
+  font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
+  color:#9FD6BB; margin:44px 0 4px; transition:color .3s ease;
+}
+.faq-category-title:first-child{ margin-top:0; }
+.faq-item{ border-bottom:1px solid rgba(233,240,247,0.14); transition:border-color .3s ease; }
+.faq-question{
+  width:100%; display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:18px 2px; background:none; border:none; text-align:left;
+  font-family:inherit; font-size:16px; font-weight:600; color:var(--navy-text);
+  cursor:pointer; transition:color .3s ease;
+}
+.faq-question svg{ flex-shrink:0; width:18px; height:18px; color:rgba(233,240,247,0.55); transition:transform .25s ease, color .3s ease; }
+.faq-item.is-open .faq-question svg{ transform:rotate(180deg); }
+.faq-answer{
+  max-height:0; overflow:hidden;
+  transition:max-height .3s ease;
+}
+.faq-item.is-open .faq-answer{ max-height:400px; }
+.faq-answer p{ margin:0; padding:0 2px 20px; font-size:14.5px; line-height:1.65; color:rgba(233,240,247,0.68); transition:color .3s ease; }
+
+.tinted-section.is-light-bg .faq-category-title{ color:var(--accent-deep); }
+.tinted-section.is-light-bg .faq-item{ border-color:rgba(30,42,34,0.16); }
+.tinted-section.is-light-bg .faq-question{ color:var(--ink); }
+.tinted-section.is-light-bg .faq-question svg{ color:rgba(30,42,34,0.5); }
+.tinted-section.is-light-bg .faq-answer p{ color:var(--ink-soft); }
 
 .custom-grid{
   display:grid; grid-template-columns:1fr 1fr; gap:24px;

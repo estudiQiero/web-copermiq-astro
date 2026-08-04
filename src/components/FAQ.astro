@@ -1,0 +1,173 @@
+---
+// Acordeón de preguntas frecuentes. Comparte fondo con #personalizacion
+// (ver script de Customization.astro): el color elegido en el demo de "Tus
+// colores" se aplica también aquí, en vivo.
+const groups = [
+  {
+    title: 'Sobre Copermiq',
+    items: [
+      {
+        q: '¿Qué es Copermiq?',
+        a: 'Una aplicación de facturación y contabilidad pensada específicamente para autónomos en España. No es solo un generador de facturas: convierte tus facturas y gastos en la información fiscal real que necesitas cada trimestre — IVA, IRPF, y los modelos que le corresponde presentar a Hacienda.',
+      },
+      {
+        q: '¿Para quién está pensada?',
+        a: 'Para autónomos en estimación directa, con IVA general (trimestral). Si tu actividad tiene un régimen fiscal distinto (módulos, recargo de equivalencia, operaciones intracomunitarias...), Copermiq puede seguir ayudándote con la facturación, pero consulta con tu asesor los cálculos fiscales específicos de tu caso.',
+      },
+      {
+        q: '¿Sustituye a mi gestor o asesor fiscal?',
+        a: 'No, y no pretende hacerlo. Copermiq te da los números ya calculados y traducidos a las casillas oficiales de la AEAT, listos para que los revises tú mismo o se los pases directamente a tu gestor — pero la responsabilidad de presentar correctamente sigue siendo tuya (o de tu asesor). Es una herramienta de ayuda, no un sustituto profesional.',
+      },
+      {
+        q: '¿Necesito instalar algo?',
+        a: 'No. Copermiq funciona directamente desde el navegador, en el ordenador o el móvil. Si quieres, también puedes "instalarla" en la pantalla de inicio de tu móvil como si fuera una app nativa, sin pasar por ninguna tienda de aplicaciones.',
+      },
+    ],
+  },
+  {
+    title: 'Facturación',
+    items: [
+      {
+        q: '¿Puedo hacer presupuestos, o solo facturas?',
+        a: 'Puedes crear presupuestos, y convertirlos en factura con un clic cuando el cliente los acepte, sin tener que volver a introducir los datos.',
+      },
+      {
+        q: '¿Se pueden programar facturas que se repiten cada mes?',
+        a: 'Sí. Puedes marcar una factura como periódica (mensual, trimestral, anual, o la frecuencia que necesites), y Copermiq la va proponiendo sola en el momento que toca, sin tener que crearla desde cero cada vez.',
+      },
+      {
+        q: '¿Cómo envío una factura a mi cliente?',
+        a: 'Directamente desde la app, por email, con el PDF real adjunto — no hace falta descargarlo y adjuntarlo tú a mano. El correo llega con el nombre de tu negocio, y si tu cliente responde, te llega a ti directamente.',
+      },
+      {
+        q: '¿Qué pasa si me equivoco en una factura ya emitida?',
+        a: 'Una factura emitida no se puede borrar ni editar libremente, tal como exige la normativa — para corregirla, se genera una factura rectificativa, vinculada a la original, con el motivo de la rectificación.',
+      },
+    ],
+  },
+  {
+    title: 'Gastos',
+    items: [
+      {
+        q: '¿Puedo adjuntar el recibo o la factura de un gasto?',
+        a: 'Sí, puedes subir una foto o un PDF a cada gasto, y verás una miniatura real del documento (incluida la primera página, si es un PDF).',
+      },
+      {
+        q: '¿Puedo organizar mis gastos por categorías?',
+        a: 'Sí, con categorías totalmente personalizables — puedes crear las tuyas propias y asignarles el color que quieras.',
+      },
+    ],
+  },
+  {
+    title: 'Lo fiscal',
+    items: [
+      {
+        q: '¿Copermiq calcula lo que tengo que pagar de IVA e IRPF?',
+        a: 'Sí. A partir de tus facturas y gastos, Copermiq calcula el resumen de cada trimestre y lo traduce directamente a las casillas oficiales del Modelo 303 (IVA) y el Modelo 130 (IRPF), listas para copiar en la Sede Electrónica de la AEAT o pasar a tu gestor. También genera el resumen anual (Modelo 390), avisándote si es probable que estés exento de presentarlo.',
+      },
+      {
+        q: '¿Esto sustituye la presentación oficial ante Hacienda?',
+        a: 'No. Es una ayuda para que sepas exactamente qué números corresponden a cada casilla — la presentación en sí se sigue haciendo en la Sede Electrónica de la AEAT (o a través de tu gestor), como siempre.',
+      },
+      {
+        q: '¿Puedo elegir entre criterio de devengo y criterio de caja?',
+        a: 'Sí, si estás acogido al Régimen Especial del Criterio de Caja, puedes activarlo en los ajustes de tu negocio, y los cálculos (y la mención legal en tus facturas) se ajustan automáticamente.',
+      },
+    ],
+  },
+  {
+    title: 'Seguridad y tus datos',
+    items: [
+      {
+        q: '¿Se pierden mis datos si dejo de usar la app una temporada?',
+        a: 'No. Tus datos se guardan de forma segura y persistente; no se borran por inactividad.',
+      },
+      {
+        q: '¿Puedo hacer una copia de seguridad de mis datos?',
+        a: 'Sí, de dos formas: descargando un archivo con toda tu información cuando quieras, o configurando copias automáticas por email (diarias, semanales, quincenales o mensuales), para no tener que acordarte.',
+      },
+      {
+        q: '¿Cómo protegéis mi cuenta?',
+        a: 'Con verificación en dos pasos (2FA), compatible con cualquier app de autenticación habitual.',
+      },
+      {
+        q: '¿Puedo borrar mis datos o eliminar mi cuenta por completo?',
+        a: 'Sí, en cualquier momento, desde los ajustes de tu cuenta — con doble confirmación para evitar borrados accidentales.',
+      },
+    ],
+  },
+  {
+    title: 'La cuenta y los planes',
+    items: [
+      {
+        q: '¿Hay una versión gratuita?',
+        a: 'Sí, Copermiq tiene un plan gratuito con las funciones esenciales de facturación y gastos.',
+      },
+      {
+        q: '¿Qué diferencia hay entre los planes?',
+        a: 'Copermiq está organizada en tres niveles (Gratis, Suscripción y Premium), pensados para acompañarte según cómo vaya creciendo tu actividad. Consulta la página de planes para ver el detalle actualizado de cada uno.',
+      },
+      {
+        q: '¿Puedo usar Copermiq en varios dispositivos?',
+        a: 'Sí, tu cuenta es la misma en cualquier dispositivo — entra con tu email y contraseña donde quieras.',
+      },
+    ],
+  },
+  {
+    title: 'Idioma y personalización',
+    items: [
+      {
+        q: '¿En qué idiomas está disponible Copermiq?',
+        a: 'Castellano y catalán, de momento, con más idiomas en camino.',
+      },
+      {
+        q: '¿Puedo personalizar el aspecto de la aplicación?',
+        a: 'Sí, puedes elegir el color de la interfaz y el modo claro u oscuro, tanto para la barra lateral como para el contenido.',
+      },
+    ],
+  },
+];
+---
+
+<section id="preguntas-frecuentes" class="tinted-section">
+  <div class="wrap">
+    <div class="section-head on-dark">
+      <span class="eyebrow eyebrow-dark">Ayuda</span>
+      <h2>Preguntas frecuentes</h2>
+      <p>Todo lo que necesitas saber sobre facturación, gastos, fiscalidad, seguridad y tu cuenta.</p>
+    </div>
+
+    <div class="faq-groups">
+      {groups.map((group) => (
+        <>
+          <h3 class="faq-category-title">{group.title}</h3>
+          {group.items.map((item) => (
+            <div class="faq-item">
+              <button type="button" class="faq-question" aria-expanded="false">
+                <span>{item.q}</span>
+                <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5 7.5l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div class="faq-answer">
+                <p>{item.a}</p>
+              </div>
+            </div>
+          ))}
+        </>
+      ))}
+    </div>
+
+    <p class="preview-caption on-dark">¿No encuentras la respuesta que buscabas? Escríbenos y te ayudamos.</p>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll('.faq-question').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item');
+      const isOpen = item?.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', String(Boolean(isOpen)));
+    });
+  });
+</script>

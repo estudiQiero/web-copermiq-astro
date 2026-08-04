@@ -21,7 +21,7 @@ const words = [
 ];
 ---
 
-<section id="personalizacion">
+<section id="personalizacion" class="tinted-section">
   <div class="wrap">
     <div class="section-head on-dark">
       <span class="eyebrow eyebrow-dark">A tu manera</span>
@@ -117,7 +117,12 @@ const words = [
   const demoArea = document.getElementById('demoArea');
   const langToggle = document.getElementById('langToggle');
   const translateTable = document.getElementById('translateTable');
-  const section = document.getElementById('personalizacion');
+  // La sección de FAQ (más abajo en la página) comparte el mismo color de
+  // fondo que este demo — están ligadas a propósito.
+  const tintedSections = [
+    document.getElementById('personalizacion'),
+    document.getElementById('preguntas-frecuentes'),
+  ].filter(Boolean);
 
   let currentKey = 'verde';
   let currentTone = 'dark';
@@ -142,13 +147,16 @@ const words = [
     const fg = currentTone === 'dark' ? btn.dataset.fgDark : btn.dataset.fgLight;
     sidebar.style.background = bg;
     sidebar.style.setProperty('--sb-fg', fg);
-    // El fondo de toda la sección acompaña al color elegido para la barra
-    // lateral, para que el ejemplo se sienta más "en vivo". Si ese color es
-    // claro, se oscurecen los textos (pensados para fondo oscuro) para que
-    // no pierdan contraste.
-    if (section && bg) {
-      section.style.background = bg;
-      section.classList.toggle('is-light-bg', isLightColor(bg));
+    // El fondo de esta sección (y el de la sección de FAQ, ligada a ella)
+    // acompaña al color elegido para la barra lateral, para que el ejemplo
+    // se sienta más "en vivo". Si ese color es claro, se oscurecen los
+    // textos (pensados para fondo oscuro) para que no pierdan contraste.
+    if (bg) {
+      const light = isLightColor(bg);
+      tintedSections.forEach((el) => {
+        el.style.background = bg;
+        el.classList.toggle('is-light-bg', light);
+      });
     }
   }
 
