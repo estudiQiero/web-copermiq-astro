@@ -13,7 +13,11 @@ const APP_URL = 'https://app.copermiq.com';
           Saca tu móvil, crea presupuestos, apruébalos, conviértelos en borrador, y factura al instante. Controla el IVA y el IRPF de cada gasto. Tu contabilidad en una misma app, en móvil, tablet y ordenador.
         </p>
       </div>
-      <div class="hero-cta">
+      <!-- Ocultos de momento: los botones y los ticks de confianza recargaban
+           el Hero y competían con el mensaje principal. Se quedan en el
+           código para reubicarlos más adelante (p.ej. tras "Por qué
+           Copermiq" o en una sección propia de CTA). -->
+      <div class="hero-cta" hidden>
         <div class="hero-actions">
           <a class="btn btn-on-navy" href={APP_URL} target="_blank" rel="noopener">Usa Copermiq gratis para siempre</a>
           <a class="btn btn-ghost-on-navy" href="#funciones">Ver qué incluye</a>
