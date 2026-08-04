@@ -169,13 +169,12 @@ img{ max-width:100%; display:block; }
   padding-bottom:0;
 }
 /* El orden visual dentro de .hero-intro (en desktop y en móvil) es:
-   titular, pastilla, texto — distinto del orden del marcado (pastilla,
-   titular, texto). Se resuelve con flexbox + order, sin duplicar marcado.
-   align-self:flex-start evita que la pastilla se estire a todo el ancho
-   (por defecto los hijos de un flex en columna se estiran). */
+   pastilla, titular, texto — el mismo orden del marcado. align-self:flex-start
+   evita que la pastilla se estire a todo el ancho (por defecto los hijos de
+   un flex en columna se estiran). */
 .hero-intro{ display:flex; flex-direction:column; }
-.hero-intro h1{ order:1; }
-.hero-intro .hero-eyebrow{ order:2; margin-bottom:20px; align-self:flex-start; }
+.hero-intro .hero-eyebrow{ order:1; align-self:flex-start; }
+.hero-intro h1{ order:2; }
 .hero-intro .lede{ order:3; }
 .hero-copy h1{ font-size:44px; line-height:1.12; margin:18px 0 20px; }
 .hero-copy p.lede{ font-size:18px; color:rgba(233,240,247,0.82); max-width:520px; margin-bottom:32px; }
@@ -336,15 +335,17 @@ section{ padding:96px 0; }
 #personalizacion{
   background:#1B211D;
   padding:72px 0;
+  transition:background .3s ease;
 }
-.section-head.on-dark h2{ color:#F3F5F2; }
-.section-head.on-dark p{ color:rgba(243,245,242,0.66); }
+.section-head.on-dark h2{ color:#F3F5F2; transition:color .3s ease; }
+.section-head.on-dark p{ color:rgba(243,245,242,0.66); transition:color .3s ease; }
 .eyebrow-dark{
   background:rgba(255,255,255,0.08);
   color:#9FD6BB;
   border:1px solid rgba(255,255,255,0.14);
+  transition:background .3s ease, color .3s ease, border-color .3s ease;
 }
-.preview-caption.on-dark{ color:rgba(243,245,242,0.4); margin-top:32px; }
+.preview-caption.on-dark{ color:rgba(243,245,242,0.4); margin-top:32px; transition:color .3s ease; }
 
 /* Interruptor grande de "vista previa" — controla el tema de las dos cápsulas */
 .preview-switch{
@@ -360,9 +361,29 @@ section{ padding:96px 0; }
 .toggle-pill-ondark{
   background:rgba(255,255,255,0.06);
   border:1px solid rgba(255,255,255,0.16);
+  transition:background .3s ease, border-color .3s ease;
 }
-.toggle-pill-ondark .toggle-option{ color:rgba(243,245,242,0.55); }
-.toggle-pill-ondark .toggle-option.is-active{ background:#F3F5F2; color:#182119; }
+.toggle-pill-ondark .toggle-option{ color:rgba(243,245,242,0.55); transition:color .3s ease; }
+.toggle-pill-ondark .toggle-option.is-active{ background:#F3F5F2; color:#182119; transition:background .3s ease, color .3s ease; }
+
+/* Cuando el color elegido en el demo es claro, el fondo de la sección pasa a
+   ser claro también (ver script de Customization.astro, que añade
+   .is-light-bg calculando la luminosidad del color). Los textos "on-dark" se
+   oscurecen para mantener el contraste. */
+#personalizacion.is-light-bg .section-head.on-dark h2{ color:var(--ink); }
+#personalizacion.is-light-bg .section-head.on-dark p{ color:var(--ink-soft); }
+#personalizacion.is-light-bg .eyebrow-dark{
+  background:rgba(30,42,34,0.08);
+  color:var(--accent-deep);
+  border-color:rgba(30,42,34,0.16);
+}
+#personalizacion.is-light-bg .preview-caption.on-dark{ color:rgba(30,42,34,0.45); }
+#personalizacion.is-light-bg .toggle-pill-ondark{
+  background:rgba(30,42,34,0.06);
+  border-color:rgba(30,42,34,0.18);
+}
+#personalizacion.is-light-bg .toggle-pill-ondark .toggle-option{ color:rgba(30,42,34,0.6); }
+#personalizacion.is-light-bg .toggle-pill-ondark .toggle-option.is-active{ background:var(--ink); color:#F3F5F2; }
 
 .custom-grid{
   display:grid; grid-template-columns:1fr 1fr; gap:24px;

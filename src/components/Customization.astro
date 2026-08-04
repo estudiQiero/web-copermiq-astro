@@ -117,9 +117,23 @@ const words = [
   const demoArea = document.getElementById('demoArea');
   const langToggle = document.getElementById('langToggle');
   const translateTable = document.getElementById('translateTable');
+  const section = document.getElementById('personalizacion');
 
   let currentKey = 'verde';
   let currentTone = 'dark';
+
+  // Luminosidad relativa aproximada (0 = negro, 1 = blanco) para decidir si
+  // el fondo elegido es "claro" u "oscuro" y así mantener el contraste de
+  // los textos de la sección (que por defecto están pensados para fondo
+  // oscuro).
+  function isLightColor(hex) {
+    const clean = hex.replace('#', '');
+    const r = parseInt(clean.substring(0, 2), 16);
+    const g = parseInt(clean.substring(2, 4), 16);
+    const b = parseInt(clean.substring(4, 6), 16);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.6;
+  }
 
   function applySidebar() {
     const btn = swatchRow?.querySelector(`.swatch[data-key="${currentKey}"]`);
@@ -128,6 +142,14 @@ const words = [
     const fg = currentTone === 'dark' ? btn.dataset.fgDark : btn.dataset.fgLight;
     sidebar.style.background = bg;
     sidebar.style.setProperty('--sb-fg', fg);
+    // El fondo de toda la sección acompaña al color elegido para la barra
+    // lateral, para que el ejemplo se sienta más "en vivo". Si ese color es
+    // claro, se oscurecen los textos (pensados para fondo oscuro) para que
+    // no pierdan contraste.
+    if (section && bg) {
+      section.style.background = bg;
+      section.classList.toggle('is-light-bg', isLightColor(bg));
+    }
   }
 
   function refreshSwatchSwatches() {
