@@ -83,14 +83,12 @@ img{ max-width:100%; display:block; }
 /* ---------- Header ---------- */
 .site-header{
   position:sticky; top:0; z-index:50;
-  background:rgba(20,42,66,0.92);
-  backdrop-filter:blur(10px);
-  border-bottom:1px solid rgba(233,240,247,0.12);
+  background:var(--navy);
 }
 .site-header .wrap{ display:flex; align-items:center; justify-content:space-between; padding-top:14px; padding-bottom:14px; }
-.brand{ display:flex; align-items:center; gap:10px; }
-.brand img{ width:34px; height:34px; border-radius:8px; }
-.brand-name{ font-family:'Zilla Slab',serif; font-weight:700; font-size:18px; color:var(--navy-text); }
+.brand{ display:flex; align-items:center; gap:14px; }
+.brand img{ width:68px; height:68px; border-radius:14px; }
+.brand-name{ font-family:'Zilla Slab',serif; font-weight:700; font-size:36px; color:var(--navy-text); }
 
 .header-actions{ display:flex; align-items:center; gap:6px; }
 
@@ -170,6 +168,15 @@ img{ max-width:100%; display:block; }
   display:grid; grid-template-columns:1.1fr 0.9fr; gap:48px; align-items:center;
   padding-bottom:0;
 }
+/* El orden visual dentro de .hero-intro (en desktop y en móvil) es:
+   titular, pastilla, texto — distinto del orden del marcado (pastilla,
+   titular, texto). Se resuelve con flexbox + order, sin duplicar marcado.
+   align-self:flex-start evita que la pastilla se estire a todo el ancho
+   (por defecto los hijos de un flex en columna se estiran). */
+.hero-intro{ display:flex; flex-direction:column; }
+.hero-intro h1{ order:1; }
+.hero-intro .hero-eyebrow{ order:2; margin-bottom:20px; align-self:flex-start; }
+.hero-intro .lede{ order:3; }
 .hero-copy h1{ font-size:44px; line-height:1.12; margin:18px 0 20px; }
 .hero-copy p.lede{ font-size:18px; color:rgba(233,240,247,0.82); max-width:520px; margin-bottom:32px; }
 .hero-eyebrow{
@@ -663,7 +670,15 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 /* ---------- Responsive ---------- */
 @media (max-width: 900px){
   .hero .wrap{ grid-template-columns:1fr; }
-  .hero-visual{ order:-1; padding-top:24px; }
+  /* En móvil, .hero-copy se "desenvuelve" para que sus dos hijos
+     (.hero-intro y .hero-cta) pasen a ser items directos del grid de
+     .hero .wrap, al mismo nivel que .hero-visual. Así cada bloque puede
+     ordenarse de forma independiente sin duplicar marcado ni afectar
+     al layout de escritorio. */
+  .hero-copy{ display:contents; }
+  .hero-intro{ order:1; }
+  .hero-visual{ order:2; padding:8px 0; }
+  .hero-cta{ order:3; }
   .hero-visual img{ width:220px; }
   .hero-copy h1{ font-size:32px; }
   .features-grid{ grid-template-columns:1fr 1fr; }
@@ -680,4 +695,13 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
   .hero-actions{ flex-direction:column; align-items:stretch; }
   .hero-actions .btn{ width:100%; }
   .auth-modal{ padding:28px 22px; }
+  /* En pantallas estrechas el logotipo grande (icono + "Copermiq") no cabe
+     junto a los iconos de la derecha en la misma línea sin solaparse. En vez
+     de encogerlo, baja a su propia línea, centrado; los iconos/menú de la
+     derecha se quedan exactamente donde estaban (primera línea). */
+  .site-header .wrap{ flex-wrap:wrap; }
+  .header-actions{ order:1; margin-left:auto; }
+  .brand{ order:2; width:100%; justify-content:flex-start; margin-top:18px; gap:16px; }
+  .brand img{ width:80px; height:80px; border-radius:16px; }
+  .brand-name{ font-size:42px; }
 }
