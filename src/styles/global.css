@@ -309,13 +309,6 @@ section{ padding:96px 0; }
   transition:background .15s ease, color .15s ease;
 }
 .billing-toggle .toggle-option.is-active{ background:var(--navy); color:var(--navy-text); }
-.billing-toggle .billing-save{
-  font-size:10.5px; font-weight:700; letter-spacing:0.02em;
-  padding:2px 7px; border-radius:999px;
-  background:rgba(31,111,74,0.14); color:var(--accent-deep);
-  transition:background .15s ease, color .15s ease;
-}
-.billing-toggle .toggle-option.is-active .billing-save{ background:rgba(233,240,247,0.18); color:var(--navy-text); }
 .pricing-grid{
   display:grid; grid-template-columns:repeat(3, 1fr); gap:22px;
   align-items:stretch; margin-top:8px;

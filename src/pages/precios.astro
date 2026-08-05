@@ -1,8 +1,8 @@
 ---
-// Página de precios. Precios ya definidos: Suscripción 0,95€/mes,
-// Premium 8,95€/mes o 95€/año. El precio anual de Suscripción (10,45€/año)
-// es calculado — mismo criterio que Premium: 1 mes gratis al pagar anual
-// (11 × precio mensual). Sigue pendiente: nombre final del plan
+// Página de precios. Precios ya definidos: Suscripción 0,95€/mes o
+// 9,99€/año, Premium 8,95€/mes o 95€/año (precios anuales comerciales,
+// no un cálculo estricto de "X meses gratis" — por eso el toggle no lleva
+// ninguna etiqueta de ahorro). Sigue pendiente: nombre final del plan
 // "Suscripción" y la lista definitiva de características de cada plan
 // (ver el documento de arquitectura de facturación en el proyecto de Claude).
 import Layout from '../layouts/Layout.astro';
@@ -31,7 +31,7 @@ const plans = [
     name: 'Suscripción · nombre por definir',
     billing: {
       monthly: { amount: '0,95 €', period: 'al mes' },
-      annual: { amount: '10,45 €', period: 'al año' },
+      annual: { amount: '9,99 €', period: 'al año' },
     },
     description: 'Funciones avanzadas para cuando tu actividad crece. (Nombre del plan y lista final de características aún por definir.)',
     features: [
@@ -76,9 +76,7 @@ const plans = [
       <div class="billing-toggle-wrap">
         <div class="billing-toggle" role="group" aria-label="Frecuencia de pago">
           <button type="button" class="toggle-option is-active" data-billing="monthly">Mensual</button>
-          <button type="button" class="toggle-option" data-billing="annual">
-            Anual <span class="billing-save">−1 mes</span>
-          </button>
+          <button type="button" class="toggle-option" data-billing="annual">Anual</button>
         </div>
       </div>
 
