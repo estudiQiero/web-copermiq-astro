@@ -1,10 +1,16 @@
 ---
 // Perfil del usuario en la propia web. Página protegida en el cliente: si
-// no hay sesión de Supabase, se redirige a la home. De momento el
-// contenido va en blanco, a la espera de diseñarlo.
+// no hay sesión de Supabase, se redirige a la home. El resto del
+// contenido (más allá del plan) sigue en blanco, a la espera de diseñarlo.
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+
+const PLAN_LABELS = {
+  free: 'Gratis',
+  subscription: 'Suscripción',
+  premium: 'Premium',
+};
 ---
 
 <Layout title="Tu cuenta — Copermiq" description="Tu perfil en Copermiq.">
@@ -12,6 +18,16 @@ import Footer from '../components/Footer.astro';
 
   <main id="account-main" class="account-page" hidden>
     <div class="wrap">
+      <div class="plan-card">
+        <p class="plan-card-label">Tu plan</p>
+        <p class="plan-card-name" id="plan-name">—</p>
+        <p class="plan-card-note" id="plan-note" hidden></p>
+        <div class="plan-card-actions">
+          <a class="btn btn-ghost" href="/precios" id="plan-upgrade-link" hidden>Ver planes</a>
+          <button type="button" class="btn btn-ghost" id="plan-manage-btn" hidden>Gestionar suscripción</button>
+        </div>
+      </div>
+
       <button type="button" id="account-logout" class="btn btn-ghost">Cerrar sesión</button>
     </div>
   </main>
@@ -21,15 +37,59 @@ import Footer from '../components/Footer.astro';
 
 <script>
   import { supabase } from '../lib/supabaseClient.js';
+  import { getMyProfile, openBillingPortal } from '../lib/billing.js';
+
+  const PLAN_LABELS = { free: 'Gratis', subscription: 'Suscripción', premium: 'Premium' };
 
   const main = document.getElementById('account-main');
   const logoutBtn = document.getElementById('account-logout');
+  const planNameEl = document.getElementById('plan-name');
+  const planNoteEl = document.getElementById('plan-note');
+  const upgradeLink = document.getElementById('plan-upgrade-link');
+  const manageBtn = document.getElementById('plan-manage-btn');
 
   logoutBtn?.addEventListener('click', async () => {
     if (!supabase) return;
     await supabase.auth.signOut();
     window.location.href = '/';
   });
+
+  manageBtn?.addEventListener('click', async () => {
+    manageBtn.setAttribute('disabled', 'true');
+    try {
+      await openBillingPortal();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Ha ocurrido un error. Inténtalo de nuevo.');
+      manageBtn.removeAttribute('disabled');
+    }
+  });
+
+  async function loadPlan() {
+    const profile = await getMyProfile();
+    const plan = profile?.plan ?? 'free';
+    if (planNameEl) planNameEl.textContent = PLAN_LABELS[plan] ?? plan;
+
+    if (plan === 'free') {
+      if (upgradeLink instanceof HTMLElement) upgradeLink.hidden = false;
+      if (manageBtn instanceof HTMLElement) manageBtn.hidden = true;
+    } else {
+      if (upgradeLink instanceof HTMLElement) upgradeLink.hidden = true;
+      if (manageBtn instanceof HTMLElement) manageBtn.hidden = false;
+    }
+
+    if (profile?.status === 'canceled' && profile?.current_period_end) {
+      const date = new Date(profile.current_period_end).toLocaleDateString('es-ES');
+      if (planNoteEl) {
+        planNoteEl.textContent = `Cancelada — mantienes el acceso hasta el ${date}.`;
+        planNoteEl.hidden = false;
+      }
+    } else if (profile?.status === 'past_due') {
+      if (planNoteEl) {
+        planNoteEl.textContent = 'Ha fallado el último cobro. Revisa tu método de pago desde "Gestionar suscripción".';
+        planNoteEl.hidden = false;
+      }
+    }
+  }
 
   async function guard() {
     if (!supabase) {
@@ -44,6 +104,7 @@ import Footer from '../components/Footer.astro';
       return;
     }
     if (main instanceof HTMLElement) main.hidden = false;
+    loadPlan();
   }
 
   guard();
