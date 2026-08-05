@@ -1,6 +1,8 @@
 ---
-// Página de precios. Precios ya definidos (Suscripción 0,95€/mes,
-// Premium 8,95€/mes o 95€/año). Sigue pendiente: nombre final del plan
+// Página de precios. Precios ya definidos: Suscripción 0,95€/mes,
+// Premium 8,95€/mes o 95€/año. El precio anual de Suscripción (10,45€/año)
+// es calculado — mismo criterio que Premium: 1 mes gratis al pagar anual
+// (11 × precio mensual). Sigue pendiente: nombre final del plan
 // "Suscripción" y la lista definitiva de características de cada plan
 // (ver el documento de arquitectura de facturación en el proyecto de Claude).
 import Layout from '../layouts/Layout.astro';
@@ -27,8 +29,10 @@ const plans = [
   {
     key: 'subscription',
     name: 'Suscripción · nombre por definir',
-    price: '0,95 €',
-    period: 'al mes',
+    billing: {
+      monthly: { amount: '0,95 €', period: 'al mes' },
+      annual: { amount: '10,45 €', period: 'al año' },
+    },
     description: 'Funciones avanzadas para cuando tu actividad crece. (Nombre del plan y lista final de características aún por definir.)',
     features: [
       'Todo lo del plan Gratis',
@@ -42,9 +46,10 @@ const plans = [
   {
     key: 'premium',
     name: 'Premium',
-    price: '8,95 €',
-    period: 'al mes',
-    priceNote: 'o 95 €/año',
+    billing: {
+      monthly: { amount: '8,95 €', period: 'al mes' },
+      annual: { amount: '95 €', period: 'al año' },
+    },
     description: 'Características exclusivas para quien quiere ir más allá. (Lista final de características aún por definir.)',
     features: [
       'Todo lo de Suscripción',
@@ -68,6 +73,15 @@ const plans = [
         <p>Empieza gratis. Sube de plan cuando lo necesites, cancela cuando quieras — sin permanencia.</p>
       </div>
 
+      <div class="billing-toggle-wrap">
+        <div class="billing-toggle" role="group" aria-label="Frecuencia de pago">
+          <button type="button" class="toggle-option is-active" data-billing="monthly">Mensual</button>
+          <button type="button" class="toggle-option" data-billing="annual">
+            Anual <span class="billing-save">−1 mes</span>
+          </button>
+        </div>
+      </div>
+
       <div class="wrap pricing-grid">
         {plans.map((plan) => (
           <div class:list={['pricing-card', { 'is-highlight': plan.highlight }]}>
@@ -75,10 +89,18 @@ const plans = [
             <h2 class="pricing-name">{plan.name}</h2>
             <p class="pricing-desc">{plan.description}</p>
             <p class="pricing-price">
-              <span class="pricing-amount">{plan.price}</span>
-              <span class="pricing-period">{plan.period}</span>
+              {plan.billing ? (
+                <>
+                  <span class="pricing-amount" data-monthly={plan.billing.monthly.amount} data-annual={plan.billing.annual.amount}>{plan.billing.monthly.amount}</span>
+                  <span class="pricing-period" data-monthly={plan.billing.monthly.period} data-annual={plan.billing.annual.period}>{plan.billing.monthly.period}</span>
+                </>
+              ) : (
+                <>
+                  <span class="pricing-amount">{plan.price}</span>
+                  <span class="pricing-period">{plan.period}</span>
+                </>
+              )}
             </p>
-            {plan.priceNote && <p class="pricing-price-note">{plan.priceNote}</p>}
             <ul class="pricing-features">
               {plan.features.map((f) => (
                 <li>
@@ -109,6 +131,28 @@ const plans = [
 
 <script>
   import { startCheckout } from '../lib/billing.js';
+
+  // Toggle mensual / anual: solo cambia lo que se muestra en pantalla.
+  // El checkout sigue enviando el plan (subscription/premium) sin distinguir
+  // aún la frecuencia — pendiente de tener los precios anuales dados de
+  // alta en Stripe para poder elegir el price id correcto.
+  const billingButtons = document.querySelectorAll('.billing-toggle [data-billing]');
+
+  function applyBilling(mode) {
+    document.querySelectorAll('.pricing-amount[data-monthly]').forEach((el) => {
+      el.textContent = mode === 'annual' ? el.getAttribute('data-annual') : el.getAttribute('data-monthly');
+    });
+    document.querySelectorAll('.pricing-period[data-monthly]').forEach((el) => {
+      el.textContent = mode === 'annual' ? el.getAttribute('data-annual') : el.getAttribute('data-monthly');
+    });
+    billingButtons.forEach((btn) => {
+      btn.classList.toggle('is-active', btn.getAttribute('data-billing') === mode);
+    });
+  }
+
+  billingButtons.forEach((btn) => {
+    btn.addEventListener('click', () => applyBilling(btn.getAttribute('data-billing')));
+  });
 
   document.querySelectorAll('[data-checkout-plan]').forEach((btn) => {
     btn.addEventListener('click', async () => {
