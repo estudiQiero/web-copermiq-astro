@@ -64,12 +64,12 @@ import Footer from '../components/Footer.astro';
             <table class="admin-table">
               <thead>
                 <tr>
-                  <th>Usuario</th>
-                  <th>Plan</th>
-                  <th>Estado</th>
-                  <th>Importe</th>
-                  <th>Desde</th>
-                  <th>Renueva</th>
+                  <th data-sort="email">Usuario <span class="admin-sort-indicator"></span></th>
+                  <th data-sort="plan">Plan <span class="admin-sort-indicator"></span></th>
+                  <th data-sort="status">Estado <span class="admin-sort-indicator"></span></th>
+                  <th data-sort="amount">Importe <span class="admin-sort-indicator"></span></th>
+                  <th data-sort="since">Desde <span class="admin-sort-indicator"></span></th>
+                  <th data-sort="renews">Renueva <span class="admin-sort-indicator"></span></th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -145,6 +145,7 @@ import Footer from '../components/Footer.astro';
   let allRows = [];
   let currentUserId = null;
   let pendingDelete = null; // { userId, email } mientras el modal de borrado está abierto
+  let sortState = { key: null, dir: 'asc' }; // ordenación al hacer clic en un título de columna
 
   function escapeHtml(str) {
     return String(str).replace(/[&<>"']/g, (c) => (
@@ -166,6 +167,76 @@ import Footer from '../components/Footer.astro';
     actionMessage.classList.toggle('error', Boolean(isError));
   }
 
+  // Valor "ordenable" de una fila para cada columna con data-sort. Estado
+  // y Plan se ordenan por su etiqueta visible (no por el valor interno),
+  // para que el orden alfabético coincida con lo que se ve en pantalla.
+  function sortValue(row, key) {
+    switch (key) {
+      case 'email':
+        return (row.email ?? '').toLowerCase();
+      case 'plan':
+        return (PLAN_LABELS[row.plan] ?? row.plan ?? '').toLowerCase();
+      case 'status': {
+        if (row.stripeStatus) return (STRIPE_STATUS_LABELS[row.stripeStatus] ?? row.stripeStatus).toLowerCase();
+        return row.plan === 'gratis' ? null : 'activo (sin stripe)';
+      }
+      case 'amount':
+        return row.amount ?? null;
+      case 'since':
+        return row.planSince ?? row.createdAt ?? null;
+      case 'renews':
+        return row.currentPeriodEnd ?? null;
+      default:
+        return null;
+    }
+  }
+
+  function isEmptyValue(value) {
+    return value === null || value === undefined || value === '';
+  }
+
+  // Los valores ausentes ("—" en la tabla) siempre van al final, tanto en
+  // ascendente como en descendente — si no, "ascendente" pondría todos
+  // los "—" primero, que confunde más de lo que ayuda.
+  function compareRows(a, b, key, dir) {
+    const va = sortValue(a, key);
+    const vb = sortValue(b, key);
+    const aEmpty = isEmptyValue(va);
+    const bEmpty = isEmptyValue(vb);
+    if (aEmpty && bEmpty) return 0;
+    if (aEmpty) return 1;
+    if (bEmpty) return -1;
+
+    let cmp;
+    if (key === 'since' || key === 'renews') {
+      cmp = new Date(va).getTime() - new Date(vb).getTime();
+    } else if (typeof va === 'number' && typeof vb === 'number') {
+      cmp = va - vb;
+    } else {
+      cmp = String(va).localeCompare(String(vb), 'es');
+    }
+    return dir === 'asc' ? cmp : -cmp;
+  }
+
+  function updateSortIndicators() {
+    document.querySelectorAll('.admin-table th[data-sort]').forEach((th) => {
+      const indicator = th.querySelector('.admin-sort-indicator');
+      if (!indicator) return;
+      indicator.textContent = th.dataset.sort === sortState.key ? (sortState.dir === 'asc' ? '▲' : '▼') : '';
+    });
+  }
+
+  document.querySelectorAll('.admin-table th[data-sort]').forEach((th) => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.sort;
+      sortState = sortState.key === key
+        ? { key, dir: sortState.dir === 'asc' ? 'desc' : 'asc' }
+        : { key, dir: 'asc' };
+      updateSortIndicators();
+      renderTable();
+    });
+  });
+
   function renderTable() {
     if (!tableBody) return;
 
@@ -177,6 +248,10 @@ import Footer from '../components/Footer.astro';
       if (search && !(row.email ?? '').toLowerCase().includes(search)) return false;
       return true;
     });
+
+    if (sortState.key) {
+      rows.sort((a, b) => compareRows(a, b, sortState.key, sortState.dir));
+    }
 
     if (!rows.length) {
       tableBody.innerHTML = '<tr><td colspan="7" class="admin-table-empty">No hay usuarios que coincidan con la búsqueda/filtro.</td></tr>';
