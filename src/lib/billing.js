@@ -56,6 +56,7 @@ export async function openBillingPortal() {
 
 // Lee el plan/estado actual del usuario logueado directamente de
 // `profiles` (lectura permitida por RLS: cada usuario ve su propia fila).
+// Incluye `role` para poder mostrar u ocultar el panel de administración.
 export async function getMyProfile() {
   if (!isSupabaseConfigured || !supabase) return null;
   const { data: sessionData } = await supabase.auth.getSession();
@@ -64,7 +65,7 @@ export async function getMyProfile() {
 
   const { data, error } = await supabase
     .from('profiles')
-    .select('plan, status, current_period_end')
+    .select('plan, status, current_period_end, role')
     .eq('id', userId)
     .single();
 
@@ -73,4 +74,12 @@ export async function getMyProfile() {
     return null;
   }
   return data;
+}
+
+// Panel de administración: suscripciones de todos los usuarios, cruzadas
+// con Stripe. Solo funciona si el usuario logueado tiene role = 'admin'
+// en `profiles` — si no, la Edge Function responde 403.
+export async function getAdminBillingOverview() {
+  const data = await callFunction('admin-billing-overview');
+  return data.subscriptions ?? [];
 }

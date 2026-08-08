@@ -60,6 +60,9 @@ const APP_URL = 'https://app.copermiq.com';
       <div class="menu-divider" aria-hidden="true"></div>
 
       <ul class="menu-nav-list">
+        <!-- Solo visible con sesión iniciada (ver AuthModal.astro, que
+             quita/pone el atributo hidden según el estado de la sesión). -->
+        <li id="menu-account-link" hidden><a href="/cuenta">Mi cuenta</a></li>
         <li><a href="/precios">Precios</a></li>
         <li><a href="/#funciones">Funciones</a></li>
         <li><a href="/#personalizacion">Personalización</a></li>

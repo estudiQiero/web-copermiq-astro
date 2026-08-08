@@ -56,18 +56,44 @@
   </div>
 </div>
 
+<!-- Ventana de confirmación de cierre de sesión. Antes había un botón
+     "Cerrar sesión" suelto en /cuenta; ahora vive detrás del icono de
+     cuenta de la cabecera (ver más abajo), para dejar libre esa pantalla
+     para el panel de administración. -->
+<div id="logout-overlay" class="auth-overlay" hidden>
+  <div class="auth-modal logout-modal" role="dialog" aria-modal="true" aria-labelledby="logout-title">
+    <button type="button" id="logout-close" class="auth-close" aria-label="Cerrar">
+      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <h3 id="logout-title" class="auth-heading">Cerrar sesión</h3>
+    <p class="logout-text">¿Seguro que quieres cerrar tu sesión?</p>
+    <div class="logout-actions">
+      <button type="button" id="logout-cancel" class="btn btn-ghost">Cancelar</button>
+      <button type="button" id="logout-confirm" class="btn btn-primary">Cerrar sesión</button>
+    </div>
+  </div>
+</div>
+
 <script>
   import { supabase, isSupabaseConfigured } from '../lib/supabaseClient.js';
 
   const overlay = document.getElementById('auth-overlay');
-  const closeBtn = document.querySelector('.auth-close');
+  const closeBtn = document.querySelector('#auth-overlay .auth-close');
   const accountBtn = document.getElementById('account-toggle');
   const accountUsernameEl = document.getElementById('account-username');
+  const menuAccountLink = document.getElementById('menu-account-link');
 
   const tabs = document.querySelectorAll('.auth-tab');
   const loginForm = document.getElementById('auth-login-form');
   const signupForm = document.getElementById('auth-signup-form');
   const messageEl = document.getElementById('auth-message');
+
+  const logoutOverlay = document.getElementById('logout-overlay');
+  const logoutClose = document.getElementById('logout-close');
+  const logoutCancel = document.getElementById('logout-cancel');
+  const logoutConfirmBtn = document.getElementById('logout-confirm');
 
   function openModal() {
     if (!overlay) return;
@@ -81,11 +107,25 @@
     document.body.style.overflow = '';
   }
 
-  // Si ya hay sesión iniciada, el icono de cuenta lleva directamente al
-  // perfil (/cuenta) en vez de abrir el modal de login/registro.
+  function openLogoutConfirm() {
+    if (!logoutOverlay) return;
+    logoutOverlay.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLogoutConfirm() {
+    if (!logoutOverlay) return;
+    logoutOverlay.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  // Con sesión iniciada, el icono de cuenta ya no lleva directamente a
+  // /cuenta (ese enlace ahora vive en el menú, como "Mi cuenta") — pregunta
+  // primero si quieres cerrar sesión, que es la acción que antes era un
+  // botón suelto dentro de /cuenta.
   accountBtn?.addEventListener('click', () => {
     if (accountBtn.classList.contains('is-connected')) {
-      window.location.href = '/cuenta';
+      openLogoutConfirm();
       return;
     }
     openModal();
@@ -94,8 +134,21 @@
   overlay?.addEventListener('click', (event) => {
     if (event.target === overlay) closeModal();
   });
+  logoutClose?.addEventListener('click', closeLogoutConfirm);
+  logoutCancel?.addEventListener('click', closeLogoutConfirm);
+  logoutOverlay?.addEventListener('click', (event) => {
+    if (event.target === logoutOverlay) closeLogoutConfirm();
+  });
+  logoutConfirmBtn?.addEventListener('click', async () => {
+    if (!supabase) return;
+    logoutConfirmBtn.setAttribute('disabled', 'true');
+    await supabase.auth.signOut();
+    window.location.href = '/';
+  });
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && overlay && !overlay.hidden) closeModal();
+    if (event.key !== 'Escape') return;
+    if (overlay && !overlay.hidden) closeModal();
+    if (logoutOverlay && !logoutOverlay.hidden) closeLogoutConfirm();
   });
 
   tabs.forEach((tab) => {
@@ -192,13 +245,15 @@
   });
 
   // Refleja el estado de sesión en el icono de cuenta de la cabecera:
-  // nombre de usuario + punto verde de "conectado".
+  // nombre de usuario + punto verde de "conectado", y muestra/oculta el
+  // enlace "Mi cuenta" del menú (solo tiene sentido con sesión iniciada).
   function renderSession(session) {
     const isSignedIn = Boolean(session?.user);
     accountBtn?.classList.toggle('is-connected', isSignedIn);
     if (accountUsernameEl) {
       accountUsernameEl.textContent = isSignedIn ? (session.user.email?.split('@')[0] ?? '') : '';
     }
+    if (menuAccountLink instanceof HTMLElement) menuAccountLink.hidden = !isSignedIn;
   }
 
   if (supabase) {

@@ -4,7 +4,7 @@ Esto implementa los planes de pago (Gratis / Suscripción / Premium) de forma qu
 
 Nada de esto se despliega solo — necesita varios pasos manuales tuyos porque requieren tus credenciales de Stripe y de Supabase, que esta sesión no tiene ni debe tener.
 
-## 1. Aplicar la migración (crea la tabla `profiles`)
+## 1. Aplicar las migraciones (crea la tabla `profiles` y el rol de admin)
 
 Con la [Supabase CLI](https://supabase.com/docs/guides/cli) instalada y logueada:
 
@@ -13,7 +13,14 @@ supabase link --project-ref TU_PROJECT_REF
 supabase db push
 ```
 
-Alternativa sin CLI: abre el SQL Editor en el panel de Supabase de tu proyecto y pega el contenido de `supabase/migrations/20260805074648_billing_profiles.sql` tal cual.
+Alternativa sin CLI: abre el SQL Editor en el panel de Supabase de tu proyecto y pega, en orden, el contenido de `supabase/migrations/20260805074648_billing_profiles.sql` y `supabase/migrations/20260808090500_add_admin_role.sql`.
+
+Para convertir a alguien en administrador (necesario para ver la píldora "Admin" en `/cuenta`), hazlo a mano en el SQL Editor:
+
+```sql
+update public.profiles set role = 'admin' where id = '<uuid del usuario>';
+-- para encontrar el uuid: select id from auth.users where email = '...';
+```
 
 ## 2. Crear los productos y precios en Stripe
 
@@ -30,13 +37,16 @@ supabase secrets set PUBLIC_SITE_URL=https://copermiq.com
 
 (`STRIPE_WEBHOOK_SECRET` se añade en el paso 5, después de crear el webhook en Stripe — hasta entonces no lo tienes.)
 
-## 4. Desplegar las tres funciones
+## 4. Desplegar las funciones
 
 ```
 supabase functions deploy create-checkout-session
 supabase functions deploy create-portal-session
 supabase functions deploy stripe-webhook --no-verify-jwt
+supabase functions deploy admin-billing-overview
 ```
+
+`admin-billing-overview` es la que alimenta la tabla del panel de administración en `/cuenta` (comprueba ella misma que quien llama tiene `role = 'admin'`, así que no hace falta ningún flag especial al desplegarla).
 
 `stripe-webhook` necesita `--no-verify-jwt` porque quien la llama es Stripe, no un usuario logueado — su autenticidad se comprueba con la firma de Stripe (paso siguiente), no con un JWT de Supabase.
 

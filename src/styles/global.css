@@ -720,25 +720,53 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .footer-copy{ font-size:13px; color:rgba(233,240,247,0.6); }
 
 /* ---------- Página de cuenta (/cuenta) ---------- */
-/* Contenido todavía mínimo: la tarjeta de plan y cerrar sesión. Sigue
-   creciendo para empujar el footer al fondo mientras no tenga más. */
+/* Un saludo mínimo con el email y, si el usuario es admin, el panel de
+   administración debajo (píldora "Admin" + tabla). Antes había aquí una
+   tarjeta con el plan actual y "Cerrar sesión" — el plan se ha quitado
+   (pendiente de decidir dónde recolocarlo) y cerrar sesión ahora vive en
+   el icono de cuenta de la cabecera (ver AuthModal.astro). */
 .account-page{
   flex:1 0 auto;
   display:flex;
   align-items:center;
-  justify-content:center;
   padding:64px 24px;
 }
-.account-page .wrap{ display:flex; flex-direction:column; align-items:center; gap:28px; }
-.plan-card{
-  width:100%; max-width:360px;
-  background:var(--card); border:1px solid var(--paper-line); border-radius:var(--radius-lg);
-  box-shadow:var(--shadow); padding:28px; text-align:center;
+.account-page .wrap{ display:flex; flex-direction:column; align-items:center; gap:36px; }
+.account-welcome{ text-align:center; }
+.account-welcome-label{ font-size:12.5px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-faint); margin-bottom:6px; }
+.account-welcome-email{ font-family:'Zilla Slab', serif; font-weight:700; font-size:22px; color:var(--ink); }
+
+/* ---------- Panel de administración ---------- */
+.admin-panel{ width:100%; max-width:960px; display:flex; flex-direction:column; align-items:center; gap:22px; }
+.account-tabs{
+  display:inline-flex; align-items:center; gap:2px;
+  background:var(--card); border:1px solid var(--paper-line);
+  border-radius:999px; padding:4px;
 }
-.plan-card-label{ font-size:12.5px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-faint); margin-bottom:6px; }
-.plan-card-name{ font-family:'Zilla Slab', serif; font-weight:700; font-size:24px; color:var(--ink); margin-bottom:14px; }
-.plan-card-note{ font-size:13px; color:var(--stamp-amber); margin-bottom:14px; }
-.plan-card-actions{ display:flex; flex-direction:column; gap:10px; }
+.account-tab{
+  font-family:inherit; font-size:13.5px; font-weight:600; padding:9px 20px; border-radius:999px;
+  color:var(--ink-faint); background:transparent; border:none; cursor:pointer;
+  transition:background .15s ease, color .15s ease;
+}
+.account-tab.is-active{ background:var(--navy); color:var(--navy-text); }
+.admin-panel-body{
+  width:100%;
+  background:var(--card); border:1px solid var(--paper-line); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow); padding:28px;
+}
+.admin-panel-title{ font-size:19px; margin:0 0 8px; }
+.admin-panel-note{ font-size:13.5px; color:var(--ink-faint); margin:0 0 22px; }
+.admin-table-wrap{ overflow-x:auto; }
+.admin-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+.admin-table th{
+  text-align:left; font-size:11.5px; text-transform:uppercase; letter-spacing:0.04em;
+  color:var(--ink-faint); font-weight:600; padding:0 14px 10px; white-space:nowrap;
+}
+.admin-table td{
+  padding:13px 14px; border-top:1px solid var(--paper-line); color:var(--ink-soft); white-space:nowrap;
+}
+.admin-table tr:first-child td{ border-top:none; }
+.admin-table-empty{ text-align:center; color:var(--ink-faint); padding:24px 14px; white-space:normal; }
 
 /* ---------- Auth modal ---------- */
 .auth-overlay{
@@ -803,6 +831,12 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .auth-message{ min-height:18px; font-size:13.5px; margin:22px 0 0; }
 .auth-message.error{ color:var(--stamp-red); }
 .auth-message.success{ color:var(--accent-deep); }
+
+/* ---------- Confirmación de cerrar sesión (reutiliza .auth-overlay/.auth-modal) ---------- */
+.logout-modal{ padding:36px 32px 32px; text-align:center; }
+.logout-text{ font-size:14.5px; color:var(--ink-soft); margin:0 0 26px; }
+.logout-actions{ display:flex; gap:10px; }
+.logout-actions .btn{ flex:1; justify-content:center; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 900px){

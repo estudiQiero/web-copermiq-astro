@@ -1,16 +1,16 @@
 ---
 // Perfil del usuario en la propia web. Página protegida en el cliente: si
-// no hay sesión de Supabase, se redirige a la home. El resto del
-// contenido (más allá del plan) sigue en blanco, a la espera de diseñarlo.
+// no hay sesión de Supabase, se redirige a la home.
+//
+// De momento solo hay un saludo con el email y, si el usuario es admin
+// (profiles.role = 'admin'), el panel de administración: una píldora
+// "Admin" (igual que las de la app Copermiq) y debajo una tabla con las
+// suscripciones/pagos de Stripe de todos los usuarios. Es un primer punto
+// de partida — el diseño y el resto de pestañas (panel de control por
+// usuario) se harán más adelante.
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-
-const PLAN_LABELS = {
-  free: 'Gratis',
-  subscription: 'Suscripción',
-  premium: 'Premium',
-};
 ---
 
 <Layout title="Tu cuenta — Copermiq" description="Tu perfil en Copermiq.">
@@ -18,17 +18,40 @@ const PLAN_LABELS = {
 
   <main id="account-main" class="account-page" hidden>
     <div class="wrap">
-      <div class="plan-card">
-        <p class="plan-card-label">Tu plan</p>
-        <p class="plan-card-name" id="plan-name">—</p>
-        <p class="plan-card-note" id="plan-note" hidden></p>
-        <div class="plan-card-actions">
-          <a class="btn btn-ghost" href="/precios" id="plan-upgrade-link" hidden>Ver planes</a>
-          <button type="button" class="btn btn-ghost" id="plan-manage-btn" hidden>Gestionar suscripción</button>
-        </div>
+      <div class="account-welcome">
+        <p class="account-welcome-label">Tu cuenta</p>
+        <p class="account-welcome-email" id="account-email">—</p>
       </div>
 
-      <button type="button" id="account-logout" class="btn btn-ghost">Cerrar sesión</button>
+      <div id="admin-panel" class="admin-panel" hidden>
+        <div class="account-tabs" role="tablist" aria-label="Secciones de administración">
+          <button type="button" class="account-tab is-active" data-admin-tab="admin" role="tab" aria-selected="true">Admin</button>
+        </div>
+
+        <div class="admin-panel-body">
+          <h2 class="admin-panel-title">Suscripciones y pagos</h2>
+          <p class="admin-panel-note">
+            Datos en vivo desde Stripe. Punto de partida — faltan devoluciones, histórico de pagos sueltos y el panel de control por usuario individual.
+          </p>
+
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Plan</th>
+                  <th>Estado</th>
+                  <th>Importe</th>
+                  <th>Renueva / termina</th>
+                </tr>
+              </thead>
+              <tbody id="admin-table-body">
+                <tr><td colspan="5" class="admin-table-empty">Cargando…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -37,57 +60,62 @@ const PLAN_LABELS = {
 
 <script>
   import { supabase } from '../lib/supabaseClient.js';
-  import { getMyProfile, openBillingPortal } from '../lib/billing.js';
-
-  const PLAN_LABELS = { free: 'Gratis', subscription: 'Suscripción', premium: 'Premium' };
+  import { getMyProfile, getAdminBillingOverview } from '../lib/billing.js';
 
   const main = document.getElementById('account-main');
-  const logoutBtn = document.getElementById('account-logout');
-  const planNameEl = document.getElementById('plan-name');
-  const planNoteEl = document.getElementById('plan-note');
-  const upgradeLink = document.getElementById('plan-upgrade-link');
-  const manageBtn = document.getElementById('plan-manage-btn');
+  const emailEl = document.getElementById('account-email');
+  const adminPanel = document.getElementById('admin-panel');
+  const tableBody = document.getElementById('admin-table-body');
 
-  logoutBtn?.addEventListener('click', async () => {
-    if (!supabase) return;
-    await supabase.auth.signOut();
-    window.location.href = '/';
-  });
+  const PLAN_LABELS = { free: 'Gratis', subscription: 'Suscripción', premium: 'Premium' };
+  const STRIPE_STATUS_LABELS = {
+    active: 'Activa',
+    trialing: 'En prueba',
+    past_due: 'Pago fallido',
+    canceled: 'Cancelada',
+    incomplete: 'Incompleta',
+    incomplete_expired: 'Incompleta (caducada)',
+    unpaid: 'Impagada',
+    paused: 'Pausada',
+  };
 
-  manageBtn?.addEventListener('click', async () => {
-    manageBtn.setAttribute('disabled', 'true');
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, (c) => (
+      { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+  }
+
+  async function loadAdminTable() {
+    if (!tableBody) return;
     try {
-      await openBillingPortal();
+      const rows = await getAdminBillingOverview();
+      if (!rows.length) {
+        tableBody.innerHTML = '<tr><td colspan="5" class="admin-table-empty">Todavía no hay suscripciones de pago.</td></tr>';
+        return;
+      }
+      tableBody.innerHTML = rows.map((row) => `
+        <tr>
+          <td>${escapeHtml(row.customerEmail ?? '—')}</td>
+          <td>${escapeHtml(PLAN_LABELS[row.plan] ?? row.plan ?? '—')}</td>
+          <td>${escapeHtml(STRIPE_STATUS_LABELS[row.stripeStatus] ?? row.stripeStatus ?? '—')}${row.cancelAtPeriodEnd ? ' (cancela)' : ''}</td>
+          <td>${row.amount != null ? `${row.amount.toFixed(2)} ${(row.currency ?? '').toUpperCase()} / ${row.interval === 'year' ? 'año' : 'mes'}` : '—'}</td>
+          <td>${row.currentPeriodEnd ? new Date(row.currentPeriodEnd).toLocaleDateString('es-ES') : '—'}</td>
+        </tr>
+      `).join('');
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Ha ocurrido un error. Inténtalo de nuevo.');
-      manageBtn.removeAttribute('disabled');
+      const msg = err instanceof Error ? err.message : 'Error cargando los datos.';
+      tableBody.innerHTML = `<tr><td colspan="5" class="admin-table-empty">${escapeHtml(msg)}</td></tr>`;
     }
-  });
+  }
 
-  async function loadPlan() {
+  async function loadAccount() {
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (emailEl) emailEl.textContent = sessionData.session?.user?.email ?? '';
+
     const profile = await getMyProfile();
-    const plan = profile?.plan ?? 'free';
-    if (planNameEl) planNameEl.textContent = PLAN_LABELS[plan] ?? plan;
-
-    if (plan === 'free') {
-      if (upgradeLink instanceof HTMLElement) upgradeLink.hidden = false;
-      if (manageBtn instanceof HTMLElement) manageBtn.hidden = true;
-    } else {
-      if (upgradeLink instanceof HTMLElement) upgradeLink.hidden = true;
-      if (manageBtn instanceof HTMLElement) manageBtn.hidden = false;
-    }
-
-    if (profile?.status === 'canceled' && profile?.current_period_end) {
-      const date = new Date(profile.current_period_end).toLocaleDateString('es-ES');
-      if (planNoteEl) {
-        planNoteEl.textContent = `Cancelada — mantienes el acceso hasta el ${date}.`;
-        planNoteEl.hidden = false;
-      }
-    } else if (profile?.status === 'past_due') {
-      if (planNoteEl) {
-        planNoteEl.textContent = 'Ha fallado el último cobro. Revisa tu método de pago desde "Gestionar suscripción".';
-        planNoteEl.hidden = false;
-      }
+    if (profile?.role === 'admin') {
+      if (adminPanel instanceof HTMLElement) adminPanel.hidden = false;
+      loadAdminTable();
     }
   }
 
@@ -104,7 +132,7 @@ const PLAN_LABELS = {
       return;
     }
     if (main instanceof HTMLElement) main.hidden = false;
-    loadPlan();
+    loadAccount();
   }
 
   guard();
