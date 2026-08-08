@@ -59,9 +59,12 @@ export async function openBillingPortal() {
 //
 // OJO — esquema real (verificado el 2026-08-08 contra el proyecto de
 // Supabase, que gestiona también la app): la columna de usuario se llama
-// `user_id`, NO `id`, y `plan` usa valores en español ('gratis' por
-// defecto, 'suscripcion', 'premium'), no en inglés. Esta tabla la creó y
-// la sigue evolucionando el lado de la app — aquí solo la leemos.
+// `user_id`, NO `id`. `plan` usa valores en español: 'gratis' (por
+// defecto), 'suscripcion', 'regalo' (mismo acceso que suscripcion, pero
+// asignado a mano por un admin sin pago real), 'premium'. `is_admin`
+// (boolean) es la columna compartida que marca quién es administrador —
+// añadida el 2026-08-08 de acuerdo con el lado de la app. Esta tabla la
+// creó y la sigue evolucionando el lado de la app — aquí solo la leemos.
 export async function getMyProfile() {
   if (!isSupabaseConfigured || !supabase) return null;
   const { data: sessionData } = await supabase.auth.getSession();
@@ -70,7 +73,7 @@ export async function getMyProfile() {
 
   const { data, error } = await supabase
     .from('profiles')
-    .select('plan, status, current_period_end, plan_since, approved')
+    .select('plan, status, current_period_end, plan_since, approved, is_admin')
     .eq('user_id', userId)
     .maybeSingle();
 
@@ -81,11 +84,10 @@ export async function getMyProfile() {
   return data;
 }
 
-// Panel de administración: pendiente de rehacer contra el esquema real
-// (ver nota arriba) y de decidir, junto con el lado de la app, cómo se
-// marca a alguien como administrador — de momento no existe ninguna
-// columna para eso en `profiles`. No usar todavía.
+// Panel de administración: suscripciones/pagos de todos los usuarios,
+// cruzados con Stripe. Solo funciona si el usuario logueado tiene
+// profiles.is_admin = true — si no, la Edge Function responde 403.
 export async function getAdminBillingOverview() {
   const data = await callFunction('admin-billing-overview');
-  return data.subscriptions ?? [];
+  return data.rows ?? [];
 }

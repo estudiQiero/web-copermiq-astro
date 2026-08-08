@@ -1,44 +1,35 @@
 # Facturación de Copermiq (Supabase + Stripe)
 
-## ⚠️ Antes de nada: este repo ya NO es la fuente de verdad de Supabase
+## Este repo ya NO es la fuente de verdad de `profiles` ni de las 3 funciones de Stripe
 
-Verificado el 2026-08-08: la tabla `profiles`, y probablemente las funciones `create-checkout-session`, `create-portal-session` y `stripe-webhook`, ya existen y están en uso real en el proyecto de Supabase — gestionadas desde el lado de la app (app.copermiq.com, repo aparte). Tienen un esquema distinto al que se pensó originalmente aquí (columna `user_id` en vez de `id`, valores de plan en español, columnas `email`/`approved`/`plan_since` extra).
+Verificado el 2026-08-08: la tabla `profiles` y las funciones `create-checkout-session`, `create-portal-session` y `stripe-webhook` ya existen y están en uso real en el proyecto de Supabase — gestionadas desde el lado de la app (app.copermiq.com, repo aparte). El código real de las tres se ha guardado como referencia en `supabase/functions/` (marcado "no desplegar desde aquí"). El esquema real está documentado en `copermiq-billing-architecture.md` (proyecto de Claude "Apps Miq") — léelo antes de tocar `profiles` o cualquier función compartida.
 
-**No ejecutes ninguno de los pasos de este documento sin releer antes `copermiq-billing-architecture.md`** (proyecto de Claude "Apps Miq"), que tiene el esquema real verificado y qué está pendiente de coordinar con el lado de la app. Las migraciones y funciones de este repo están marcadas con avisos de "no desplegar" hasta que se resuelva esa coordinación — desplegarlas tal cual podría romper el alta de usuarios o el checkout que ya funciona.
+Desde el 2026-08-08 también existe `profiles.is_admin` (boolean), añadida por el lado de la app — es la columna compartida que marca quién es administrador, usada tanto por `admin-delete-user` (app) como por `admin-billing-overview` (web, ver más abajo). Los valores de `profiles.plan` son `'gratis'` (por defecto), `'suscripcion'`, `'regalo'` (mismo acceso que suscripción, asignado a mano sin pago) y `'premium'`.
 
-Lo que sigue por debajo es la guía **original**, útil como referencia de qué hace falta en general (Stripe, secrets, webhook), pero los nombres de columnas que menciona (`id`, valores de plan en inglés) no coinciden con la base de datos real.
+## Lo único que SÍ es propio de este repo: `admin-billing-overview`
 
----
+Esta función es nueva, no la gestiona la app, y no hay ningún nombre en conflicto — se puede desplegar con normalidad cuando se quiera activar el panel de admin de `/cuenta`:
 
-## 1. Aplicar las migraciones (crea la tabla `profiles` y el rol de admin)
+```
+supabase functions deploy admin-billing-overview
+```
 
-**En pausa** — ver el aviso de arriba. Ambos archivos en `supabase/migrations/` están marcados como obsoletos/no aplicar hasta coordinar con el lado de la app.
-
-## 2. Crear los productos y precios en Stripe
-
-En el [dashboard de Stripe](https://dashboard.stripe.com/products), crea dos productos recurrentes: "Suscripción" y "Premium" (nombres definitivos y precios, pendientes de decidir). Copia el **price ID** de cada uno (empieza por `price_...`). Esto es independiente del resto y no tiene riesgo de conflicto.
-
-## 3. Configurar los secrets de las Edge Functions
-
-Los nombres reales que espera la función `create-checkout-session` ya desplegada (ver su código en `supabase/functions/create-checkout-session/index.ts`, guardado aquí como referencia) son distintos de los que se pensaron originalmente:
+Secret que necesita (Edge Functions → esta función → Secrets):
 
 ```
 STRIPE_SECRET_KEY
-STRIPE_PRICE_SUSCRIPCION   (no STRIPE_PRICE_SUBSCRIPTION)
-STRIPE_PRICE_PREMIUM
-APP_URL                    (no PUBLIC_SITE_URL — y redirige a la app tras pagar, no a la web)
 ```
 
-Esto ya debería estar configurado si la función ya está en uso — solo hace falta tocarlo si hay que cambiar precios o URLs.
+(el mismo valor que ya usan las demás funciones — no hace falta uno nuevo, solo asegurarse de que esta función también lo tiene configurado).
 
-## 4. Desplegar las funciones
+No necesita nada más: comprueba `profiles.is_admin` ella misma y lee `profiles`/Stripe directamente, no depende de ninguna otra función de este repo.
 
-**En pausa** — ver el aviso de arriba. `create-checkout-session`, `create-portal-session` y `stripe-webhook` ya están desplegadas y en uso; no volver a desplegarlas desde aquí sin coordinar. `admin-billing-overview` está pendiente de rediseñar contra el esquema real y de decidir cómo se marca a alguien como administrador — tampoco desplegar todavía.
+## El resto de pasos (Stripe, precios, webhook) los gestiona la app
 
-## 5. Conectar el webhook en Stripe
+- **Productos/precios en Stripe**: [dashboard de Stripe](https://dashboard.stripe.com/products) — coordinarlo con quien lleve esa parte, si hace falta un price ID nuevo (p. ej. para el toggle anual de `/precios`, todavía no conectado al cobro real).
+- **Secrets de `create-checkout-session`** (ya configurados, solo por referencia): `STRIPE_SECRET_KEY`, `STRIPE_PRICE_SUSCRIPCION`, `STRIPE_PRICE_PREMIUM`, `APP_URL` (redirige a la app tras pagar/cancelar, no a la web).
+- **Webhook de Stripe**: ya conectado y funcionando (gestionado desde el lado de la app).
 
-Ya hecho (la función `stripe-webhook` está desplegada y actualizada recientemente). Si hiciera falta recrearlo: Stripe → Developers → Webhooks → "Add endpoint", URL `https://TU_PROJECT_REF.supabase.co/functions/v1/stripe-webhook`, eventos `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`.
+## Probar en local antes de desplegar `admin-billing-overview`
 
-## Probar en local antes de ir a producción
-
-Usa el modo test de Stripe (claves `sk_test_...`/precios de test) y el [Stripe CLI](https://stripe.com/docs/stripe-cli) para reenviar eventos a tu función local (`stripe listen --forward-to ...`), antes de repetir los pasos con las claves reales (`sk_live_...`).
+Usa el modo test de Stripe (claves `sk_test_...`) y el [Stripe CLI](https://stripe.com/docs/stripe-cli) si hace falta simular datos antes de probar contra producción.

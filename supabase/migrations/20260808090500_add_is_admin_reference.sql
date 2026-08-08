@@ -1,0 +1,21 @@
+-- Copermiq — columna compartida is_admin
+--
+-- SOLO REFERENCIA — ya aplicada por el lado de la app el 2026-08-08. No
+-- hace falta (ni hay que) ejecutar esto de nuevo; se guarda aquí para que
+-- quien trabaje en el repo de la web sepa qué existe realmente en
+-- `profiles` sin tener que ir a comprobarlo cada vez.
+--
+-- `is_admin` es la fuente de verdad compartida de quién es administrador
+-- entre la web y la app — sustituye al email fijo que comparaba antes el
+-- código de la app. Tanto `admin-billing-overview` (web) como
+-- `admin-delete-user` (app) comprueban esta misma columna.
+--
+-- SQL real ejecutado (por el lado de la app, contra la tabla ya
+-- existente):
+--
+--   alter table profiles add column if not exists is_admin boolean default false;
+--   update profiles set is_admin = true where email = '<email del administrador>';
+--
+-- Para marcar a alguien más como admin, hacerlo igual (a mano, no hay
+-- flujo de autoservicio) — coordinarlo con el lado de la app si se hace
+-- desde ahí, para no pisar cambios.

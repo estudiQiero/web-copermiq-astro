@@ -3,8 +3,9 @@
 // no hay sesión de Supabase, se redirige a la home.
 //
 // De momento solo hay un saludo con el email y, si el usuario es admin
-// (profiles.role = 'admin'), el panel de administración: una píldora
-// "Admin" (igual que las de la app Copermiq) y debajo una tabla con las
+// (profiles.is_admin = true — columna compartida con la app desde el
+// 2026-08-08), el panel de administración: una píldora "Admin" (igual
+// que las de la app Copermiq) y debajo una tabla con las
 // suscripciones/pagos de Stripe de todos los usuarios. Es un primer punto
 // de partida — el diseño y el resto de pestañas (panel de control por
 // usuario) se harán más adelante.
@@ -31,7 +32,7 @@ import Footer from '../components/Footer.astro';
         <div class="admin-panel-body">
           <h2 class="admin-panel-title">Suscripciones y pagos</h2>
           <p class="admin-panel-note">
-            Datos en vivo desde Stripe. Punto de partida — faltan devoluciones, histórico de pagos sueltos y el panel de control por usuario individual.
+            Incluye planes "Regalo" (asignados a mano, sin pago). Punto de partida — faltan devoluciones, histórico de pagos sueltos y el panel de control por usuario individual.
           </p>
 
           <div class="admin-table-wrap">
@@ -42,11 +43,12 @@ import Footer from '../components/Footer.astro';
                   <th>Plan</th>
                   <th>Estado</th>
                   <th>Importe</th>
+                  <th>Desde</th>
                   <th>Renueva / termina</th>
                 </tr>
               </thead>
               <tbody id="admin-table-body">
-                <tr><td colspan="5" class="admin-table-empty">Cargando…</td></tr>
+                <tr><td colspan="6" class="admin-table-empty">Cargando…</td></tr>
               </tbody>
             </table>
           </div>
@@ -67,9 +69,11 @@ import Footer from '../components/Footer.astro';
   const adminPanel = document.getElementById('admin-panel');
   const tableBody = document.getElementById('admin-table-body');
 
-  // Valores reales de profiles.plan (verificado en Supabase): español,
-  // no inglés — 'gratis' es el valor por defecto de la tabla.
-  const PLAN_LABELS = { gratis: 'Gratis', suscripcion: 'Suscripción', premium: 'Premium' };
+  // Valores reales de profiles.plan (verificado en Supabase, confirmado
+  // por el lado de la app): español, no inglés — 'gratis' es el valor
+  // por defecto. 'regalo' da el mismo acceso que 'suscripcion' pero sin
+  // pago real (asignado a mano por un admin), añadido el 2026-08-08.
+  const PLAN_LABELS = { gratis: 'Gratis', suscripcion: 'Suscripción', regalo: 'Regalo', premium: 'Premium' };
   const STRIPE_STATUS_LABELS = {
     active: 'Activa',
     trialing: 'En prueba',
@@ -87,26 +91,41 @@ import Footer from '../components/Footer.astro';
     ));
   }
 
+  function formatDate(value) {
+    return value ? new Date(value).toLocaleDateString('es-ES') : '—';
+  }
+
   async function loadAdminTable() {
     if (!tableBody) return;
     try {
       const rows = await getAdminBillingOverview();
       if (!rows.length) {
-        tableBody.innerHTML = '<tr><td colspan="5" class="admin-table-empty">Todavía no hay suscripciones de pago.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="6" class="admin-table-empty">Todavía no hay suscripciones ni planes regalados.</td></tr>';
         return;
       }
-      tableBody.innerHTML = rows.map((row) => `
+      tableBody.innerHTML = rows.map((row) => {
+        // Los planes "Regalo" no tienen suscripción de Stripe detrás —
+        // se muestra el estado de profiles en vez del de Stripe.
+        const statusLabel = row.stripeStatus
+          ? (STRIPE_STATUS_LABELS[row.stripeStatus] ?? row.stripeStatus) + (row.cancelAtPeriodEnd ? ' (cancela)' : '')
+          : (row.status === 'active' ? 'Activo (sin Stripe)' : (row.status ?? '—'));
+        const amountLabel = row.amount != null
+          ? `${row.amount.toFixed(2)} ${(row.currency ?? '').toUpperCase()} / ${row.interval === 'year' ? 'año' : 'mes'}`
+          : '—';
+        return `
         <tr>
-          <td>${escapeHtml(row.customerEmail ?? '—')}</td>
+          <td>${escapeHtml(row.email ?? '—')}</td>
           <td>${escapeHtml(PLAN_LABELS[row.plan] ?? row.plan ?? '—')}</td>
-          <td>${escapeHtml(STRIPE_STATUS_LABELS[row.stripeStatus] ?? row.stripeStatus ?? '—')}${row.cancelAtPeriodEnd ? ' (cancela)' : ''}</td>
-          <td>${row.amount != null ? `${row.amount.toFixed(2)} ${(row.currency ?? '').toUpperCase()} / ${row.interval === 'year' ? 'año' : 'mes'}` : '—'}</td>
-          <td>${row.currentPeriodEnd ? new Date(row.currentPeriodEnd).toLocaleDateString('es-ES') : '—'}</td>
+          <td>${escapeHtml(statusLabel)}</td>
+          <td>${escapeHtml(amountLabel)}</td>
+          <td>${formatDate(row.planSince)}</td>
+          <td>${formatDate(row.currentPeriodEnd)}</td>
         </tr>
-      `).join('');
+      `;
+      }).join('');
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error cargando los datos.';
-      tableBody.innerHTML = `<tr><td colspan="5" class="admin-table-empty">${escapeHtml(msg)}</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="6" class="admin-table-empty">${escapeHtml(msg)}</td></tr>`;
     }
   }
 
@@ -114,16 +133,14 @@ import Footer from '../components/Footer.astro';
     const { data: sessionData } = await supabase.auth.getSession();
     if (emailEl) emailEl.textContent = sessionData.session?.user?.email ?? '';
 
-    // El panel de admin está desactivado a propósito por ahora: todavía
-    // no hay ninguna columna de "es administrador" en profiles (la tabla
-    // real, verificada el 2026-08-08, no tiene `role` ni nada parecido),
-    // y esa decisión hay que tomarla junto con el lado de la app antes de
-    // volver a activar esto. Ver copermiq-billing-architecture.md.
-    // const profile = await getMyProfile();
-    // if (profile?.role === 'admin') {
-    //   if (adminPanel instanceof HTMLElement) adminPanel.hidden = false;
-    //   loadAdminTable();
-    // }
+    // profiles.is_admin: columna compartida con la app desde el
+    // 2026-08-08 (antes no existía ningún criterio común, por eso este
+    // panel estuvo desactivado un tiempo). Ver copermiq-billing-architecture.md.
+    const profile = await getMyProfile();
+    if (profile?.is_admin) {
+      if (adminPanel instanceof HTMLElement) adminPanel.hidden = false;
+      loadAdminTable();
+    }
   }
 
   async function guard() {
