@@ -84,10 +84,57 @@ export async function getMyProfile() {
   return data;
 }
 
-// Panel de administración: suscripciones/pagos de todos los usuarios,
-// cruzados con Stripe. Solo funciona si el usuario logueado tiene
-// profiles.is_admin = true — si no, la Edge Function responde 403.
+// Panel de administración: suscripciones/pagos (planes de pago o
+// "regalo"), cruzados con Stripe. Solo funciona si el usuario logueado
+// tiene profiles.is_admin = true — si no, la Edge Function responde 403.
 export async function getAdminBillingOverview() {
   const data = await callFunction('admin-billing-overview');
   return data.rows ?? [];
+}
+
+// ---------------------------------------------------------------------
+// Gestión de cuentas de usuario (añadido el 2026-08-08) — llama a las
+// Edge Functions que YA EXISTEN Y GESTIONA LA APP para esto mismo
+// (confirmado por la sesión de la app tras preguntarle explícitamente,
+// para no duplicar nada): `admin-list-users`, `admin-set-plan`,
+// `admin-activate-user`. La web no las despliega ni las mantiene, solo
+// las invoca — igual que ya se hacía con `admin-delete-user`. Ver
+// copermiq-billing-architecture.md para el detalle completo.
+// ---------------------------------------------------------------------
+
+// Todos los usuarios (no solo los de pago) — user_id, email, approved,
+// plan, created_at. Se cruza en el cliente con getAdminBillingOverview()
+// para completar importe/estado de Stripe donde aplique (ver cuenta.astro).
+export async function getAdminUsersList() {
+  const data = await callFunction('admin-list-users');
+  return (data.users ?? []).map((u) => ({
+    userId: u.user_id,
+    email: u.email,
+    approved: u.approved,
+    plan: u.plan,
+    createdAt: u.created_at,
+  }));
+}
+
+// Cambia el plan de un usuario a mano (sin pasar por Stripe) — llama a
+// admin-set-plan, la función de la app para esto. Escribe profiles.plan
+// y profiles.plan_since; es la forma real de asignar 'regalo'.
+export async function adminSetPlan(userId, plan) {
+  return callFunction('admin-set-plan', { userId, plan });
+}
+
+// Aprueba una cuenta pendiente (profiles.approved = true) — llama a
+// admin-activate-user. Todavía no existe el equivalente para desactivar
+// (confirmado por la app el 2026-08-08); si hace falta, coordinarlo con
+// ese lado antes de añadir nada por nuestra cuenta.
+export async function adminActivateUser(userId) {
+  return callFunction('admin-activate-user', { userId });
+}
+
+// Elimina por completo la cuenta de un usuario (perfil + datos +
+// credenciales de Auth), cancelando su suscripción de Stripe si tenía.
+// Llama a admin-delete-user — la función que ya gestiona y despliega el
+// lado de la app; la web no la duplica, solo la invoca.
+export async function adminDeleteUser(userId, email) {
+  return callFunction('admin-delete-user', { userId, email });
 }

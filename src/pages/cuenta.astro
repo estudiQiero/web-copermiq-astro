@@ -5,10 +5,17 @@
 // De momento solo hay un saludo con el email y, si el usuario es admin
 // (profiles.is_admin = true — columna compartida con la app desde el
 // 2026-08-08), el panel de administración: una píldora "Admin" (igual
-// que las de la app Copermiq) y debajo una tabla con las
-// suscripciones/pagos de Stripe de todos los usuarios. Es un primer punto
-// de partida — el diseño y el resto de pestañas (panel de control por
-// usuario) se harán más adelante.
+// que las de la app Copermiq) y debajo una tabla con TODOS los usuarios
+// (ampliado el 2026-08-08), con buscador por email, filtro por tipo de
+// plan, cambio de plan a mano, aprobar cuentas pendientes y eliminar.
+//
+// Importante: estas acciones NO llaman a funciones nuevas de la web —
+// llaman a admin-list-users / admin-set-plan / admin-activate-user /
+// admin-delete-user, que ya existen y gestiona el lado de la app
+// (confirmado el 2026-08-08 tras preguntarle explícitamente, para no
+// repetir el incidente de reinventar algo que ya estaba hecho). Todavía
+// no existe "desactivar" una cuenta ya aprobada — solo activar, o
+// eliminarla del todo — así que ese botón no está aquí.
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -30,10 +37,28 @@ import Footer from '../components/Footer.astro';
         </div>
 
         <div class="admin-panel-body">
-          <h2 class="admin-panel-title">Suscripciones y pagos</h2>
+          <h2 class="admin-panel-title">Usuarios</h2>
           <p class="admin-panel-note">
-            Incluye planes "Regalo" (asignados a mano, sin pago). Punto de partida — faltan devoluciones, histórico de pagos sueltos y el panel de control por usuario individual.
+            Todos los usuarios de Copermiq. Cambiar el plan o aprobar una cuenta aquí hace exactamente lo mismo que en el panel de la app (llama a las mismas funciones). Falta "desactivar" una cuenta ya aprobada — todavía no existe ese mecanismo en ningún lado.
           </p>
+
+          <div class="admin-controls">
+            <input
+              type="search"
+              id="admin-search"
+              class="admin-search"
+              placeholder="Buscar por email…"
+              autocomplete="off"
+            />
+            <div class="admin-filter-chips" role="group" aria-label="Filtrar por plan">
+              <button type="button" class="admin-filter-chip" data-plan="gratis">Gratis</button>
+              <button type="button" class="admin-filter-chip" data-plan="suscripcion">Suscripción</button>
+              <button type="button" class="admin-filter-chip" data-plan="regalo">Regalo</button>
+              <button type="button" class="admin-filter-chip" data-plan="premium">Premium</button>
+            </div>
+          </div>
+
+          <p class="admin-action-message" id="admin-action-message"></p>
 
           <div class="admin-table-wrap">
             <table class="admin-table">
@@ -44,11 +69,12 @@ import Footer from '../components/Footer.astro';
                   <th>Estado</th>
                   <th>Importe</th>
                   <th>Desde</th>
-                  <th>Renueva / termina</th>
+                  <th>Renueva</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody id="admin-table-body">
-                <tr><td colspan="6" class="admin-table-empty">Cargando…</td></tr>
+                <tr><td colspan="7" class="admin-table-empty">Cargando…</td></tr>
               </tbody>
             </table>
           </div>
@@ -58,16 +84,47 @@ import Footer from '../components/Footer.astro';
   </main>
 
   <Footer />
+
+  <!-- Confirmación de eliminar cuenta (reutiliza el patrón de auth-overlay/logout-modal) -->
+  <div id="delete-user-overlay" class="auth-overlay" hidden>
+    <div class="auth-modal logout-modal" role="dialog" aria-modal="true" aria-labelledby="delete-user-title">
+      <button type="button" id="delete-user-close" class="auth-close" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+      <h3 id="delete-user-title" class="auth-heading">Eliminar cuenta</h3>
+      <p class="logout-text" id="delete-user-text">¿Seguro que quieres eliminar esta cuenta? Se borran sus datos y su acceso, y no se puede deshacer.</p>
+      <div class="logout-actions">
+        <button type="button" id="delete-user-cancel" class="btn btn-ghost">Cancelar</button>
+        <button type="button" id="delete-user-confirm" class="btn btn-primary">Eliminar</button>
+      </div>
+    </div>
+  </div>
 </Layout>
 
 <script>
   import { supabase } from '../lib/supabaseClient.js';
-  import { getMyProfile, getAdminBillingOverview } from '../lib/billing.js';
+  import {
+    getMyProfile,
+    getAdminUsersList,
+    getAdminBillingOverview,
+    adminSetPlan,
+    adminActivateUser,
+    adminDeleteUser,
+  } from '../lib/billing.js';
 
   const main = document.getElementById('account-main');
   const emailEl = document.getElementById('account-email');
   const adminPanel = document.getElementById('admin-panel');
   const tableBody = document.getElementById('admin-table-body');
+  const searchInput = document.getElementById('admin-search');
+  const filterChips = Array.from(document.querySelectorAll('.admin-filter-chip'));
+  const actionMessage = document.getElementById('admin-action-message');
+
+  const deleteOverlay = document.getElementById('delete-user-overlay');
+  const deleteText = document.getElementById('delete-user-text');
+  const deleteCloseBtn = document.getElementById('delete-user-close');
+  const deleteCancelBtn = document.getElementById('delete-user-cancel');
+  const deleteConfirmBtn = document.getElementById('delete-user-confirm');
 
   // Valores reales de profiles.plan (verificado en Supabase, confirmado
   // por el lado de la app): español, no inglés — 'gratis' es el valor
@@ -85,6 +142,10 @@ import Footer from '../components/Footer.astro';
     paused: 'Pausada',
   };
 
+  let allRows = [];
+  let currentUserId = null;
+  let pendingDelete = null; // { userId, email } mientras el modal de borrado está abierto
+
   function escapeHtml(str) {
     return String(str).replace(/[&<>"']/g, (c) => (
       { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
@@ -95,42 +156,202 @@ import Footer from '../components/Footer.astro';
     return value ? new Date(value).toLocaleDateString('es-ES') : '—';
   }
 
-  async function loadAdminTable() {
+  function activeFilters() {
+    return filterChips.filter((chip) => chip.classList.contains('is-active')).map((chip) => chip.dataset.plan);
+  }
+
+  function setActionMessage(text, isError) {
+    if (!actionMessage) return;
+    actionMessage.textContent = text ?? '';
+    actionMessage.classList.toggle('error', Boolean(isError));
+  }
+
+  function renderTable() {
     if (!tableBody) return;
-    try {
-      const rows = await getAdminBillingOverview();
-      if (!rows.length) {
-        tableBody.innerHTML = '<tr><td colspan="6" class="admin-table-empty">Todavía no hay suscripciones ni planes regalados.</td></tr>';
-        return;
-      }
-      tableBody.innerHTML = rows.map((row) => {
-        // Los planes "Regalo" no tienen suscripción de Stripe detrás —
-        // se muestra el estado de profiles en vez del de Stripe.
-        const statusLabel = row.stripeStatus
-          ? (STRIPE_STATUS_LABELS[row.stripeStatus] ?? row.stripeStatus) + (row.cancelAtPeriodEnd ? ' (cancela)' : '')
-          : (row.status === 'active' ? 'Activo (sin Stripe)' : (row.status ?? '—'));
-        const amountLabel = row.amount != null
-          ? `${row.amount.toFixed(2)} ${(row.currency ?? '').toUpperCase()} / ${row.interval === 'year' ? 'año' : 'mes'}`
-          : '—';
-        return `
+
+    const filters = activeFilters();
+    const search = (searchInput instanceof HTMLInputElement ? searchInput.value : '').trim().toLowerCase();
+
+    const rows = allRows.filter((row) => {
+      if (filters.length && !filters.includes(row.plan)) return false;
+      if (search && !(row.email ?? '').toLowerCase().includes(search)) return false;
+      return true;
+    });
+
+    if (!rows.length) {
+      tableBody.innerHTML = '<tr><td colspan="7" class="admin-table-empty">No hay usuarios que coincidan con la búsqueda/filtro.</td></tr>';
+      return;
+    }
+
+    tableBody.innerHTML = rows.map((row) => {
+      // Sin suscripción de Stripe detrás (Gratis o Regalo) se muestra el
+      // estado de profiles en vez del de Stripe.
+      const statusLabel = row.stripeStatus
+        ? (STRIPE_STATUS_LABELS[row.stripeStatus] ?? row.stripeStatus) + (row.cancelAtPeriodEnd ? ' (cancela)' : '')
+        : (row.plan === 'gratis' ? '—' : 'Activo (sin Stripe)');
+      const amountLabel = row.amount != null
+        ? `${row.amount.toFixed(2)} ${(row.currency ?? '').toUpperCase()} / ${row.interval === 'year' ? 'año' : 'mes'}`
+        : '—';
+      // "Desde": la fecha desde la que tiene el plan actual si la
+      // tenemos (viene de admin-billing-overview, solo para planes de
+      // pago/regalo); si no, la fecha de alta de la cuenta.
+      const sinceLabel = formatDate(row.planSince ?? row.createdAt);
+      const planOptions = Object.entries(PLAN_LABELS).map(([value, label]) => (
+        `<option value="${value}" ${row.plan === value ? 'selected' : ''}>${escapeHtml(label)}</option>`
+      )).join('');
+      const isSelf = row.userId === currentUserId;
+
+      return `
         <tr>
-          <td>${escapeHtml(row.email ?? '—')}</td>
-          <td>${escapeHtml(PLAN_LABELS[row.plan] ?? row.plan ?? '—')}</td>
+          <td>${escapeHtml(row.email ?? '—')}${row.approved === false ? ' <span class="admin-badge admin-badge-pending">Pendiente</span>' : ''}</td>
+          <td>
+            <select class="admin-plan-select" data-user-id="${escapeHtml(row.userId ?? '')}" ${isSelf ? 'disabled' : ''}>
+              ${planOptions}
+            </select>
+          </td>
           <td>${escapeHtml(statusLabel)}</td>
           <td>${escapeHtml(amountLabel)}</td>
-          <td>${formatDate(row.planSince)}</td>
+          <td>${sinceLabel}</td>
           <td>${formatDate(row.currentPeriodEnd)}</td>
+          <td>
+            <div class="admin-table-actions">
+              ${row.approved === false
+                ? `<button type="button" class="admin-approve-btn" data-user-id="${escapeHtml(row.userId ?? '')}">Aprobar</button>`
+                : ''}
+              <button
+                type="button"
+                class="admin-delete-btn"
+                data-user-id="${escapeHtml(row.userId ?? '')}"
+                data-email="${escapeHtml(row.email ?? '')}"
+                ${isSelf ? 'disabled title="No puedes eliminarte a ti mismo desde aquí"' : ''}
+              >Eliminar</button>
+            </div>
+          </td>
         </tr>
       `;
-      }).join('');
+    }).join('');
+  }
+
+  async function loadAdminTable() {
+    if (!tableBody) return;
+    tableBody.innerHTML = '<tr><td colspan="7" class="admin-table-empty">Cargando…</td></tr>';
+    try {
+      // Dos llamadas: la lista completa de usuarios (admin-list-users,
+      // de la app) y el detalle de Stripe para los de pago/regalo
+      // (admin-billing-overview, de la web) — se cruzan aquí por email,
+      // ya que admin-billing-overview no devuelve user_id.
+      const [users, billing] = await Promise.all([
+        getAdminUsersList(),
+        getAdminBillingOverview().catch((err) => {
+          console.warn('[Copermiq] No se pudo cargar el detalle de Stripe:', err);
+          return [];
+        }),
+      ]);
+      const billingByEmail = new Map(billing.map((row) => [row.email, row]));
+      allRows = users.map((user) => {
+        const detail = billingByEmail.get(user.email);
+        return detail ? { ...user, ...detail, userId: user.userId } : user;
+      });
+      renderTable();
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error cargando los datos.';
-      tableBody.innerHTML = `<tr><td colspan="6" class="admin-table-empty">${escapeHtml(msg)}</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="7" class="admin-table-empty">${escapeHtml(msg)}</td></tr>`;
     }
   }
 
+  // Cambiar el plan de un usuario a mano — delegación de eventos porque
+  // las filas se regeneran en cada render.
+  tableBody?.addEventListener('change', async (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLSelectElement) || !target.classList.contains('admin-plan-select')) return;
+    const userId = target.dataset.userId;
+    const plan = target.value;
+    if (!userId) return;
+
+    target.disabled = true;
+    setActionMessage('Guardando…', false);
+    try {
+      await adminSetPlan(userId, plan);
+      setActionMessage('Plan actualizado.', false);
+      await loadAdminTable();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'No se pudo cambiar el plan.';
+      setActionMessage(msg, true);
+      target.disabled = false;
+    }
+  });
+
+  // Aprobar una cuenta pendiente.
+  tableBody?.addEventListener('click', async (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) return;
+
+    if (target.classList.contains('admin-approve-btn')) {
+      const userId = target.dataset.userId;
+      if (!userId || !(target instanceof HTMLButtonElement)) return;
+      target.disabled = true;
+      setActionMessage('Aprobando…', false);
+      try {
+        await adminActivateUser(userId);
+        setActionMessage('Cuenta aprobada.', false);
+        await loadAdminTable();
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'No se pudo aprobar la cuenta.';
+        setActionMessage(msg, true);
+        target.disabled = false;
+      }
+      return;
+    }
+
+    if (target.classList.contains('admin-delete-btn')) {
+      const userId = target.dataset.userId;
+      const email = target.dataset.email;
+      if (!userId) return;
+      pendingDelete = { userId, email: email ?? '' };
+      if (deleteText) deleteText.textContent = `¿Seguro que quieres eliminar la cuenta de ${email}? Se borran sus datos y su acceso, y no se puede deshacer.`;
+      if (deleteOverlay instanceof HTMLElement) deleteOverlay.hidden = false;
+    }
+  });
+
+  function closeDeleteModal() {
+    pendingDelete = null;
+    if (deleteOverlay instanceof HTMLElement) deleteOverlay.hidden = true;
+  }
+  deleteCloseBtn?.addEventListener('click', closeDeleteModal);
+  deleteCancelBtn?.addEventListener('click', closeDeleteModal);
+  deleteOverlay?.addEventListener('click', (event) => {
+    if (event.target === deleteOverlay) closeDeleteModal();
+  });
+
+  deleteConfirmBtn?.addEventListener('click', async () => {
+    if (!pendingDelete) return;
+    const { userId, email } = pendingDelete;
+    if (deleteConfirmBtn instanceof HTMLButtonElement) deleteConfirmBtn.disabled = true;
+    setActionMessage('Eliminando…', false);
+    try {
+      await adminDeleteUser(userId, email);
+      setActionMessage(`Cuenta de ${email} eliminada.`, false);
+      closeDeleteModal();
+      await loadAdminTable();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'No se pudo eliminar la cuenta.';
+      setActionMessage(msg, true);
+    } finally {
+      if (deleteConfirmBtn instanceof HTMLButtonElement) deleteConfirmBtn.disabled = false;
+    }
+  });
+
+  searchInput?.addEventListener('input', renderTable);
+  filterChips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      chip.classList.toggle('is-active');
+      renderTable();
+    });
+  });
+
   async function loadAccount() {
     const { data: sessionData } = await supabase.auth.getSession();
+    currentUserId = sessionData.session?.user?.id ?? null;
     if (emailEl) emailEl.textContent = sessionData.session?.user?.email ?? '';
 
     // profiles.is_admin: columna compartida con la app desde el
