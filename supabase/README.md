@@ -1,67 +1,43 @@
 # Facturación de Copermiq (Supabase + Stripe)
 
-Esto implementa los planes de pago (Gratis / Suscripción / Premium) de forma que funcionan igual desde la web (copermiq.com) que desde la app (app.copermiq.com), porque ambas leen y disparan la misma lógica en Supabase. El razonamiento completo está en el documento "Copermiq — Arquitectura de planes de pago" (guardado en el proyecto de Claude "Apps Miq").
+## ⚠️ Antes de nada: este repo ya NO es la fuente de verdad de Supabase
 
-Nada de esto se despliega solo — necesita varios pasos manuales tuyos porque requieren tus credenciales de Stripe y de Supabase, que esta sesión no tiene ni debe tener.
+Verificado el 2026-08-08: la tabla `profiles`, y probablemente las funciones `create-checkout-session`, `create-portal-session` y `stripe-webhook`, ya existen y están en uso real en el proyecto de Supabase — gestionadas desde el lado de la app (app.copermiq.com, repo aparte). Tienen un esquema distinto al que se pensó originalmente aquí (columna `user_id` en vez de `id`, valores de plan en español, columnas `email`/`approved`/`plan_since` extra).
+
+**No ejecutes ninguno de los pasos de este documento sin releer antes `copermiq-billing-architecture.md`** (proyecto de Claude "Apps Miq"), que tiene el esquema real verificado y qué está pendiente de coordinar con el lado de la app. Las migraciones y funciones de este repo están marcadas con avisos de "no desplegar" hasta que se resuelva esa coordinación — desplegarlas tal cual podría romper el alta de usuarios o el checkout que ya funciona.
+
+Lo que sigue por debajo es la guía **original**, útil como referencia de qué hace falta en general (Stripe, secrets, webhook), pero los nombres de columnas que menciona (`id`, valores de plan en inglés) no coinciden con la base de datos real.
+
+---
 
 ## 1. Aplicar las migraciones (crea la tabla `profiles` y el rol de admin)
 
-Con la [Supabase CLI](https://supabase.com/docs/guides/cli) instalada y logueada:
-
-```
-supabase link --project-ref TU_PROJECT_REF
-supabase db push
-```
-
-Alternativa sin CLI: abre el SQL Editor en el panel de Supabase de tu proyecto y pega, en orden, el contenido de `supabase/migrations/20260805074648_billing_profiles.sql` y `supabase/migrations/20260808090500_add_admin_role.sql`.
-
-Para convertir a alguien en administrador (necesario para ver la píldora "Admin" en `/cuenta`), hazlo a mano en el SQL Editor:
-
-```sql
-update public.profiles set role = 'admin' where id = '<uuid del usuario>';
--- para encontrar el uuid: select id from auth.users where email = '...';
-```
+**En pausa** — ver el aviso de arriba. Ambos archivos en `supabase/migrations/` están marcados como obsoletos/no aplicar hasta coordinar con el lado de la app.
 
 ## 2. Crear los productos y precios en Stripe
 
-En el [dashboard de Stripe](https://dashboard.stripe.com/products), crea dos productos recurrentes: "Suscripción" y "Premium" (nombres definitivos y precios, pendientes de decidir). Copia el **price ID** de cada uno (empieza por `price_...`).
+En el [dashboard de Stripe](https://dashboard.stripe.com/products), crea dos productos recurrentes: "Suscripción" y "Premium" (nombres definitivos y precios, pendientes de decidir). Copia el **price ID** de cada uno (empieza por `price_...`). Esto es independiente del resto y no tiene riesgo de conflicto.
 
 ## 3. Configurar los secrets de las Edge Functions
 
+Los nombres reales que espera la función `create-checkout-session` ya desplegada (ver su código en `supabase/functions/create-checkout-session/index.ts`, guardado aquí como referencia) son distintos de los que se pensaron originalmente:
+
 ```
-supabase secrets set STRIPE_SECRET_KEY=sk_live_...
-supabase secrets set STRIPE_PRICE_SUBSCRIPTION=price_...
-supabase secrets set STRIPE_PRICE_PREMIUM=price_...
-supabase secrets set PUBLIC_SITE_URL=https://copermiq.com
+STRIPE_SECRET_KEY
+STRIPE_PRICE_SUSCRIPCION   (no STRIPE_PRICE_SUBSCRIPTION)
+STRIPE_PRICE_PREMIUM
+APP_URL                    (no PUBLIC_SITE_URL — y redirige a la app tras pagar, no a la web)
 ```
 
-(`STRIPE_WEBHOOK_SECRET` se añade en el paso 5, después de crear el webhook en Stripe — hasta entonces no lo tienes.)
+Esto ya debería estar configurado si la función ya está en uso — solo hace falta tocarlo si hay que cambiar precios o URLs.
 
 ## 4. Desplegar las funciones
 
-```
-supabase functions deploy create-checkout-session
-supabase functions deploy create-portal-session
-supabase functions deploy stripe-webhook --no-verify-jwt
-supabase functions deploy admin-billing-overview
-```
-
-`admin-billing-overview` es la que alimenta la tabla del panel de administración en `/cuenta` (comprueba ella misma que quien llama tiene `role = 'admin'`, así que no hace falta ningún flag especial al desplegarla).
-
-`stripe-webhook` necesita `--no-verify-jwt` porque quien la llama es Stripe, no un usuario logueado — su autenticidad se comprueba con la firma de Stripe (paso siguiente), no con un JWT de Supabase.
+**En pausa** — ver el aviso de arriba. `create-checkout-session`, `create-portal-session` y `stripe-webhook` ya están desplegadas y en uso; no volver a desplegarlas desde aquí sin coordinar. `admin-billing-overview` está pendiente de rediseñar contra el esquema real y de decidir cómo se marca a alguien como administrador — tampoco desplegar todavía.
 
 ## 5. Conectar el webhook en Stripe
 
-En Stripe → Developers → Webhooks → "Add endpoint": la URL es
-`https://TU_PROJECT_REF.supabase.co/functions/v1/stripe-webhook`.
-
-Eventos a escuchar: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`.
-
-Stripe te da un "Signing secret" (`whsec_...`) al crear el endpoint — pégalo:
-
-```
-supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_...
-```
+Ya hecho (la función `stripe-webhook` está desplegada y actualizada recientemente). Si hiciera falta recrearlo: Stripe → Developers → Webhooks → "Add endpoint", URL `https://TU_PROJECT_REF.supabase.co/functions/v1/stripe-webhook`, eventos `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`.
 
 ## Probar en local antes de ir a producción
 

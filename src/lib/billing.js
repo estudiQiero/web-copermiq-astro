@@ -56,7 +56,12 @@ export async function openBillingPortal() {
 
 // Lee el plan/estado actual del usuario logueado directamente de
 // `profiles` (lectura permitida por RLS: cada usuario ve su propia fila).
-// Incluye `role` para poder mostrar u ocultar el panel de administración.
+//
+// OJO — esquema real (verificado el 2026-08-08 contra el proyecto de
+// Supabase, que gestiona también la app): la columna de usuario se llama
+// `user_id`, NO `id`, y `plan` usa valores en español ('gratis' por
+// defecto, 'suscripcion', 'premium'), no en inglés. Esta tabla la creó y
+// la sigue evolucionando el lado de la app — aquí solo la leemos.
 export async function getMyProfile() {
   if (!isSupabaseConfigured || !supabase) return null;
   const { data: sessionData } = await supabase.auth.getSession();
@@ -65,9 +70,9 @@ export async function getMyProfile() {
 
   const { data, error } = await supabase
     .from('profiles')
-    .select('plan, status, current_period_end, role')
-    .eq('id', userId)
-    .single();
+    .select('plan, status, current_period_end, plan_since, approved')
+    .eq('user_id', userId)
+    .maybeSingle();
 
   if (error) {
     console.warn('[Copermiq] No se pudo leer el perfil de facturación:', error.message);
@@ -76,9 +81,10 @@ export async function getMyProfile() {
   return data;
 }
 
-// Panel de administración: suscripciones de todos los usuarios, cruzadas
-// con Stripe. Solo funciona si el usuario logueado tiene role = 'admin'
-// en `profiles` — si no, la Edge Function responde 403.
+// Panel de administración: pendiente de rehacer contra el esquema real
+// (ver nota arriba) y de decidir, junto con el lado de la app, cómo se
+// marca a alguien como administrador — de momento no existe ninguna
+// columna para eso en `profiles`. No usar todavía.
 export async function getAdminBillingOverview() {
   const data = await callFunction('admin-billing-overview');
   return data.subscriptions ?? [];

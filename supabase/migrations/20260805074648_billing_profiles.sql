@@ -1,18 +1,23 @@
 -- Copermiq — planes de pago (Gratis / Suscripción / Premium)
 --
--- Esta tabla es la ÚNICA fuente de verdad sobre qué plan tiene cada
--- usuario. Tanto la web (copermiq-web) como la app (app.copermiq.com) la
--- leen para decidir qué mostrar o permitir. Ninguna de las dos la escribe
--- directamente: solo lo hacen las Edge Functions de supabase/functions/
--- (create-checkout-session, create-portal-session, stripe-webhook), que
--- usan la service role key.
+-- ⚠️ OBSOLETA — NO EJECUTAR ESTO CONTRA EL PROYECTO REAL DE SUPABASE.
 --
--- Ver el documento "Copermiq — Arquitectura de planes de pago" en el
--- proyecto de Claude para el razonamiento completo.
+-- Se escribió asumiendo que había que crear la tabla `profiles` desde
+-- cero. Verificado el 2026-08-08: esa tabla ya existía, creada y
+-- gestionada desde el lado de la app, con un esquema distinto al de
+-- aquí abajo (columna `user_id` en vez de `id`, valores de plan en
+-- español, columnas `email`/`approved`/`plan_since` que este archivo no
+-- contempla). El `create table if not exists` no haría nada (la tabla ya
+-- existe), pero los triggers y la política de RLS de más abajo SÍ se
+-- ejecutarían y fallarían o, peor, el trigger `handle_new_user` podría
+-- intentar insertar usando la columna `id` (que no existe en la tabla
+-- real) y romper el alta de usuarios nuevos tanto en la web como en la
+-- app. Se deja este archivo solo como referencia histórica de cómo se
+-- pensó al principio, antes de descubrir que ya existía una tabla real.
+-- Ver copermiq-billing-architecture.md para el esquema real verificado.
 --
--- Cómo aplicar esta migración: con la Supabase CLI logueada en tu
--- proyecto, `supabase db push` desde la raíz del repo. También puedes
--- pegar este archivo tal cual en el SQL Editor del panel de Supabase.
+-- (Instrucciones originales, ya no aplicables: `supabase db push`, o
+-- pegar el contenido en el SQL Editor del panel de Supabase.)
 
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,

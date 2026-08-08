@@ -67,7 +67,9 @@ import Footer from '../components/Footer.astro';
   const adminPanel = document.getElementById('admin-panel');
   const tableBody = document.getElementById('admin-table-body');
 
-  const PLAN_LABELS = { free: 'Gratis', subscription: 'Suscripción', premium: 'Premium' };
+  // Valores reales de profiles.plan (verificado en Supabase): español,
+  // no inglés — 'gratis' es el valor por defecto de la tabla.
+  const PLAN_LABELS = { gratis: 'Gratis', suscripcion: 'Suscripción', premium: 'Premium' };
   const STRIPE_STATUS_LABELS = {
     active: 'Activa',
     trialing: 'En prueba',
@@ -112,11 +114,16 @@ import Footer from '../components/Footer.astro';
     const { data: sessionData } = await supabase.auth.getSession();
     if (emailEl) emailEl.textContent = sessionData.session?.user?.email ?? '';
 
-    const profile = await getMyProfile();
-    if (profile?.role === 'admin') {
-      if (adminPanel instanceof HTMLElement) adminPanel.hidden = false;
-      loadAdminTable();
-    }
+    // El panel de admin está desactivado a propósito por ahora: todavía
+    // no hay ninguna columna de "es administrador" en profiles (la tabla
+    // real, verificada el 2026-08-08, no tiene `role` ni nada parecido),
+    // y esa decisión hay que tomarla junto con el lado de la app antes de
+    // volver a activar esto. Ver copermiq-billing-architecture.md.
+    // const profile = await getMyProfile();
+    // if (profile?.role === 'admin') {
+    //   if (adminPanel instanceof HTMLElement) adminPanel.hidden = false;
+    //   loadAdminTable();
+    // }
   }
 
   async function guard() {
