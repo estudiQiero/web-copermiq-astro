@@ -150,11 +150,26 @@ export async function adminDeleteUser(userId, email) {
 // supabase/migrations/20260809_add_admin_user_notes.sql.
 // ---------------------------------------------------------------------
 
+// PostgREST devuelve este mensaje (código PGRST205) cuando la tabla no
+// existe todavía en el proyecto real — es decir, cuando la migración
+// supabase/migrations/20260809100000_add_admin_user_notes.sql no se ha
+// aplicado aún a mano en el SQL Editor de Supabase (ver supabase/README.md).
+// Lo detectamos para dar un mensaje que diga qué hacer, en vez del error
+// crudo de Postgres.
+function isMissingNotesTableError(message) {
+  return typeof message === 'string' && /Could not find the table/i.test(message) && /admin_user_notes/i.test(message);
+}
+const NOTES_TABLE_MISSING_MESSAGE = 'Falta aplicar la migración de notas en Supabase (supabase/migrations/20260809100000_add_admin_user_notes.sql, en el SQL Editor) — ver supabase/README.md.';
+
 export async function getAdminUserNotes() {
   if (!isSupabaseConfigured || !supabase) return [];
   const { data, error } = await supabase.from('admin_user_notes').select('user_id, note');
   if (error) {
-    console.warn('[Copermiq] No se pudieron leer las notas de usuarios:', error.message);
+    if (isMissingNotesTableError(error.message)) {
+      console.warn('[Copermiq]', NOTES_TABLE_MISSING_MESSAGE);
+    } else {
+      console.warn('[Copermiq] No se pudieron leer las notas de usuarios:', error.message);
+    }
     return [];
   }
   return (data ?? []).map((row) => ({ userId: row.user_id, note: row.note }));
@@ -165,5 +180,5 @@ export async function saveAdminUserNote(userId, note) {
   const { error } = await supabase
     .from('admin_user_notes')
     .upsert({ user_id: userId, note, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(isMissingNotesTableError(error.message) ? NOTES_TABLE_MISSING_MESSAGE : error.message);
 }

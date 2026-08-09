@@ -6,8 +6,9 @@
 // (profiles.is_admin = true — columna compartida con la app desde el
 // 2026-08-08), el panel de administración: una píldora "Admin" (igual
 // que las de la app Copermiq) y debajo una tabla con TODOS los usuarios
-// (ampliado el 2026-08-08), con buscador por email, filtro por tipo de
-// plan, cambio de plan a mano, aprobar cuentas pendientes y eliminar.
+// (ampliado el 2026-08-08), con buscador por email o nota, filtro por
+// tipo de plan, cambio de plan a mano, aprobar cuentas pendientes y
+// eliminar.
 //
 // Importante: estas acciones NO llaman a funciones nuevas de la web —
 // llaman a admin-list-users / admin-set-plan / admin-activate-user /
@@ -47,7 +48,7 @@ import Footer from '../components/Footer.astro';
               type="search"
               id="admin-search"
               class="admin-search"
-              placeholder="Buscar por email…"
+              placeholder="Buscar por email o nota…"
               autocomplete="off"
             />
             <div class="admin-filter-chips" role="group" aria-label="Filtrar por plan">
@@ -71,7 +72,7 @@ import Footer from '../components/Footer.astro';
                   <th data-sort="amount">Importe <span class="admin-sort-indicator"></span></th>
                   <th data-sort="since">Desde <span class="admin-sort-indicator"></span></th>
                   <th data-sort="renews">Renueva <span class="admin-sort-indicator"></span></th>
-                  <th>Acciones</th>
+                  <th class="admin-col-center">Acciones</th>
                 </tr>
               </thead>
               <tbody id="admin-table-body">
@@ -254,7 +255,11 @@ import Footer from '../components/Footer.astro';
 
     const rows = allRows.filter((row) => {
       if (filters.length && !filters.includes(row.plan)) return false;
-      if (search && !(row.email ?? '').toLowerCase().includes(search)) return false;
+      if (search) {
+        const inEmail = (row.email ?? '').toLowerCase().includes(search);
+        const inNote = (row.note ?? '').toLowerCase().includes(search);
+        if (!inEmail && !inNote) return false;
+      }
       return true;
     });
 
