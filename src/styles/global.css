@@ -804,18 +804,31 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 }
 .admin-plan-select:disabled{ opacity:.5; cursor:not-allowed; }
 
-.admin-table-actions{ display:flex; flex-direction:column; align-items:flex-start; gap:5px; }
-.admin-approve-btn, .admin-delete-btn{
+.admin-table-actions{ display:flex; align-items:center; gap:8px; }
+.admin-approve-btn{
   font-family:inherit; font-size:12px; font-weight:600; padding:5px 11px; border-radius:999px;
-  border:1px solid var(--paper-line); background:transparent; color:var(--ink); cursor:pointer;
+  border:1px solid var(--accent-deep); background:transparent; color:var(--accent-deep); cursor:pointer;
   white-space:nowrap;
   transition:background .15s ease, border-color .15s ease, color .15s ease;
 }
-.admin-approve-btn{ border-color:var(--accent-deep); color:var(--accent-deep); }
 .admin-approve-btn:hover{ background:var(--accent-deep); color:var(--navy-text); }
+
+.admin-delete-btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:30px; height:30px; padding:0; border-radius:8px; flex-shrink:0;
+  border:1px solid var(--paper-line); background:transparent; color:var(--ink-faint); cursor:pointer;
+  transition:background .15s ease, border-color .15s ease, color .15s ease;
+}
+.admin-delete-btn svg{ width:14px; height:14px; }
 .admin-delete-btn:hover{ background:var(--stamp-red); border-color:var(--stamp-red); color:#fff; }
 .admin-delete-btn:disabled{ opacity:.4; cursor:not-allowed; }
-.admin-delete-btn:disabled:hover{ background:transparent; border-color:var(--paper-line); color:var(--ink); }
+.admin-delete-btn:disabled:hover{ background:transparent; border-color:var(--paper-line); color:var(--ink-faint); }
+
+.admin-status-dot{
+  display:inline-block; width:9px; height:9px; border-radius:50%;
+  background:var(--accent); vertical-align:middle;
+}
+.admin-status-dot-warn{ background:var(--stamp-amber); }
 
 /* ---------- Auth modal ---------- */
 .auth-overlay{

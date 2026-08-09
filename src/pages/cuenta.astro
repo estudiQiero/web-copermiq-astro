@@ -142,6 +142,11 @@ import Footer from '../components/Footer.astro';
     paused: 'Pausada',
   };
 
+  // Icono "trash-can" de Font Awesome Free (solid), incrustado como SVG
+  // en vez de cargar la fuente de iconos entera solo para este botón —
+  // mismo criterio que ya se usa para el icono de cerrar del modal.
+  const TRASH_ICON_SVG = '<svg viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64L32 128zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z"/></svg>';
+
   let allRows = [];
   let currentUserId = null;
   let pendingDelete = null; // { userId, email } mientras el modal de borrado está abierto
@@ -259,11 +264,24 @@ import Footer from '../components/Footer.astro';
     }
 
     tableBody.innerHTML = rows.map((row) => {
-      // Sin suscripción de Stripe detrás (Gratis o Regalo) se muestra el
-      // estado de profiles en vez del de Stripe.
-      const statusLabel = row.stripeStatus
-        ? (STRIPE_STATUS_LABELS[row.stripeStatus] ?? row.stripeStatus) + (row.cancelAtPeriodEnd ? ' (cancela)' : '')
-        : (row.plan === 'gratis' ? '—' : 'Activo (sin Stripe)');
+      // Estado: "activa" (con o sin Stripe detrás) no aporta nada como
+      // texto — o el usuario está, o no está — así que se reduce a un
+      // punto de color (verde normal, ámbar si la suscripción ya está
+      // marcada para cancelar al final del periodo). Solo los estados
+      // que SÍ necesitan explicación (pago fallido, cancelada, en
+      // prueba…) se quedan como texto.
+      const statusCell = (() => {
+        if (row.stripeStatus === 'active') {
+          return row.cancelAtPeriodEnd
+            ? '<span class="admin-status-dot admin-status-dot-warn" title="Activa (cancela al final del periodo)"></span>'
+            : '<span class="admin-status-dot" title="Activa"></span>';
+        }
+        if (row.stripeStatus) {
+          return escapeHtml(STRIPE_STATUS_LABELS[row.stripeStatus] ?? row.stripeStatus);
+        }
+        if (row.plan === 'gratis') return '—';
+        return '<span class="admin-status-dot" title="Activo (sin Stripe)"></span>';
+      })();
       const amountLabel = row.amount != null
         ? `${row.amount.toFixed(2)} ${(row.currency ?? '').toUpperCase()} / ${row.interval === 'year' ? 'año' : 'mes'}`
         : '—';
@@ -284,7 +302,7 @@ import Footer from '../components/Footer.astro';
               ${planOptions}
             </select>
           </td>
-          <td>${escapeHtml(statusLabel)}</td>
+          <td>${statusCell}</td>
           <td>${escapeHtml(amountLabel)}</td>
           <td>${sinceLabel}</td>
           <td>${formatDate(row.currentPeriodEnd)}</td>
@@ -298,8 +316,9 @@ import Footer from '../components/Footer.astro';
                 class="admin-delete-btn"
                 data-user-id="${escapeHtml(row.userId ?? '')}"
                 data-email="${escapeHtml(row.email ?? '')}"
-                ${isSelf ? 'disabled title="No puedes eliminarte a ti mismo desde aquí"' : ''}
-              >Eliminar</button>
+                aria-label="Eliminar cuenta"
+                ${isSelf ? 'disabled title="No puedes eliminarte a ti mismo desde aquí"' : 'title="Eliminar cuenta"'}
+              >${TRASH_ICON_SVG}</button>
             </div>
           </td>
         </tr>
