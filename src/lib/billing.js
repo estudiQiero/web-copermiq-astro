@@ -138,3 +138,32 @@ export async function adminActivateUser(userId) {
 export async function adminDeleteUser(userId, email) {
   return callFunction('admin-delete-user', { userId, email });
 }
+
+// ---------------------------------------------------------------------
+// Notas de admin sobre usuarios (añadido el 2026-08-09) — tabla PROPIA
+// de la web (`admin_user_notes`), completamente aparte de `profiles`:
+// no la toca ni la necesita la app para nada, solo sirve para que el
+// admin de la web anote lo que quiera para identificar cuentas. No hay
+// Edge Function — se lee/escribe directamente con el cliente de
+// Supabase, protegido por RLS (solo profiles.is_admin = true puede
+// leer/escribir esta tabla). Ver
+// supabase/migrations/20260809_add_admin_user_notes.sql.
+// ---------------------------------------------------------------------
+
+export async function getAdminUserNotes() {
+  if (!isSupabaseConfigured || !supabase) return [];
+  const { data, error } = await supabase.from('admin_user_notes').select('user_id, note');
+  if (error) {
+    console.warn('[Copermiq] No se pudieron leer las notas de usuarios:', error.message);
+    return [];
+  }
+  return (data ?? []).map((row) => ({ userId: row.user_id, note: row.note }));
+}
+
+export async function saveAdminUserNote(userId, note) {
+  if (!isSupabaseConfigured || !supabase) throw new Error('Configuración pendiente: faltan las claves de Supabase.');
+  const { error } = await supabase
+    .from('admin_user_notes')
+    .upsert({ user_id: userId, note, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+  if (error) throw new Error(error.message);
+}

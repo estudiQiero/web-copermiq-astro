@@ -798,11 +798,34 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 }
 .admin-badge-pending{ background:var(--stamp-red); color:#fff; }
 
-.admin-plan-select{
-  font-family:inherit; font-size:13px; padding:6px 10px; border-radius:8px;
-  border:1px solid var(--paper-line); background:var(--paper); color:var(--ink); cursor:pointer;
+.admin-note-input{
+  font-family:inherit; font-size:12.5px; padding:6px 10px; border-radius:8px;
+  border:1px solid var(--paper-line); background:var(--paper); color:var(--ink);
+  width:150px; max-width:100%;
+  transition:border-color .15s ease, background .15s ease;
 }
-.admin-plan-select:disabled{ opacity:.5; cursor:not-allowed; }
+.admin-note-input:focus{ outline:none; border-color:var(--accent); background:var(--white); }
+
+/* Píldora de Plan: mismo look que .admin-filter-chip/.admin-status-dot, con
+   un triangulito (blanco por defecto, marino sobre fondo blanco de
+   "Gratis" para que no desaparezca) que deja claro que es desplegable. */
+.admin-plan-select{
+  appearance:none; -webkit-appearance:none; -moz-appearance:none;
+  font-family:inherit; font-size:12.5px; font-weight:600; cursor:pointer;
+  padding:6px 26px 6px 14px; border-radius:999px; border:1px solid transparent;
+  background-repeat:no-repeat; background-position:right 10px center; background-size:9px 6px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ffffff'/%3E%3C/svg%3E");
+}
+.admin-plan-select:disabled{ opacity:.6; cursor:not-allowed; }
+
+.admin-plan-select--gratis{
+  background-color:#ffffff; color:var(--ink); border-color:var(--paper-line);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23142A42'/%3E%3C/svg%3E");
+}
+.admin-plan-select--suscripcion{ background-color:#C7CDD6; color:#2B3138; }
+.admin-plan-select--premium{ background-color:#D9B45C; color:#463205; }
+.admin-plan-select--regalo{ background-color:#F0A9C6; color:#5C1638; }
+.admin-plan-select--admin{ background-color:#22D3EE; color:#063542; }
 
 .admin-table-actions{ display:flex; align-items:center; gap:8px; }
 .admin-approve-btn{
@@ -816,13 +839,13 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .admin-delete-btn{
   display:inline-flex; align-items:center; justify-content:center;
   width:30px; height:30px; padding:0; border-radius:8px; flex-shrink:0;
-  border:1px solid var(--paper-line); background:transparent; color:var(--ink-faint); cursor:pointer;
+  border:1px solid var(--stamp-red-tint); background:transparent; color:var(--stamp-red); cursor:pointer;
   transition:background .15s ease, border-color .15s ease, color .15s ease;
 }
 .admin-delete-btn svg{ width:14px; height:14px; }
 .admin-delete-btn:hover{ background:var(--stamp-red); border-color:var(--stamp-red); color:#fff; }
 .admin-delete-btn:disabled{ opacity:.4; cursor:not-allowed; }
-.admin-delete-btn:disabled:hover{ background:transparent; border-color:var(--paper-line); color:var(--ink-faint); }
+.admin-delete-btn:disabled:hover{ background:transparent; border-color:var(--stamp-red-tint); color:var(--stamp-red); }
 
 .admin-status-dot{
   display:inline-block; width:9px; height:9px; border-radius:50%;

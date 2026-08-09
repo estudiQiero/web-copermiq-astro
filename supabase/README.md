@@ -24,6 +24,16 @@ STRIPE_SECRET_KEY
 
 No necesita nada más: comprueba `profiles.is_admin` ella misma y lee `profiles`/Stripe directamente, no depende de ninguna otra función de este repo.
 
+## También propia de este repo: la tabla `admin_user_notes`
+
+Nueva desde el 2026-08-09 — notas libres del admin sobre cada usuario (para identificar cuentas en la tabla de `/cuenta`), en una tabla aparte de `profiles`, sin ninguna relación con lo que gestiona la app. Hay que aplicarla una vez, a mano, en el **SQL Editor** del panel de Supabase (no hay CLI de migraciones automatizado en este proyecto):
+
+```
+supabase/migrations/20260809100000_add_admin_user_notes.sql
+```
+
+No necesita ninguna Edge Function ni ningún secret — se lee y escribe directamente desde el cliente de la web, protegido por RLS (solo `profiles.is_admin = true` puede leer o escribir).
+
 ## El resto de pasos (Stripe, precios, webhook) los gestiona la app
 
 - **Productos/precios en Stripe**: [dashboard de Stripe](https://dashboard.stripe.com/products) — coordinarlo con quien lleve esa parte, si hace falta un price ID nuevo (p. ej. para el toggle anual de `/precios`, todavía no conectado al cobro real).
