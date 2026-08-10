@@ -89,6 +89,18 @@
   const loginForm = document.getElementById('auth-login-form');
   const signupForm = document.getElementById('auth-signup-form');
   const messageEl = document.getElementById('auth-message');
+  const forgotBtn = document.querySelector('.auth-forgot');
+
+  // A dónde manda Supabase a la persona tras pinchar el enlace del email de
+  // "recuperar contraseña" — la app ya tiene esa pantalla (confirmado por
+  // Miq el 2026-08-09), pero esta URL exacta es una suposición razonable
+  // TODAVÍA SIN CONFIRMAR con el lado de la app — ver
+  // copermiq-app-billing-contract.md. Falta comprobar dos cosas antes de
+  // dar esto por bueno: 1) que la ruta es literalmente esta, y 2) que está
+  // en Supabase Auth → URL Configuration → Redirect URLs (si no está en
+  // esa lista, Supabase ignora este valor en silencio y usa el Site URL
+  // por defecto, y el enlace del email no lleva a ningún sitio útil).
+  const RESET_PASSWORD_URL = 'https://app.copermiq.com/reset-password';
 
   const logoutOverlay = document.getElementById('logout-overlay');
   const logoutClose = document.getElementById('logout-close');
@@ -192,6 +204,9 @@
     if (/unable to validate email address|invalid email/i.test(msg)) {
       return 'Ese email no parece válido.';
     }
+    if (/security purposes.*only request this/i.test(msg)) {
+      return 'Ya se ha enviado un email hace poco — espera un momento antes de volver a pedirlo.';
+    }
     return msg || 'Ha ocurrido un error. Inténtalo de nuevo.';
   }
 
@@ -220,6 +235,32 @@
     setMessage('');
     loginForm.reset();
     if (data.session) window.location.href = '/cuenta';
+  });
+
+  // "He olvidado mi contraseña" — reutiliza el campo de email del propio
+  // formulario de login (si ya lo ha escrito) en vez de pedirlo aparte.
+  // resetPasswordForEmail() es una llamada directa al Auth de Supabase
+  // (no una Edge Function propia ni de la app), así que no hay nada nuevo
+  // que desplegar — el único punto pendiente es RESET_PASSWORD_URL, ver
+  // el comentario de arriba.
+  forgotBtn?.addEventListener('click', async () => {
+    if (!supabase) return;
+    const emailInput = loginForm?.querySelector('input[name="email"]');
+    const email = emailInput instanceof HTMLInputElement ? emailInput.value.trim() : '';
+    if (!email) {
+      setMessage('Escribe tu email arriba y vuelve a pulsar "He olvidado mi contraseña".', 'error');
+      if (emailInput instanceof HTMLInputElement) emailInput.focus();
+      return;
+    }
+    if (forgotBtn instanceof HTMLButtonElement) forgotBtn.disabled = true;
+    setMessage('Enviando…');
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: RESET_PASSWORD_URL });
+    if (forgotBtn instanceof HTMLButtonElement) forgotBtn.disabled = false;
+    if (error) {
+      setMessage(translateError(error), 'error');
+      return;
+    }
+    setMessage('Te hemos enviado un email con un enlace para elegir una contraseña nueva.', 'success');
   });
 
   signupForm?.addEventListener('submit', async (event) => {
