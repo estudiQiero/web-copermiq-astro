@@ -92,15 +92,16 @@
   const forgotBtn = document.querySelector('.auth-forgot');
 
   // A dónde manda Supabase a la persona tras pinchar el enlace del email de
-  // "recuperar contraseña" — la app ya tiene esa pantalla (confirmado por
-  // Miq el 2026-08-09), pero esta URL exacta es una suposición razonable
-  // TODAVÍA SIN CONFIRMAR con el lado de la app — ver
-  // copermiq-app-billing-contract.md. Falta comprobar dos cosas antes de
-  // dar esto por bueno: 1) que la ruta es literalmente esta, y 2) que está
-  // en Supabase Auth → URL Configuration → Redirect URLs (si no está en
-  // esa lista, Supabase ignora este valor en silencio y usa el Site URL
-  // por defecto, y el enlace del email no lleva a ningún sitio útil).
-  const RESET_PASSWORD_URL = 'https://app.copermiq.com/reset-password';
+  // "recuperar contraseña" — confirmado por la app el 2026-08-09: es la
+  // raíz de la app, SIN ningún sufijo como /reset-password (la propia app
+  // detecta ahí la sesión de recuperación que añade Supabase). La app
+  // también confirmó que el flujo de invitación por enlace mágico ya
+  // funciona usando este mismo mecanismo, así que este dominio (o un
+  // patrón que lo cubra) ya debería estar en Supabase Auth → URL
+  // Configuration → Redirect URLs — pero eso solo se puede comprobar
+  // mirando ese panel directamente (ni la app ni esta sesión tienen forma
+  // de verlo), así que Miq debe confirmarlo ahí con sus propios ojos.
+  const RESET_PASSWORD_URL = 'https://app.copermiq.com/';
 
   const logoutOverlay = document.getElementById('logout-overlay');
   const logoutClose = document.getElementById('logout-close');
@@ -241,8 +242,7 @@
   // formulario de login (si ya lo ha escrito) en vez de pedirlo aparte.
   // resetPasswordForEmail() es una llamada directa al Auth de Supabase
   // (no una Edge Function propia ni de la app), así que no hay nada nuevo
-  // que desplegar — el único punto pendiente es RESET_PASSWORD_URL, ver
-  // el comentario de arriba.
+  // que desplegar — ver el comentario de RESET_PASSWORD_URL arriba.
   forgotBtn?.addEventListener('click', async () => {
     if (!supabase) return;
     const emailInput = loginForm?.querySelector('input[name="email"]');
