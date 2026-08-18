@@ -1,0 +1,108 @@
+---
+// Banner de consentimiento de cookies + carga condicional de Google Analytics
+// (GA4). No se carga ningún script de Google, y por tanto no se pone
+// ninguna cookie de analítica, hasta que el visitante pulsa "Aceptar".
+//
+// El Measurement ID se lee de la variable de entorno PUBLIC_GA_MEASUREMENT_ID
+// (ver .env.example). Si no está configurada, este componente no renderiza
+// nada — ni banner ni script — para que la web funcione igual en local sin
+// tener que rellenarla.
+const GA_MEASUREMENT_ID = import.meta.env.PUBLIC_GA_MEASUREMENT_ID;
+---
+
+{GA_MEASUREMENT_ID && (
+  <div id="cookie-banner" class="cookie-banner" hidden>
+    <div class="cookie-banner-text">
+      <p>
+        Usamos Google Analytics para saber cuántas personas visitan esta web —
+        no activamos nada hasta que lo aceptes. Puedes cambiar de opinión
+        cuando quieras desde "Preferencias de cookies", abajo a la izquierda.
+      </p>
+    </div>
+    <div class="cookie-banner-actions">
+      <button id="cookie-reject" class="btn btn-ghost" type="button">Rechazar</button>
+      <button id="cookie-accept" class="btn btn-primary" type="button">Aceptar</button>
+    </div>
+  </div>
+
+  <button id="cookie-preferences-link" class="cookie-preferences-link" type="button" hidden>
+    Preferencias de cookies
+  </button>
+
+  <script define:vars={{ GA_MEASUREMENT_ID }}>
+    const STORAGE_KEY = 'copermiq_cookie_consent';
+
+    function loadGoogleAnalytics(measurementId) {
+      if (window.__copermiqGaLoaded) return;
+      window.__copermiqGaLoaded = true;
+
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+      document.head.appendChild(script);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { window.dataLayer.push(arguments); }
+      window.gtag = gtag;
+      gtag('js', new Date());
+      gtag('config', measurementId);
+    }
+
+    function getConsent() {
+      try {
+        return localStorage.getItem(STORAGE_KEY);
+      } catch {
+        return null;
+      }
+    }
+
+    function setConsent(value) {
+      try {
+        localStorage.setItem(STORAGE_KEY, value);
+      } catch {
+        // Si localStorage no está disponible (modo privado estricto, etc.),
+        // simplemente no recordamos la elección entre visitas — no es crítico.
+      }
+    }
+
+    function showBanner() {
+      document.getElementById('cookie-banner')?.removeAttribute('hidden');
+    }
+    function hideBanner() {
+      document.getElementById('cookie-banner')?.setAttribute('hidden', '');
+    }
+    function showPreferencesLink() {
+      document.getElementById('cookie-preferences-link')?.removeAttribute('hidden');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const consent = getConsent();
+
+      if (consent === 'granted') {
+        loadGoogleAnalytics(GA_MEASUREMENT_ID);
+        showPreferencesLink();
+      } else if (consent === 'denied') {
+        showPreferencesLink();
+      } else {
+        showBanner();
+      }
+
+      document.getElementById('cookie-accept')?.addEventListener('click', () => {
+        setConsent('granted');
+        hideBanner();
+        loadGoogleAnalytics(GA_MEASUREMENT_ID);
+        showPreferencesLink();
+      });
+
+      document.getElementById('cookie-reject')?.addEventListener('click', () => {
+        setConsent('denied');
+        hideBanner();
+        showPreferencesLink();
+      });
+
+      document.getElementById('cookie-preferences-link')?.addEventListener('click', () => {
+        showBanner();
+      });
+    });
+  </script>
+)}

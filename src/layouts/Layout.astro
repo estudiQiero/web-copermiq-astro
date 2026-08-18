@@ -1,15 +1,18 @@
 ---
 import '../styles/global.css';
 import AuthModal from '../components/AuthModal.astro';
+import CookieConsent from '../components/CookieConsent.astro';
 
 interface Props {
   title?: string;
   description?: string;
+  noindex?: boolean;
 }
 
 const {
   title = 'Copermiq — Contabilidad personal fácil para autónomos',
   description = 'Tu app de facturación, gastos y contabilidad personal para autónomos. Crea facturas, controla el IVA y el IRPF, y mira tu resultado neto de un vistazo.',
+  noindex = false,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -23,6 +26,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <link rel="canonical" href={canonicalURL} />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
@@ -45,5 +49,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   <body>
     <slot />
     <AuthModal />
+    <CookieConsent />
   </body>
 </html>
