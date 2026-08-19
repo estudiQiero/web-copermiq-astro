@@ -1,0 +1,106 @@
+---
+// Tabla comparativa de planes para /precios. Cada fila viene de una fuente
+// verificable: el changelog real de la app (README.md, CopperMiq-main),
+// Supabase (región eu-central-1 = Frankfurt), o confirmación directa de Miq
+// (2026-08-19) para el reparto exacto por plan de pago:
+// - Libros registro: solo Premium (no Suscripción, aunque el changelog de la
+//   app decía "a partir de Suscripción" — Miq confirmó que la decisión final
+//   de negocio es Premium en exclusiva).
+// - Colores de marca personalizables: solo Premium (mismo caso).
+// - Facturas periódicas/recurrentes y categorías de gasto personalizables:
+//   confirmadas como "a partir de Suscripción", tal como ya decía la web.
+// - IVA por inversión del sujeto pasivo y moneda extranjera en gastos:
+//   confirmadas como "a partir de Suscripción" (2026-08-19), no disponibles
+//   en el plan Gratis como se había puesto inicialmente.
+
+const CHECK = '✓';
+const DASH = '—';
+
+const groups = [
+  {
+    title: 'Facturación y presupuestos',
+    rows: [
+      { label: 'Facturas y presupuestos ilimitados', free: CHECK, sub: CHECK, premium: CHECK },
+      { label: 'Facturas rectificativas conforme a normativa', free: CHECK, sub: CHECK, premium: CHECK },
+      { label: 'Facturas periódicas / recurrentes', free: DASH, sub: CHECK, premium: CHECK },
+      { label: 'PDF sin pie de marca "generado con Copermiq"', free: DASH, sub: CHECK, premium: CHECK },
+    ],
+  },
+  {
+    title: 'Gastos y proveedores',
+    rows: [
+      { label: 'Registro de gastos con IVA e IRPF', free: CHECK, sub: CHECK, premium: CHECK },
+      { label: 'Proveedores', free: CHECK, sub: CHECK, premium: CHECK },
+      { label: 'Categorías de gasto personalizables', free: DASH, sub: CHECK, premium: CHECK },
+      { label: 'IVA por inversión del sujeto pasivo (proveedores extranjeros)', free: DASH, sub: CHECK, premium: CHECK },
+      { label: 'Moneda extranjera en gastos', free: DASH, sub: CHECK, premium: CHECK },
+      { label: 'Escanear gasto con IA (rellena el gasto solo)', free: DASH, sub: DASH, premium: CHECK },
+    ],
+  },
+  {
+    title: 'Ayuda fiscal',
+    rows: [
+      { label: 'Modelos 303 / 130 / 390 (ayuda orientativa)', free: CHECK, sub: CHECK, premium: CHECK },
+      { label: 'Libros registro (facturas emitidas y recibidas)', free: DASH, sub: DASH, premium: CHECK },
+    ],
+  },
+  {
+    title: 'Seguridad y cuenta',
+    rows: [
+      { label: 'Verificación en dos pasos (2FA)', free: CHECK, sub: CHECK, premium: CHECK },
+      { label: 'Contraseñas fuertes obligatorias', free: CHECK, sub: CHECK, premium: CHECK },
+      { label: 'Copia de seguridad manual (JSON)', free: CHECK, sub: CHECK, premium: CHECK },
+      { label: 'Copia de seguridad automática (email)', free: DASH, sub: CHECK, premium: CHECK },
+      { label: 'Datos alojados en la UE (Frankfurt)', free: CHECK, sub: CHECK, premium: CHECK },
+    ],
+  },
+  {
+    title: 'Personalización y comodidad',
+    rows: [
+      { label: 'App instalable en el móvil (PWA), sin tiendas de apps', free: CHECK, sub: CHECK, premium: CHECK },
+      { label: 'Bilingüe castellano / catalán', free: CHECK, sub: CHECK, premium: CHECK },
+      { label: 'Modo claro / oscuro', free: CHECK, sub: CHECK, premium: CHECK },
+      { label: 'Colores de marca personalizables', free: DASH, sub: DASH, premium: CHECK },
+      { label: 'Soporte prioritario', free: DASH, sub: DASH, premium: CHECK },
+    ],
+  },
+];
+---
+
+<section class="plan-comparison">
+  <div class="wrap section-head">
+    <h2>Compara los planes al detalle</h2>
+    <p>
+      Todo lo marcado aquí existe de verdad en la app hoy mismo — nada de esta
+      tabla es una promesa de algo por construir.
+    </p>
+  </div>
+
+  <div class="wrap plan-comparison-scroll">
+    <table class="plan-comparison-table">
+      <thead>
+        <tr>
+          <th scope="col" class="pc-feature-col">Funcionalidad</th>
+          <th scope="col">Gratis</th>
+          <th scope="col" class="pc-highlight-col">Suscripción</th>
+          <th scope="col">Premium</th>
+        </tr>
+      </thead>
+      {groups.map((group) => (
+        <tbody>
+          <tr class="pc-group-row">
+            <th scope="colgroup" colspan="4">{group.title}</th>
+          </tr>
+          {group.rows.map((row) => (
+            <tr>
+              <th scope="row" class="pc-feature-col">{row.label}</th>
+              <td class:list={{ 'pc-yes': row.free === CHECK, 'pc-no': row.free === DASH }}>{row.free}</td>
+              <td class:list={['pc-highlight-col', { 'pc-yes': row.sub === CHECK, 'pc-no': row.sub === DASH }]}>{row.sub}</td>
+              <td class:list={{ 'pc-yes': row.premium === CHECK, 'pc-no': row.premium === DASH }}>{row.premium}</td>
+            </tr>
+          ))}
+        </tbody>
+      ))}
+    </table>
+  </div>
+</section>

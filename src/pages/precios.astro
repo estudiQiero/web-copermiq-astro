@@ -8,6 +8,7 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import PlanComparison from '../components/PlanComparison.astro';
 
 const APP_URL = 'https://app.copermiq.com';
 
@@ -122,6 +123,8 @@ const plans = [
         Precios y características orientativos, pendientes de confirmar. Todos los planes de pago se gestionan y pueden cancelarse en cualquier momento, tanto desde la web como desde la app.
       </p>
     </section>
+
+    <PlanComparison />
   </main>
 
   <Footer />

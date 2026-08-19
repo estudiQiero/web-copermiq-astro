@@ -993,3 +993,57 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
   .cookie-banner-text p{ font-size:13.5px; }
   .cookie-banner-actions{ flex-shrink:0; }
 }
+
+/* ---------- Tabla comparativa de planes (/precios) ---------- */
+.plan-comparison{ padding:64px 0 80px; }
+.plan-comparison .section-head{ text-align:center; max-width:640px; margin:0 auto 40px; }
+.plan-comparison .section-head p{ color:var(--ink-soft); margin-top:10px; font-size:15px; }
+
+.plan-comparison-scroll{
+  overflow-x:auto;
+  border:1px solid var(--paper-line);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow);
+  background:var(--card);
+}
+.plan-comparison-table{
+  width:100%; min-width:640px;
+  border-collapse:collapse;
+  font-size:14.5px;
+}
+.plan-comparison-table thead th{
+  text-align:center;
+  padding:16px 14px;
+  font-family:'Zilla Slab', serif;
+  font-size:17px;
+  color:var(--ink);
+  border-bottom:1px solid var(--paper-line);
+  background:var(--paper);
+}
+.plan-comparison-table thead .pc-feature-col{ text-align:left; }
+.plan-comparison-table .pc-highlight-col{ background:var(--accent-tint); }
+
+.pc-group-row th{
+  text-align:left;
+  padding:12px 14px 8px;
+  font-family:'IBM Plex Mono', monospace;
+  font-size:12px; letter-spacing:0.06em; text-transform:uppercase;
+  color:var(--accent-deep);
+  background:transparent;
+  border-bottom:1px solid var(--paper-line);
+}
+
+.plan-comparison-table td, .plan-comparison-table th.pc-feature-col{
+  padding:12px 14px;
+  border-bottom:1px solid var(--paper-line);
+  vertical-align:middle;
+}
+.plan-comparison-table tbody tr:last-child td,
+.plan-comparison-table tbody tr:last-child th{ border-bottom:none; }
+
+.plan-comparison-table th.pc-feature-col{
+  text-align:left; font-weight:500; color:var(--ink);
+}
+.plan-comparison-table td{ text-align:center; }
+.plan-comparison-table td.pc-yes{ color:var(--accent-deep); font-weight:600; }
+.plan-comparison-table td.pc-no{ color:var(--ink-faint); }
