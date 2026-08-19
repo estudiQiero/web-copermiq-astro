@@ -1,17 +1,20 @@
 ---
-// Tabla comparativa de planes para /precios. Cada fila viene de una fuente
-// verificable: el changelog real de la app (README.md, CopperMiq-main),
-// Supabase (región eu-central-1 = Frankfurt), o confirmación directa de Miq
-// (2026-08-19) para el reparto exacto por plan de pago:
-// - Libros registro: solo Premium (no Suscripción, aunque el changelog de la
-//   app decía "a partir de Suscripción" — Miq confirmó que la decisión final
-//   de negocio es Premium en exclusiva).
+// Tabla comparativa de planes, integrada en /#precios (home). Cada fila
+// viene de una fuente verificable: el changelog real de la app (README.md,
+// CopperMiq-main), Supabase (región eu-central-1 = Frankfurt), o
+// confirmación directa de Miq (2026-08-19) para el reparto exacto por plan
+// de pago. Nota de nombres: el plan intermedio (key interna 'subscription'
+// / 'suscripcion' en Stripe y Supabase, sin cambios) se llama de cara al
+// público "Pro" desde el 2026-08-19 — antes aparecía como "Suscripción".
+// - Libros registro: solo Premium (no Pro, aunque el changelog de la app
+//   decía "a partir de Suscripción" — Miq confirmó que la decisión final de
+//   negocio es Premium en exclusiva).
 // - Colores de marca personalizables: solo Premium (mismo caso).
 // - Facturas periódicas/recurrentes y categorías de gasto personalizables:
-//   confirmadas como "a partir de Suscripción", tal como ya decía la web.
+//   confirmadas como "a partir de Pro", tal como ya decía la web.
 // - IVA por inversión del sujeto pasivo y moneda extranjera en gastos:
-//   confirmadas como "a partir de Suscripción" (2026-08-19), no disponibles
-//   en el plan Gratis como se había puesto inicialmente.
+//   confirmadas como "a partir de Pro" (2026-08-19), no disponibles en el
+//   plan Gratis como se había puesto inicialmente.
 
 const CHECK = '✓';
 const DASH = '—';
@@ -82,7 +85,7 @@ const groups = [
         <tr>
           <th scope="col" class="pc-feature-col">Funcionalidad</th>
           <th scope="col">Gratis</th>
-          <th scope="col" class="pc-highlight-col">Suscripción</th>
+          <th scope="col" class="pc-highlight-col">Pro</th>
           <th scope="col">Premium</th>
         </tr>
       </thead>

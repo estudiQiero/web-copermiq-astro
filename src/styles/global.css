@@ -144,40 +144,50 @@ img{ max-width:100%; display:block; }
 .site-header.menu-open .menu-bar:nth-child(2){ opacity:0; }
 .site-header.menu-open .menu-bar:nth-child(3){ transform: translateY(-7px) rotate(-45deg); }
 
-/* Panel del menú */
+/* Panel del menú: columna deslizante desde la derecha, no un desplegable
+   que empuje el resto de la página hacia abajo. Ancho fijo ~400px (el
+   ancho aproximado de un móvil) con tope en el 100% del viewport para que
+   en pantallas más estrechas ocupe todo el ancho disponible. */
 .site-menu{
-  max-height:0; overflow:hidden;
-  transition: max-height .35s ease, border-color .3s ease;
-  border-top:0 solid rgba(233,240,247,0.12);
+  position:fixed; top:0; right:0;
+  width:400px; max-width:100vw;
+  height:100vh; height:100dvh;
+  overflow-y:auto;
+  background:var(--navy);
+  box-shadow:-16px 0 50px rgba(0,0,0,0.35);
+  transform:translateX(100%);
+  transition:transform .35s ease;
+  z-index:55;
 }
-/* Nota: no reutiliza la clase .wrap a propósito — dentro de .site-header,
-   .wrap tiene display:flex (para la barra superior) y descolocaría este
-   panel, que necesita layout normal en columna. */
-.site-menu-links{
-  max-width:var(--maxw); margin:0 auto; padding:0 24px;
-  padding-top:0; padding-bottom:0;
+.site-header.menu-open .site-menu{ transform:translateX(0); }
+
+/* Fondo oscuro que cubre el resto de la página mientras el panel está
+   abierto — refuerza la separación visual y permite cerrar tocando fuera. */
+.menu-backdrop{
+  position:fixed; inset:0; z-index:54;
+  background:rgba(10,18,28,0.55);
+  opacity:0; pointer-events:none;
+  transition:opacity .3s ease;
 }
-.site-header.menu-open .site-menu{
-  max-height:900px;
-  border-top-width:1px;
+.site-header.menu-open .menu-backdrop{ opacity:1; pointer-events:auto; }
+
+.site-menu-top{ display:flex; justify-content:flex-end; padding:14px 20px 0; }
+.menu-close{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:38px; height:38px; border-radius:999px;
+  background:transparent; border:1px solid transparent; padding:0;
+  color:var(--navy-text); cursor:pointer;
+  transition:background .15s ease;
 }
-.site-header.menu-open .site-menu-links{ padding-top:20px; padding-bottom:24px; }
+.menu-close:hover{ background:rgba(233,240,247,0.1); }
+.menu-close svg{ width:18px; height:18px; }
 
-/* Primer bloque: CTA + los dos ticks de confianza (los mismos que están
-   ocultos, de momento, en el Hero). */
-.menu-primary{ display:flex; flex-direction:column; align-items:flex-start; gap:18px; }
-.menu-cta{ width:100%; justify-content:center; text-align:center; }
-.menu-trust{ display:flex; flex-direction:column; gap:10px; max-width:520px; }
-.menu-trust-item{ display:flex; align-items:flex-start; gap:10px; font-size:13.5px; color:rgba(233,240,247,0.65); line-height:1.5; }
-.menu-trust-item svg{ width:16px; height:16px; margin-top:2px; color:#9FD6BB; flex-shrink:0; }
+.site-menu-links{ padding:8px 24px 32px; }
 
-/* Separador muy sutil entre el bloque de CTA y los enlaces de secciones */
-.menu-divider{ height:1px; background:rgba(233,240,247,0.1); margin:22px 0; }
-
-.menu-nav-list{ list-style:none; display:flex; flex-direction:column; gap:2px; }
+.menu-nav-list{ list-style:none; display:flex; flex-direction:column; gap:2px; margin:0; padding:0; }
 .menu-nav-list a{
-  display:block; padding:10px 4px; border-radius:8px;
-  font-size:15px; color:var(--navy-text);
+  display:block; padding:12px 6px; border-radius:8px;
+  font-size:16px; color:var(--navy-text);
   transition:background .15s ease, color .15s ease;
 }
 .menu-nav-list a:hover{ background:rgba(233,240,247,0.08); }
@@ -209,10 +219,6 @@ img{ max-width:100%; display:block; }
   color:var(--navy-text); background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.14);
   border-radius:999px; padding:6px 14px;
 }
-.hero-actions{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
-.hero-trust{ margin-top:24px; display:flex; flex-direction:column; gap:10px; max-width:500px; }
-.hero-trust-item{ display:flex; align-items:flex-start; gap:10px; font-size:13.5px; color:rgba(233,240,247,0.65); line-height:1.5; }
-.hero-trust-item svg{ width:16px; height:16px; margin-top:2px; color:#9FD6BB; flex-shrink:0; }
 .hero-visual{
   position:relative; display:flex; flex-direction:column; justify-content:center; align-items:center;
   height:100%; padding:24px 0; gap:22px;
@@ -256,6 +262,31 @@ img{ max-width:100%; display:block; }
   font-family:'EB Garamond', 'Zilla Slab', serif; font-style:italic; font-weight:600;
   font-size:14px; color:#9FD6BB; letter-spacing:0.01em;
 }
+/* ---------- Banda de CTA bajo el Hero ---------- */
+/* Mismo azul marino que el Hero y sin borde/línea entre ambos (a propósito:
+   no debe leerse como un bloque nuevo con separación física), pero con su
+   propio padding generoso para que "respire" y se perciba como su propio
+   módulo — botón centrado y los dos ticks de confianza en 2 columnas. */
+.hero-cta-band{
+  background:var(--navy);
+  color:var(--navy-text);
+  padding:8px 0 72px;
+}
+.hero-cta-band .wrap{
+  display:flex; flex-direction:column; align-items:center;
+  gap:32px; text-align:center;
+}
+.hero-cta-trust{
+  display:grid; grid-template-columns:1fr 1fr; gap:18px 40px;
+  max-width:760px; width:100%;
+}
+.hero-cta-trust-item{ display:flex; align-items:flex-start; gap:10px; text-align:left; font-size:13.5px; color:rgba(233,240,247,0.65); line-height:1.5; }
+.hero-cta-trust-item svg{ width:16px; height:16px; margin-top:2px; color:#9FD6BB; flex-shrink:0; }
+
+@media (max-width:640px){
+  .hero-cta-trust{ grid-template-columns:1fr; max-width:440px; }
+}
+
 /* ---------- Trust strip ---------- */
 .trust-strip{ background:var(--paper); border-bottom:1px solid var(--paper-line); }
 .trust-strip .wrap{
@@ -935,7 +966,6 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
   .hero-copy{ display:contents; }
   .hero-intro{ order:1; }
   .hero-visual{ order:2; padding:8px 0; }
-  .hero-cta{ order:3; }
   .hero-visual img{ width:220px; }
   .hero-copy h1{ font-size:32px; }
   .features-grid{ grid-template-columns:1fr 1fr; }
@@ -950,8 +980,6 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
   section{ padding:64px 0; }
   .features-grid{ grid-template-columns:1fr; }
   .hero-copy h1{ font-size:28px; }
-  .hero-actions{ flex-direction:column; align-items:stretch; }
-  .hero-actions .btn{ width:100%; }
   .auth-modal{ padding:28px 22px; }
   /* En pantallas estrechas el logotipo grande (icono + "Copermiq") no cabe
      junto a los iconos de la derecha en la misma línea sin solaparse. En vez

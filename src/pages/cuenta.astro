@@ -53,7 +53,7 @@ import Footer from '../components/Footer.astro';
             />
             <div class="admin-filter-chips" role="group" aria-label="Filtrar por plan">
               <button type="button" class="admin-filter-chip" data-plan="gratis">Gratis</button>
-              <button type="button" class="admin-filter-chip" data-plan="suscripcion">Suscripción</button>
+              <button type="button" class="admin-filter-chip" data-plan="suscripcion">Pro</button>
               <button type="button" class="admin-filter-chip" data-plan="regalo">Regalo</button>
               <button type="button" class="admin-filter-chip" data-plan="premium">Premium</button>
             </div>
@@ -134,7 +134,10 @@ import Footer from '../components/Footer.astro';
   // por el lado de la app): español, no inglés — 'gratis' es el valor
   // por defecto. 'regalo' da el mismo acceso que 'suscripcion' pero sin
   // pago real (asignado a mano por un admin), añadido el 2026-08-08.
-  const PLAN_LABELS = { gratis: 'Gratis', suscripcion: 'Suscripción', regalo: 'Regalo', premium: 'Premium' };
+  // 'suscripcion' es el valor real en la base de datos (no cambia); "Pro"
+  // es solo la etiqueta que se muestra, para que coincida con el nombre
+  // público del plan (renombrado el 2026-08-19).
+  const PLAN_LABELS = { gratis: 'Gratis', suscripcion: 'Pro', regalo: 'Regalo', premium: 'Premium' };
   const STRIPE_STATUS_LABELS = {
     active: 'Activa',
     trialing: 'En prueba',

@@ -1,0 +1,5 @@
+# La página /precios se eliminó el 2026-08-19: su contenido (planes +
+# tabla comparativa) ahora vive dentro de la home, en /#precios. Redirigimos
+# la URL antigua por si Google la tiene indexada o alguien la tiene
+# guardada en marcadores.
+/precios  /#precios  301

@@ -1,0 +1,29 @@
+---
+// Banda de CTA justo debajo del Hero: mismo fondo azul marino, sin línea de
+// separación física entre ambas secciones, pero con su propio espaciado
+// para que se perciba como su propio módulo. Antes este mismo contenido
+// (botón + 2 ticks) vivía oculto dentro del Hero y, por separado, duplicado
+// en el panel del menú hamburguesa — ahora vive solo aquí.
+const APP_URL = 'https://app.copermiq.com';
+---
+
+<section class="hero-cta-band">
+  <div class="wrap">
+    <a class="btn btn-on-navy" href={APP_URL} target="_blank" rel="noopener">Usa Copermiq gratis para siempre</a>
+
+    <div class="hero-cta-trust">
+      <div class="hero-cta-trust-item">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 10.5L8 14.5L16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Es una web app: añádela a la pantalla de inicio de iPhone o Android para un mejor rendimiento y experiencia de usuario.</span>
+      </div>
+      <div class="hero-cta-trust-item">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 10.5L8 14.5L16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Gratis de por vida en su versión completa. Extras opcionales muy asequibles por suscripción mensual —personalización de la interfaz, facturas sin pie de página— para quien quiera ir más allá.</span>
+      </div>
+    </div>
+  </div>
+</section>

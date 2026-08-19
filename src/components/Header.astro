@@ -1,5 +1,4 @@
 ---
-const APP_URL = 'https://app.copermiq.com';
 ---
 
 <header class="site-header">
@@ -37,46 +36,40 @@ const APP_URL = 'https://app.copermiq.com';
     </div>
   </div>
 
+  <!-- Panel deslizante desde la derecha (ver .site-menu en global.css). El
+       botón de la hamburguesa hace de abrir/cerrar (con su animación de
+       cruz); el panel además incluye su propio botón de cerrar, porque una
+       vez abierto queda por encima del icono de la cabecera. -->
   <nav id="site-menu" class="site-menu" aria-hidden="true">
+    <div class="site-menu-top">
+      <button class="menu-close" type="button" aria-label="Cerrar menú">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 5L15 15M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
     <div class="site-menu-links">
-      <div class="menu-primary">
-        <a class="btn btn-on-navy menu-cta" href={APP_URL} target="_blank" rel="noopener">Usa Copermiq gratis para siempre</a>
-        <div class="menu-trust">
-          <div class="menu-trust-item">
-            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 10.5L8 14.5L16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>Es una web app: añádela a la pantalla de inicio de iPhone o Android para un mejor rendimiento y experiencia de usuario.</span>
-          </div>
-          <div class="menu-trust-item">
-            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 10.5L8 14.5L16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>Gratis de por vida en su versión completa. Extras opcionales muy asequibles por suscripción mensual —personalización de la interfaz, facturas sin pie de página— para quien quiera ir más allá.</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="menu-divider" aria-hidden="true"></div>
-
       <ul class="menu-nav-list">
         <!-- Solo visible con sesión iniciada (ver AuthModal.astro, que
              quita/pone el atributo hidden según el estado de la sesión). -->
         <li id="menu-account-link" hidden><a href="/cuenta">Mi cuenta</a></li>
-        <li><a href="/precios">Precios</a></li>
         <li><a href="/#funciones">Funciones</a></li>
         <li><a href="/#personalizacion">Personalización</a></li>
         <li><a href="/#como-funciona">Cómo funciona</a></li>
         <li><a href="/#vista-previa">Vista previa</a></li>
         <li><a href="/#seguridad">Seguridad</a></li>
+        <li><a href="/#precios">Precios</a></li>
         <li><a href="/#por-que-copermiq">Por qué Copermiq</a></li>
       </ul>
     </div>
   </nav>
+  <div class="menu-backdrop" data-menu-backdrop aria-hidden="true"></div>
 </header>
 
 <script>
   const menuToggle = document.querySelector('.menu-toggle');
+  const menuClose = document.querySelector('.menu-close');
+  const menuBackdrop = document.querySelector('[data-menu-backdrop]');
   const siteHeader = document.querySelector('.site-header');
   const siteMenu = document.querySelector('#site-menu');
 
@@ -87,14 +80,26 @@ const APP_URL = 'https://app.copermiq.com';
     siteMenu?.setAttribute('aria-hidden', 'true');
   }
 
+  function openMenu() {
+    siteHeader?.classList.add('menu-open');
+    menuToggle?.setAttribute('aria-expanded', 'true');
+    menuToggle?.setAttribute('aria-label', 'Cerrar menú');
+    siteMenu?.setAttribute('aria-hidden', 'false');
+  }
+
   menuToggle?.addEventListener('click', () => {
-    const isOpen = siteHeader?.classList.toggle('menu-open') ?? false;
-    menuToggle.setAttribute('aria-expanded', String(isOpen));
-    menuToggle.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
-    siteMenu?.setAttribute('aria-hidden', String(!isOpen));
+    const isOpen = siteHeader?.classList.contains('menu-open') ?? false;
+    if (isOpen) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
   });
 
-  // Al elegir un enlace del menú (CTA o sección) se cierra el panel.
+  menuClose?.addEventListener('click', closeMenu);
+  menuBackdrop?.addEventListener('click', closeMenu);
+
+  // Al elegir un enlace del menú se cierra el panel.
   siteMenu?.querySelectorAll('a').forEach((link) => {
     link.addEventListener('click', closeMenu);
   });
