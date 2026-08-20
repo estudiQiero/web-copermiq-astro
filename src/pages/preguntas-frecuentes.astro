@@ -1,0 +1,333 @@
+---
+// Página de ayuda centralizada — 2026-08-20, a petición de Miq: junta en un
+// solo sitio las FAQs que antes vivían repartidas (la general de la home, en
+// FAQ.astro, y la de precios/facturación, dentro de Pricing.astro), con
+// buscador, menú rápido de secciones e iconos grandes por temática.
+//
+// FAQ.astro y su sección en index.astro dejan de usarse (petición explícita:
+// "Quitaremos la sección de FAQs de la home") — el componente sigue en el
+// repo por si hace falta recuperar algo, pero ya no se importa desde
+// ninguna página. Todo su contenido está aquí, trasladado tal cual.
+//
+// Los datos de "Precios y suscripción" son los mismos 4 que ya estaban en
+// Pricing.astro (pricingFaq), verificados contra copermiq-billing-architecture.md
+// — ver el comentario original en ese archivo para el detalle de cada fuente.
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const ICONS = {
+  info: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z M12 11v6 M12 7.5h.01',
+  invoice: 'M6 3h9l3 3v15H6z M15 3v3h3 M9 11h6 M9 15h6 M9 19h3',
+  card: 'M4 7h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z M3 10h18 M7 15h4',
+  wallet: 'M4 8a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z M16 12h3v3h-3a1.5 1.5 0 0 1 0-3z M4 8V6a2 2 0 0 1 2-2h9',
+  percent: 'M6 18L18 6 M7.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z M16.5 18a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z',
+  shield: 'M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z',
+  globe: 'M3 12h18 M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9 M12 3c-2.5 2.5-4 5.5-4 9s1.5 6.5 4 9',
+};
+
+const sections = [
+  {
+    id: 'sobre-copermiq',
+    title: 'Sobre Copermiq',
+    icon: ICONS.info,
+    items: [
+      {
+        q: '¿Qué es Copermiq?',
+        a: 'Una aplicación de facturación y contabilidad pensada específicamente para autónomos en España. No es solo un generador de facturas: convierte tus facturas y gastos en la información fiscal real que necesitas cada trimestre — IVA, IRPF, y los modelos que le corresponde presentar a Hacienda.',
+      },
+      {
+        q: '¿Para quién está pensada?',
+        a: 'Para autónomos en estimación directa, con IVA general (trimestral). Si tu actividad tiene un régimen fiscal distinto (módulos, recargo de equivalencia, operaciones intracomunitarias...), Copermiq puede seguir ayudándote con la facturación, pero consulta con tu asesor los cálculos fiscales específicos de tu caso.',
+      },
+      {
+        q: '¿Sustituye a mi gestor o asesor fiscal?',
+        a: 'No, y no pretende hacerlo. Copermiq te da los números ya calculados y traducidos a las casillas oficiales de la AEAT, listos para que los revises tú mismo o se los pases directamente a tu gestor — pero la responsabilidad de presentar correctamente sigue siendo tuya (o de tu asesor). Es una herramienta de ayuda, no un sustituto profesional.',
+      },
+      {
+        q: '¿Necesito instalar algo?',
+        a: 'No. Copermiq funciona directamente desde el navegador, en el ordenador o el móvil. Si quieres, también puedes "instalarla" en la pantalla de inicio de tu móvil como si fuera una app nativa, sin pasar por ninguna tienda de aplicaciones.',
+      },
+    ],
+  },
+  {
+    id: 'facturacion',
+    title: 'Facturación',
+    icon: ICONS.invoice,
+    items: [
+      {
+        q: '¿Puedo hacer presupuestos, o solo facturas?',
+        a: 'Puedes crear presupuestos, y convertirlos en factura con un clic cuando el cliente los acepte, sin tener que volver a introducir los datos.',
+      },
+      {
+        q: '¿Se pueden programar facturas que se repiten cada mes?',
+        a: 'Sí. Puedes marcar una factura como periódica (mensual, trimestral, anual, o la frecuencia que necesites), y Copermiq la va proponiendo sola en el momento que toca, sin tener que crearla desde cero cada vez.',
+      },
+      {
+        q: '¿Cómo envío una factura a mi cliente?',
+        a: 'Directamente desde la app, por email, con el PDF real adjunto — no hace falta descargarlo y adjuntarlo tú a mano. El correo llega con el nombre de tu negocio, y si tu cliente responde, te llega a ti directamente.',
+      },
+      {
+        q: '¿Qué pasa si me equivoco en una factura ya emitida?',
+        a: 'Una factura emitida no se puede borrar ni editar libremente, tal como exige la normativa — para corregirla, se genera una factura rectificativa, vinculada a la original, con el motivo de la rectificación.',
+      },
+    ],
+  },
+  {
+    id: 'precios-y-suscripcion',
+    title: 'Precios y suscripción',
+    icon: ICONS.card,
+    items: [
+      {
+        q: '¿Puedo cambiar de plan cuando quiera?',
+        a: 'Sí. Puedes subir o bajar de plan en el momento que quieras, sin esperas ni compromiso de permanencia.',
+      },
+      {
+        q: '¿Qué pasa si cancelo mi plan de pago?',
+        a: 'Mantienes el acceso hasta el final del periodo ya pagado. Después, tu cuenta pasa automáticamente al plan Gratis — tus facturas, gastos y datos no se borran, solo dejas de ver las funciones exclusivas de tu plan anterior.',
+      },
+      {
+        q: '¿Cómo se gestiona el pago?',
+        a: 'A través de Stripe, la misma plataforma de pago que usan miles de empresas — nosotros nunca vemos ni guardamos el número de tu tarjeta. Puedes consultar tus facturas de suscripción y cambiar tu método de pago desde el Portal de cliente de Stripe, accesible desde tu cuenta.',
+      },
+      {
+        q: '¿Necesito tarjeta para probar Copermiq?',
+        a: 'No. El plan Gratis no caduca ni pide tarjeta — puedes usarlo el tiempo que quieras y pasar a Pro o Premium el día que lo necesites.',
+      },
+    ],
+  },
+  {
+    id: 'gastos',
+    title: 'Gastos',
+    icon: ICONS.wallet,
+    items: [
+      {
+        q: '¿Puedo adjuntar el recibo o la factura de un gasto?',
+        a: 'Sí, puedes subir una foto o un PDF a cada gasto, y verás una miniatura real del documento (incluida la primera página, si es un PDF).',
+      },
+      {
+        q: '¿Puedo organizar mis gastos por categorías?',
+        a: 'Sí, con categorías totalmente personalizables — puedes crear las tuyas propias y asignarles el color que quieras.',
+      },
+    ],
+  },
+  {
+    id: 'lo-fiscal',
+    title: 'Lo fiscal',
+    icon: ICONS.percent,
+    items: [
+      {
+        q: '¿Copermiq calcula lo que tengo que pagar de IVA e IRPF?',
+        a: 'Sí. A partir de tus facturas y gastos, Copermiq calcula el resumen de cada trimestre y lo traduce directamente a las casillas oficiales del Modelo 303 (IVA) y el Modelo 130 (IRPF), listas para copiar en la Sede Electrónica de la AEAT o pasar a tu gestor. También genera el resumen anual (Modelo 390), avisándote si es probable que estés exento de presentarlo.',
+      },
+      {
+        q: '¿Esto sustituye la presentación oficial ante Hacienda?',
+        a: 'No. Es una ayuda para que sepas exactamente qué números corresponden a cada casilla — la presentación en sí se sigue haciendo en la Sede Electrónica de la AEAT (o a través de tu gestor), como siempre.',
+      },
+      {
+        q: '¿Puedo elegir entre criterio de devengo y criterio de caja?',
+        a: 'Sí, si estás acogido al Régimen Especial del Criterio de Caja, puedes activarlo en los ajustes de tu negocio, y los cálculos (y la mención legal en tus facturas) se ajustan automáticamente.',
+      },
+    ],
+  },
+  {
+    id: 'seguridad',
+    title: 'Seguridad y tus datos',
+    icon: ICONS.shield,
+    items: [
+      {
+        q: '¿Se pierden mis datos si dejo de usar la app una temporada?',
+        a: 'No. Tus datos se guardan de forma segura y persistente; no se borran por inactividad.',
+      },
+      {
+        q: '¿Puedo hacer una copia de seguridad de mis datos?',
+        a: 'Sí, de dos formas: descargando un archivo con toda tu información cuando quieras, o configurando copias automáticas por email (diarias, semanales, quincenales o mensuales), para no tener que acordarte.',
+      },
+      {
+        q: '¿Cómo protegéis mi cuenta?',
+        a: 'Con verificación en dos pasos (2FA), compatible con cualquier app de autenticación habitual.',
+      },
+      {
+        q: '¿Puedo borrar mis datos o eliminar mi cuenta por completo?',
+        a: 'Sí, en cualquier momento, desde los ajustes de tu cuenta — con doble confirmación para evitar borrados accidentales.',
+      },
+    ],
+  },
+  {
+    id: 'cuenta-y-planes',
+    title: 'La cuenta y los planes',
+    icon: 'user', // caso especial: circle+path de la cuenta de la cabecera, ver más abajo
+    items: [
+      {
+        q: '¿Hay una versión gratuita?',
+        a: 'Sí, Copermiq tiene un plan gratuito con las funciones esenciales de facturación y gastos.',
+      },
+      {
+        q: '¿Qué diferencia hay entre los planes?',
+        aBefore: 'Copermiq está organizada en tres niveles (Gratis, Pro y Premium), pensados para acompañarte según cómo vaya creciendo tu actividad. Consulta los precios y el detalle de cada plan en ',
+        href: '/#precios',
+        hrefLabel: 'la portada',
+        aAfter: '.',
+      },
+      {
+        q: '¿Puedo usar Copermiq en varios dispositivos?',
+        a: 'Sí, tu cuenta es la misma en cualquier dispositivo — entra con tu email y contraseña donde quieras.',
+      },
+    ],
+  },
+  {
+    id: 'idioma-y-personalizacion',
+    title: 'Idioma y personalización',
+    icon: ICONS.globe,
+    items: [
+      {
+        q: '¿En qué idiomas está disponible Copermiq?',
+        a: 'Castellano y catalán, de momento, con más idiomas en camino.',
+      },
+      {
+        q: '¿Puedo personalizar el aspecto de la aplicación?',
+        a: 'Sí, puedes elegir el color de la interfaz y el modo claro u oscuro, tanto para la barra lateral como para el contenido.',
+      },
+    ],
+  },
+];
+---
+
+<Layout
+  title="Preguntas frecuentes — Copermiq"
+  description="Todo lo que necesitas saber sobre facturación, gastos, fiscalidad, seguridad y tu cuenta."
+>
+  <Header />
+
+  <section class="help-hero">
+    <div class="wrap">
+      <span class="eyebrow eyebrow-dark">Ayuda</span>
+      <h1>Preguntas frecuentes</h1>
+      <p class="help-lede">Todo lo que necesitas saber sobre facturación, gastos, fiscalidad, seguridad y tu cuenta.</p>
+
+      <div class="help-search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <input
+          type="search"
+          id="help-search"
+          class="help-search"
+          placeholder="Busca por palabra clave — por ejemplo, «IVA» o «cancelar»…"
+          autocomplete="off"
+          aria-label="Buscar en las preguntas frecuentes"
+        />
+      </div>
+
+      <ul class="help-quicknav">
+        {sections.map((s) => (
+          <li><a href={`#${s.id}`}>{s.title}</a></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="help-content">
+    <div class="wrap">
+      <p class="help-no-results" id="help-no-results">No se encontraron resultados para tu búsqueda.</p>
+
+      {sections.map((s) => (
+        <div class="help-section" id={s.id} data-help-section>
+          <div class="help-section-head">
+            <div class="help-icon">
+              {s.icon === 'user' ? (
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M4.5 19.5c1.6-3.8 4.7-5.8 7.5-5.8s5.9 2 7.5 5.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d={s.icon} stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              )}
+            </div>
+            <h2>{s.title}</h2>
+          </div>
+
+          <div class="pf-list">
+            {s.items.map((item) => (
+              <div class="pf-item" data-help-item>
+                <button type="button" class="pf-question" aria-expanded="false">
+                  <span>{item.q}</span>
+                  <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 7.5l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <div class="pf-answer">
+                  <p>
+                    {item.href ? (
+                      <>
+                        {item.aBefore}<a href={item.href}>{item.hrefLabel}</a>{item.aAfter}
+                      </>
+                    ) : item.a}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <Footer />
+</Layout>
+
+<script>
+  // Acordeón — mismo patrón que Pricing.astro / FAQ.astro.
+  document.querySelectorAll('.pf-question').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.pf-item');
+      const isOpen = item?.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', String(Boolean(isOpen)));
+    });
+  });
+
+  // Buscador: filtra por texto de pregunta + respuesta (sin tildes, para que
+  // "facturacion" también encuentre "facturación"). Oculta secciones enteras
+  // sin ningún resultado, y abre automáticamente los ítems que sí coinciden
+  // para que la respuesta se vea sin tener que hacer clic aparte.
+  const searchInput = document.getElementById('help-search');
+  const sections = Array.from(document.querySelectorAll('[data-help-section]'));
+  const noResults = document.getElementById('help-no-results');
+
+  function normalize(str) {
+    return str
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
+
+  function applySearch() {
+    const term = normalize(searchInput instanceof HTMLInputElement ? searchInput.value.trim() : '');
+    let totalVisible = 0;
+
+    sections.forEach((section) => {
+      let sectionVisible = 0;
+      section.querySelectorAll('[data-help-item]').forEach((item) => {
+        const question = item.querySelector('.pf-question span')?.textContent ?? '';
+        const answer = item.querySelector('.pf-answer p')?.textContent ?? '';
+        const matches = !term || normalize(question + ' ' + answer).includes(term);
+        item.hidden = !matches;
+        item.classList.toggle('is-open', Boolean(term) && matches);
+        item.querySelector('.pf-question')?.setAttribute('aria-expanded', String(Boolean(term) && matches));
+        if (matches) sectionVisible += 1;
+      });
+      section.hidden = sectionVisible === 0;
+      totalVisible += sectionVisible;
+    });
+
+    if (noResults instanceof HTMLElement) {
+      noResults.style.display = term && totalVisible === 0 ? 'block' : 'none';
+    }
+  }
+
+  searchInput?.addEventListener('input', applySearch);
+  searchInput?.addEventListener('search', applySearch);
+</script>

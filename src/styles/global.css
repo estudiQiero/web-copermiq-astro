@@ -196,6 +196,15 @@ img{ max-width:100%; display:block; }
   opacity:1;
 }
 
+/* Por qué no se centraba: `.site-header .wrap` (arriba) usa un selector
+   descendiente, así que también alcanza al `.wrap` de AQUÍ DENTRO (el de
+   `.site-menu`, que vive anidado dentro de `.site-header`) — lo convertía en
+   flex con `justify-content:space-between`, y con un solo hijo (el `<ul>`)
+   eso lo encoge a su ancho de contenido y lo deja pegado a la izquierda, por
+   mucho `justify-content:center` que tenga el propio `<ul>`. Se anula aquí,
+   más abajo en el CSS (misma especificidad, gana el que va después). */
+.site-menu .wrap{ display:block; }
+
 .menu-nav-list{
   list-style:none; display:flex; flex-wrap:wrap;
   align-items:center; justify-content:center;
@@ -760,6 +769,20 @@ footer{
   padding:40px 0;
 }
 footer .wrap{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+.footer-main{ display:flex; flex-direction:column; gap:10px; }
+
+/* Mini menú del footer — 2026-08-20, debajo del nombre/tagline de Copermiq. */
+.footer-links{
+  list-style:none; display:flex; flex-wrap:wrap;
+  gap:16px; margin:2px 0 0; padding:0;
+}
+.footer-links a{
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:13px; color:rgba(233,240,247,0.75);
+  transition:color .15s ease;
+}
+.footer-links a svg{ width:15px; height:15px; flex-shrink:0; }
+.footer-links a:hover{ color:var(--navy-text); }
 .footer-brand{ display:flex; align-items:center; gap:10px; }
 .footer-brand img{ width:26px; height:26px; border-radius:6px; }
 .footer-brand span{ font-family:'Zilla Slab',serif; font-weight:600; font-size:15px; color:var(--navy-text); }
@@ -1031,14 +1054,24 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .cookie-banner-actions{ display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; }
 .cookie-banner-actions .btn{ padding:10px 20px; font-size:14px; }
 
+/* 2026-08-20: botón redondo con icono de galleta en vez de texto — "ya se
+   entiende así, y este ahora ocupa mucho" (Miq). Fondo navy sólido para que
+   contraste bien tanto sobre el fondo claro de la página como sobre
+   cualquier imagen; el propio icono usa var(--navy-text)/var(--navy) para
+   las "pepitas", así que el contraste se mantiene aunque cambie el fondo del
+   botón en hover. */
 .cookie-preferences-link{
   position:fixed; left:16px; bottom:16px; z-index:150;
-  background:var(--card); border:1px solid var(--paper-line);
-  border-radius:999px; padding:8px 14px;
-  font-family:inherit; font-size:12.5px; color:var(--ink-soft);
-  cursor:pointer; box-shadow:var(--shadow);
+  display:inline-flex; align-items:center; justify-content:center;
+  width:46px; height:46px; padding:0;
+  border-radius:50%;
+  background:var(--navy); border:1px solid rgba(233,240,247,0.16);
+  color:var(--navy-text);
+  cursor:pointer; box-shadow:var(--shadow-lg);
+  transition:transform .15s ease, background .15s ease;
 }
-.cookie-preferences-link:hover{ color:var(--ink); border-color:var(--ink-faint); }
+.cookie-preferences-link svg{ width:23px; height:23px; }
+.cookie-preferences-link:hover{ transform:translateY(-1px); background:var(--accent-deep); }
 
 @media (min-width:640px){
   .cookie-banner{ flex-direction:row; align-items:center; justify-content:space-between; }
@@ -1046,13 +1079,17 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
   .cookie-banner-actions{ flex-shrink:0; }
 }
 
-/* ---------- FAQ de precios (dentro de la sección de precios, home) ---------- */
-/* Acordeón propio, con nombres de clase .pf-* (a propósito distintos de
-   .faq-* de FAQ.astro, que está pensado para fondo oscuro) porque esta
-   vive sobre el fondo claro de la sección de precios. */
-.pricing-faq{ padding:8px 0 88px; }
-.pricing-faq .wrap{ max-width:720px; }
-.pricing-faq h3{ font-size:22px; text-align:center; margin-bottom:8px; }
+/* ---------- CTA de FAQs de precios (dentro de la sección de precios, home) ---------- */
+/* 2026-08-20: el acordeón de precios que vivía aquí se trasladó entero a
+   /preguntas-frecuentes (sección "Precios y suscripción") — aquí solo queda
+   un botón que lleva directamente a esa sección. Las clases .pf-* de más
+   abajo (acordeón sobre fondo claro) las sigue usando esa página nueva. */
+.pricing-faq-cta{ padding:8px 0 88px; text-align:center; }
+.pricing-faq-cta p{ color:var(--ink-soft); font-size:15px; margin-bottom:16px; }
+
+/* Acordeón .pf-* — con nombres de clase a propósito distintos de .faq-* (que
+   está pensado para fondo oscuro): este vive sobre fondo claro, tanto en la
+   sección de precios de la home como en /preguntas-frecuentes. */
 .pf-list{ margin-top:28px; }
 .pf-item{ border-bottom:1px solid var(--paper-line); }
 .pf-item:first-child{ border-top:1px solid var(--paper-line); }
@@ -1122,3 +1159,70 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .plan-comparison-table td{ text-align:center; }
 .plan-comparison-table td.pc-yes{ color:var(--accent-deep); font-weight:600; }
 .plan-comparison-table td.pc-no{ color:var(--ink-faint); }
+
+/* ---------- Página de ayuda (/preguntas-frecuentes) — 2026-08-20 ---------- */
+.help-hero{
+  background:var(--navy); color:var(--navy-text);
+  padding:64px 0 40px; text-align:center;
+}
+.help-hero .eyebrow{ margin-bottom:18px; }
+.help-hero h1{ font-size:40px; margin:0 0 14px; }
+.help-lede{ font-size:17px; color:rgba(233,240,247,0.75); max-width:560px; margin:0 auto 36px; }
+
+/* Buscador grande y centrado, "que se vea" — fondo blanco sólido a
+   propósito, para que destaque con fuerza sobre el navy de la cabecera. */
+.help-search-wrap{ max-width:640px; margin:0 auto 32px; position:relative; }
+.help-search-wrap svg{
+  position:absolute; left:22px; top:50%; transform:translateY(-50%);
+  width:20px; height:20px; color:var(--ink-faint); pointer-events:none;
+}
+.help-search{
+  width:100%; padding:18px 22px 18px 54px;
+  border-radius:999px; border:1px solid transparent;
+  font-family:inherit; font-size:16px; color:var(--ink);
+  background:var(--white);
+  box-shadow:var(--shadow-lg);
+}
+.help-search::placeholder{ color:var(--ink-faint); }
+.help-search:focus{ outline:none; border-color:var(--accent); }
+
+/* Menú rápido de secciones, en horizontal, justo debajo del buscador. */
+.help-quicknav{
+  list-style:none; display:flex; flex-wrap:wrap;
+  align-items:center; justify-content:center;
+  gap:8px; margin:0; padding:0; max-width:760px; margin-inline:auto;
+}
+.help-quicknav a{
+  display:inline-flex; align-items:center;
+  padding:8px 16px; border-radius:999px;
+  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.14);
+  font-size:13.5px; color:var(--navy-text);
+  transition:background .15s ease, border-color .15s ease;
+}
+.help-quicknav a:hover{ background:rgba(255,255,255,0.16); border-color:rgba(255,255,255,0.3); }
+
+.help-content{ padding:72px 0 96px; }
+.help-no-results{ display:none; text-align:center; color:var(--ink-faint); font-size:15px; padding:8px 0 40px; }
+
+.help-section{
+  max-width:760px; margin:0 auto 64px;
+  /* Compensa la cabecera sticky al saltar aquí desde el menú rápido o desde
+     un enlace externo (p. ej. el botón de la sección de precios). */
+  scroll-margin-top:110px;
+}
+.help-section:last-child{ margin-bottom:0; }
+.help-section-head{ display:flex; align-items:center; gap:16px; margin-bottom:4px; }
+.help-icon{
+  flex-shrink:0; width:52px; height:52px; border-radius:14px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--accent-tint); color:var(--accent-deep);
+}
+.help-icon svg{ width:26px; height:26px; }
+.help-section-head h2{ font-size:24px; }
+
+/* ---------- Página legal simple (/privacidad) — 2026-08-20 ---------- */
+.legal-page{ padding:72px 0 96px; }
+.legal-page .wrap{ max-width:680px; }
+.legal-page h1{ font-size:32px; margin:16px 0 24px; }
+.legal-page p{ color:var(--ink-soft); font-size:15.5px; line-height:1.7; margin-bottom:16px; }
+.legal-page a{ color:var(--accent-deep); text-decoration:underline; }

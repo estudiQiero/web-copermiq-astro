@@ -17,37 +17,6 @@ import PlanComparison from './PlanComparison.astro';
 
 const APP_URL = 'https://app.copermiq.com';
 
-// FAQ de confianza específica de precios (petición del documento de
-// propuesta del 19/08: "no hay FAQ dentro de la propia página de precios
-// — dudas típicas deberían resolverse ahí mismo"). Distinta de la FAQ
-// general de #preguntas-frecuentes (mucho más abajo en la home) — esta
-// vive pegada a la decisión de compra. Cada respuesta está verificada
-// contra `copermiq-billing-architecture.md`, no inventada:
-// - El pago se procesa con Stripe Checkout / Customer Portal (hosted por
-//   Stripe) — Copermiq nunca ve ni guarda el número de tarjeta.
-// - La cancelación es "al final del periodo" (el propio panel de admin de
-//   /cuenta colorea en ámbar una suscripción marcada para cancelar al
-//   final del periodo, en vez de cortar el acceso al momento).
-// - El plan Gratis es "0€, para siempre", sin límite de tiempo.
-const pricingFaq = [
-  {
-    q: '¿Puedo cambiar de plan cuando quiera?',
-    a: 'Sí. Puedes subir o bajar de plan en el momento que quieras, sin esperas ni compromiso de permanencia.',
-  },
-  {
-    q: '¿Qué pasa si cancelo mi plan de pago?',
-    a: 'Mantienes el acceso hasta el final del periodo ya pagado. Después, tu cuenta pasa automáticamente al plan Gratis — tus facturas, gastos y datos no se borran, solo dejas de ver las funciones exclusivas de tu plan anterior.',
-  },
-  {
-    q: '¿Cómo se gestiona el pago?',
-    a: 'A través de Stripe, la misma plataforma de pago que usan miles de empresas — nosotros nunca vemos ni guardamos el número de tu tarjeta. Puedes consultar tus facturas de suscripción y cambiar tu método de pago desde el Portal de cliente de Stripe, accesible desde tu cuenta.',
-  },
-  {
-    q: '¿Necesito tarjeta para probar Copermiq?',
-    a: 'No. El plan Gratis no caduca ni pide tarjeta — puedes usarlo el tiempo que quieras y pasar a Pro o Premium el día que lo necesites.',
-  },
-];
-
 const plans = [
   {
     key: 'free',
@@ -159,42 +128,19 @@ const plans = [
 
 <PlanComparison />
 
-<section class="pricing-faq">
+<!-- 2026-08-20: el acordeón de FAQs de precios que vivía aquí se trasladó
+     entero a /preguntas-frecuentes (sección "Precios y suscripción",
+     misma pregunta/respuesta) — aquí solo queda un botón que enlaza
+     directamente a esa sección. -->
+<section class="pricing-faq-cta">
   <div class="wrap">
-    <h3>Preguntas sobre precios y facturación</h3>
-    <div class="pf-list">
-      {pricingFaq.map((item) => (
-        <div class="pf-item">
-          <button type="button" class="pf-question" aria-expanded="false">
-            <span>{item.q}</span>
-            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M5 7.5l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <div class="pf-answer">
-            <p>{item.a}</p>
-          </div>
-        </div>
-      ))}
-    </div>
+    <p>¿Tienes dudas sobre precios, facturación o cómo funciona el pago?</p>
+    <a class="btn btn-ghost" href="/preguntas-frecuentes#precios-y-suscripcion">FAQs de precios y facturación</a>
   </div>
 </section>
 
 <script>
   import { startCheckout } from '../lib/billing.js';
-
-  // Acordeón de la FAQ de precios — con nombres de clase propios (.pf-*),
-  // a propósito distintos de los de la FAQ general (.faq-*) de FAQ.astro:
-  // esa está pensada para fondo oscuro (.tinted-section) y esta vive sobre
-  // el fondo claro de la sección de precios, así que necesita su propio
-  // estilo en vez de heredar por accidente el de la otra.
-  document.querySelectorAll('.pf-question').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const item = btn.closest('.pf-item');
-      const isOpen = item?.classList.toggle('is-open');
-      btn.setAttribute('aria-expanded', String(Boolean(isOpen)));
-    });
-  });
 
   // Toggle mensual / anual: solo cambia lo que se muestra en pantalla.
   // El checkout sigue enviando el plan (subscription/premium) sin distinguir

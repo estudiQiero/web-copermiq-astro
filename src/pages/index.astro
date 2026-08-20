@@ -11,8 +11,11 @@ import ProductPreview from '../components/ProductPreview.astro';
 import Security from '../components/Security.astro';
 import FinalCta from '../components/FinalCta.astro';
 import Pricing from '../components/Pricing.astro';
-import FAQ from '../components/FAQ.astro';
 import Footer from '../components/Footer.astro';
+// FAQ.astro ya no se usa aquí — 2026-08-20: toda su FAQ (y la de precios,
+// antes en Pricing.astro) se trasladó a la página /preguntas-frecuentes.
+// El componente se queda en el repo sin importar por si hace falta
+// recuperar algo puntual; Miq puede borrarlo cuando quiera.
 ---
 
 <Layout>
@@ -27,6 +30,5 @@ import Footer from '../components/Footer.astro';
   <FinalCta />
   <Pricing />
   <WhyCopermiq />
-  <FAQ />
   <Footer />
 </Layout>

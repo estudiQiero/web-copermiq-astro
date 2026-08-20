@@ -1,0 +1,40 @@
+---
+// Página de aviso legal / privacidad — 2026-08-20. Placeholder honesto (NO
+// es una política de privacidad real ni redactada por un profesional): se
+// crea solo para que el enlace nuevo del footer ("Privacidad") no dé un
+// 404. IMPORTANTE — pendiente y necesario de verdad, no solo estético: la
+// app ya trata datos personales reales (cuentas, facturas, pagos vía
+// Stripe, Supabase) así que hace falta una política de privacidad/RGPD
+// redactada o revisada por alguien con criterio legal antes de considerar
+// esto "hecho". Miq: no publiques esto como política definitiva.
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout
+  title="Privacidad — Copermiq"
+  description="Aviso de privacidad de Copermiq."
+  noindex
+>
+  <Header />
+
+  <section class="legal-page">
+    <div class="wrap">
+      <span class="eyebrow">Legal</span>
+      <h1>Política de privacidad</h1>
+      <p>
+        Estamos preparando el texto definitivo de esta página. Copermiq trata los datos que necesita
+        para ofrecerte el servicio — tu cuenta, tus facturas y gastos, y los datos de facturación
+        gestionados a través de Stripe — y no los comparte con terceros salvo lo estrictamente
+        necesario para prestar el servicio (por ejemplo, el propio procesador de pago).
+      </p>
+      <p>
+        Si tienes cualquier duda sobre tus datos mientras tanto, escríbenos a
+        <a href="mailto:admin@copermiq.com">admin@copermiq.com</a>.
+      </p>
+    </div>
+  </section>
+
+  <Footer />
+</Layout>
