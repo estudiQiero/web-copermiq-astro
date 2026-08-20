@@ -1,57 +1,147 @@
 ---
+// 2026-08-21: rediseño completo a petición de Miq — esta sección "es muy
+// muy importante" (palabras suyas), así que se refuerza tanto visualmente
+// (pastilla turquesa + candado grande encima del titular, más aire entre
+// bloques) como en contenido (6 puntos concretos en vez de los 3 genéricos
+// de antes). Cada punto está redactado con el nivel de detalle real que dio
+// Miq — nada inventado ni genérico salvo donde se indica explícitamente:
+//
+// 1. Datos sensibles bloqueados — texto de Miq, resumido (candado en los
+//    campos fiscales de "Mi negocio", se desbloquea con contraseña, se
+//    vuelve a bloquear solo al guardar).
+// 2. Contraseñas de alta seguridad — Miq preguntó si se podía decir
+//    "cifrado de 256 bits" pero no lo confirmó como dato verificado; se
+//    evita dar una cifra técnica concreta (regla de oro de esta sesión:
+//    no inventar datos técnicos) y se menciona solo que las gestiona
+//    Supabase Auth (ya verificado en /privacidad), con cifrado estándar y
+//    recuperación por email de un solo uso (comportamiento estándar de
+//    cualquier hash de contraseña — nunca se "recupera" en claro).
+// 3. Verificación en dos pasos — confirmado por Miq: TOTP, compatible con
+//    Google Authenticator/Authy y cualquier app de autenticación estándar,
+//    explícitamente SIN SMS (puede interceptarse). El detalle de que el
+//    código TOTP cambia cada 30s es un hecho genérico del estándar
+//    (RFC 6238), no una cifra específica de la app.
+// 4. Copias de seguridad — detalle real dado por Miq: el JSON manual es de
+//    TODOS los planes (incluido Gratis), incluye los adjuntos de gastos
+//    (recibos/PDFs) y permite restaurar; el email (manual + automático en
+//    4 frecuencias) es de Pro/Premium y NO incluye adjuntos; Google Drive
+//    será Premium pero hoy sigue sin construir — se muestra "Próximamente"
+//    para cualquier plan, es un pendiente de negocio-de-pago-externo.
+// 5. Borrado seguro de datos y cuenta — texto de Miq, resumido (mismo
+//    candado + tener que escribir literalmente "ELIMINAR CUENTA").
+// 6. Asistencia personalizada — Miq no confirmó que exista una política de
+//    devolución/reembolso separada, así que en vez de inventarla se
+//    reutiliza el mensaje de cancelación sin permanencia que ya está
+//    verificado en Precios, más el email de soporte ya verificado
+//    (admin@copermiq.com).
+//
+// 2026-08-21 (más tarde): Miq pidió que las 6 tarjetas midieran lo mismo
+// de alto — "esteticamente debe quedar ordenado" — en vez de que cada una
+// se ajuste a su propio contenido. Dos cambios para conseguirlo: (a) los 6
+// textos se reescribieron para rondar una longitud similar (ni recortar
+// tanto que se pierda precisión, ni inflar con relleno vacío — los puntos
+// 2, 3 y 6, que eran los más cortos, se ampliaron con matices reales en
+// vez de paja), y (b) en el CSS, `.security-grid` pasa de
+// `align-items:start` (cada tarjeta a su altura natural) a la stretch por
+// defecto, así todas las tarjetas de una fila —y, al estar el contenido ya
+// equilibrado, las de toda la rejilla— acaban con la misma altura.
 const items = [
   {
+    title: 'Datos sensibles bloqueados',
+    desc: 'Los datos fiscales de tu negocio —razón social, NIF, dirección, IBAN, tipos de IVA/IRPF— aparecen en cada factura que emites, así que un cambio accidental podría afectar a documentos ya válidos. Por eso empiezan bloqueados: hay que pulsar el candado y escribir tu contraseña para editarlos, y se bloquean solos otra vez al guardar.',
+    icon: 'lock',
+  },
+  {
+    title: 'Contraseñas de alta seguridad',
+    desc: 'Tu contraseña nunca se guarda en texto plano: la gestiona Supabase Auth, la misma infraestructura que usan miles de aplicaciones, con cifrado estándar del sector. Ni nuestro propio equipo puede verla — si la olvidas, se restablece con un enlace de un solo uso a tu email, nunca recuperándola en claro.',
+    icon: 'key',
+  },
+  {
     title: 'Verificación en dos pasos',
-    desc: 'además de tu contraseña de usuario, protege el acceso a tu cuenta con 2FA.',
-    icon: 'M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z',
+    desc: 'Activa la verificación en dos pasos (2FA) con cualquier app de autenticación estándar —Google Authenticator, Authy y similares— mediante códigos TOTP que cambian cada 30 segundos, así que aunque alguien vea tu contraseña, no podrá entrar sin tu móvil. No depende de SMS, que puede interceptarse.',
+    icon: 'shield-check',
   },
   {
-    title: 'Datos fiscales bloqueados',
-    desc: 'Los campos de Mi negocio se bloquean al entrar y solo se desbloquean con tu contraseña.',
-    icon: 'M6 11V8a6 6 0 1 1 12 0v3 M5 11h14v9H5z',
+    title: 'Copias de seguridad flexibles',
+    desc: 'Descarga manual en JSON en todos los planes, incluido Gratis: copia completa —negocio, clientes, facturas, gastos y adjuntos (recibos, PDFs)— que también sirve para restaurar. En Pro y Premium, copias por email, manuales o automáticas, sin adjuntos. Y próximamente, copia automática en Google Drive (Premium).',
+    icon: 'cloud',
   },
   {
-    title: 'Copias de seguridad',
-    desc: 'Políticas de seguridad descargables gratuitamente. Guarda tus datos en la nube o mándalas periódicamente por mail a tu correo personal.',
-    icon: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M5 20c0-3.5 3-6 7-6s7 2.5 7 6',
+    title: 'Borrado seguro de cuenta',
+    desc: 'El mismo candado protege lo que no se puede deshacer: borrar todos tus datos o eliminar la cuenta por completo. Para eliminarla, además de desbloquear con tu contraseña, tienes que escribir literalmente «ELIMINAR CUENTA» antes de que el botón se active — dos confirmaciones para la acción más irreversible de la app.',
+    icon: 'trash',
+  },
+  {
+    title: 'Asistencia personalizada',
+    desc: 'Si tienes dudas antes o durante la compra, escríbenos a admin@copermiq.com y te responde una persona, no un bot ni un ticket perdido en una cola. Y si cambias de opinión, cancelas cuando quieras — sin permanencia, tanto desde la web como desde la app.',
+    icon: 'chat',
   },
 ];
 ---
 
-<!-- 2026-08-21: a petición de Miq, esta sección pasa de ser una tarjeta
-     redondeada dentro del ancho normal de la página a una franja azul a
-     todo lo ancho de la ventana, sin esquinas redondeadas — el fondo va en
-     el <section> (que ocupa el 100% del viewport de forma natural) y el
-     contenido interior se sigue alineando con el resto de la web gracias
-     al .wrap de dentro. El id="seguridad" (usado por el enlace "Seguridad"
-     del menú) se mueve del div interior al <section>, como ya hacen el
-     resto de secciones ancladas de la home (#precios, #vista-previa). -->
 <section class="security-band" id="seguridad">
   <div class="wrap">
-    <div class="security">
-      <div>
-        <h2>Tus datos, con la seguridad que merece tu contabilidad</h2>
-        <p>
-          Copermiq guarda tu negocio, clientes, facturas y gastos en una base de datos real, protegida y anónima,
-          con autenticación y copia de seguridad exportable en cualquier momento — no dependes de un
-          archivo local que se puede perder.
-        </p>
+    <div class="security-head">
+      <span class="eyebrow">Seguridad</span>
+      <div class="security-lock-badge" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="12" cy="16" r="1.5" fill="currentColor"/>
+        </svg>
       </div>
-      <div class="security-list">
-        {items.map((it) => (
-          <div class="security-item">
-            <div class="dot">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d={it.icon} stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+      <h2>Tus datos, con la seguridad que merece tu contabilidad</h2>
+      <p>Copermiq guarda tu negocio, clientes, facturas y gastos en una base de datos real, protegida y anónima, con autenticación y copia de seguridad exportable en cualquier momento — no dependes de un archivo local que se puede perder.</p>
+    </div>
+
+    <div class="security-grid">
+      {items.map((it, i) => (
+        <div class="security-card">
+          <div class="security-card-top">
+            <div class="security-card-icon">
+              {it.icon === 'lock' && (
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.7"/>
+                  <path d="M7.5 10V7a4.5 4.5 0 0 1 9 0v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                </svg>
+              )}
+              {it.icon === 'key' && (
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="8" cy="15" r="3.1" stroke="currentColor" stroke-width="1.7"/>
+                  <path d="M10.3 12.7L19 4M15.2 8.5l2.1 2.1M17.6 6.1l2.1 2.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              )}
+              {it.icon === 'shield-check' && (
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9 12.2l2 2 4-4.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              )}
+              {it.icon === 'cloud' && (
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7.5 18a4.3 4.3 0 0 1-1-8.5A5.5 5.5 0 0 1 17 8.2h.3a4 4 0 0 1 .9 7.9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M12 11v6.5M12 17.5l-2.3-2.3M12 17.5l2.3-2.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              )}
+              {it.icon === 'trash' && (
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4.5 7h15M9.5 7V5a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 5v2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M6.5 7l.9 12.1A2 2 0 0 0 9.4 21h5.2a2 2 0 0 0 2-1.9L17.5 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M10.3 11v6M13.7 11v6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                </svg>
+              )}
+              {it.icon === 'chat' && (
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20.5 11.8a7.9 7.9 0 0 1-8.5 7.9 8 8 0 0 1-3.6-.9L3.5 20l1.2-4.8a8 8 0 0 1-.9-3.7 7.9 7.9 0 0 1 8-7.9h.2a7.9 7.9 0 0 1 8.5 7.7v.5z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              )}
             </div>
-            <div>
-              <h4>{it.title}</h4>
-              <p>{it.desc}</p>
-            </div>
+            <span class="security-card-num">0{i + 1}</span>
           </div>
-        ))}
-      </div>
+          <h4>{it.title}</h4>
+          <p>{it.desc}</p>
+        </div>
+      ))}
     </div>
   </div>
 </section>
