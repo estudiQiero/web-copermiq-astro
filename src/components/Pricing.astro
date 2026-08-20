@@ -2,8 +2,9 @@
 // Sección de precios, movida de la antigua página /precios a la home (antes
 // de "Por qué Copermiq"), a petición de Miq del 2026-08-19: se elimina la
 // página independiente y este bloque pasa a formar parte del scroll de la
-// home, enlazado desde el menú como ancla (#precios). Precios ya definidos:
-// Pro 0,95€/mes o 9,99€/año, Premium 8,95€/mes o 95€/año (precios anuales
+// home, enlazado desde el menú como ancla (#precios). Precios definitivos
+// (confirmados por Miq el 2026-08-20, ya no son provisionales):
+// Pro 1,95€/mes o 19,95€/año, Premium 8,95€/mes o 95€/año (precios anuales
 // comerciales, no un cálculo estricto de "X meses gratis" — por eso el
 // toggle no lleva ninguna etiqueta de ahorro). El plan intermedio, que
 // vivía como "Suscripción · nombre por definir", se llama ya de forma
@@ -36,8 +37,8 @@ const plans = [
     key: 'subscription',
     name: 'Pro',
     billing: {
-      monthly: { amount: '0,95 €', period: 'al mes' },
-      annual: { amount: '9,99 €', period: 'al año' },
+      monthly: { amount: '1,95 €', period: 'al mes' },
+      annual: { amount: '19,95 €', period: 'al año' },
     },
     description: 'Funciones avanzadas para cuando tu actividad crece. (Lista final de características aún por definir.)',
     features: [
@@ -122,7 +123,7 @@ const plans = [
   </div>
 
   <p class="preview-caption pricing-note">
-    Precios y características orientativos, pendientes de confirmar. Todos los planes de pago se gestionan y pueden cancelarse en cualquier momento, tanto desde la web como desde la app.
+    Todos los planes de pago se gestionan y pueden cancelarse en cualquier momento, tanto desde la web como desde la app.
   </p>
 </section>
 
