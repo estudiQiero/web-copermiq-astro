@@ -434,7 +434,13 @@ section{ padding:96px 0; }
 .preview-frame{
   max-width:900px; margin:0 auto;
   background:var(--card);
-  border-radius:20px;
+  /* 6px — a petición de Miq (21/08), para que se lea como una ventana de
+     escritorio real y no como una tarjeta genérica (antes 20px, a juego
+     con el resto de tarjetas de la web). El redondeo se aplica aquí, en el
+     contenedor (`overflow:hidden`), no sobre la imagen en sí — así el
+     radio se controla desde un solo sitio y la captura interior queda
+     nítida a cualquier densidad de pantalla. */
+  border-radius:6px;
   box-shadow:var(--shadow-lg);
   overflow:hidden;
   border:1px solid var(--paper-line);
@@ -443,9 +449,20 @@ section{ padding:96px 0; }
   display:flex; align-items:center; gap:8px;
   padding:14px 18px; background:var(--navy);
 }
+/* Puntitos de macOS con sus colores reales (antes gris translúcido neutro)
+   — a petición de Miq (21/08), "como la interfaz del Mac". */
 .preview-dot{ width:10px; height:10px; border-radius:50%; background:rgba(233,240,247,0.25); }
+.preview-dot-red{ background:#FF5F57; }
+.preview-dot-amber{ background:#FEBC2E; }
+.preview-dot-green{ background:#28C840; }
 .preview-title{ margin-left:8px; color:var(--navy-text); font-size:12.5px; font-family:'IBM Plex Mono',monospace; opacity:.75; }
 .preview-body{ padding:28px; }
+/* aspect-ratio explícito (no solo width/height del <img>) porque la
+   variante de móvil (ver <picture> en ProductPreview.astro) es una
+   captura distinta, no la misma imagen a otro tamaño — sin esto, el hueco
+   reservado antes de cargar usaría la proporción apaisada de escritorio
+   y habría un salto de layout al llegar la captura vertical de móvil. */
+.preview-screenshot{ display:block; width:100%; height:auto; aspect-ratio:1800/1481; }
 .kpi-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
 .kpi{
   border:1px solid var(--paper-line); border-radius:14px; padding:16px;
@@ -777,6 +794,17 @@ footer{
   background:var(--navy); color:var(--navy-text);
   border-top:1px solid rgba(233,240,247,0.14);
   padding:40px 0;
+  /* `body` es flex-column con min-height:100vh (ver arriba) para que el
+     footer no se quede "flotando" a media página en vistas con poco
+     contenido — pero eso solo funciona si algo del flujo absorbe el hueco
+     sobrante. `.account-page` ya tenía `flex:1 0 auto` para /cuenta, pero
+     eso no cubre el resto de páginas cortas. `margin-top:auto` en el
+     propio footer lo arregla en general: empuja el footer al fondo del
+     viewport cuando el contenido no llega a llenarlo, y no cambia nada en
+     páginas largas (aquí no queda espacio sobrante que repartir) —
+     2026-08-21, a petición de Miq ("el footer debe estar enganchado a la
+     base de la pantalla"). */
+  margin-top:auto;
 }
 footer .wrap{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
 .footer-main{ display:flex; flex-direction:column; gap:10px; }
@@ -1032,21 +1060,64 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
   .auth-modal{ padding:28px 22px; }
   /* En pantallas estrechas el logotipo grande (icono + "Copermiq") no cabe
      junto a los iconos de la derecha en la misma línea sin solaparse. En vez
-     de encogerlo, baja a su propia línea, centrado; los iconos/menú de la
-     derecha se quedan exactamente donde estaban (primera línea). */
+     de encogerlo, baja a su propia línea, propia fila — 2026-08-21,
+     rehecho a petición de Miq: el conjunto icono+marca va APILADO (icono
+     encima del nombre, ambos centrados entre sí) y centrado en el ancho de
+     toda la pantalla, algo más abajo de los iconos de arriba. Los
+     iconos/menú de la derecha se quedan exactamente donde estaban
+     (primera línea). */
   .site-header .wrap{ flex-wrap:wrap; }
-  .header-actions{ order:1; margin-left:auto; }
-  .brand{ order:2; width:100%; justify-content:flex-start; margin-top:18px; gap:16px; transition:margin-top .2s ease; }
+  .header-actions{ order:1; margin-left:auto; gap:3px; }
+  .brand{
+    order:2; width:100%;
+    flex-direction:column; justify-content:center;
+    margin-top:30px; gap:10px;
+    transition:margin-top .2s ease, flex-direction .15s ease;
+  }
   .brand img{ width:80px; height:80px; border-radius:16px; }
-  .brand-name{ font-size:42px; }
+  .brand-name{ font-size:34px; }
 
-  /* Versión encogida en móvil: el logo baja de tamaño igual que en
-     escritorio, y además se reduce el hueco que lo separaba de la fila de
-     iconos (si no, la cabecera seguiría viéndose alta aunque el logo en sí
-     fuera más pequeño). */
-  .site-header.is-scrolled .brand{ margin-top:8px; }
-  .site-header.is-scrolled .brand img{ width:52px; height:52px; }
-  .site-header.is-scrolled .brand-name{ font-size:28px; }
+  /* Con scroll: vuelve a ser una única línea horizontal, pequeña, a la
+     izquierda — a la misma altura que los iconos de la derecha (como en
+     escritorio, pero en tamaño compacto). `order:0` en ambos restaura el
+     orden natural del HTML (marca primero, iconos después) en vez del
+     orden invertido de la versión apilada de arriba. */
+  .site-header.is-scrolled .wrap{ flex-wrap:nowrap; }
+  .site-header.is-scrolled .header-actions{ order:0; margin-left:0; }
+  .site-header.is-scrolled .brand{
+    order:0; width:auto;
+    flex-direction:row; justify-content:flex-start;
+    margin-top:0; gap:10px;
+  }
+  .site-header.is-scrolled .brand img{ width:40px; height:40px; }
+  .site-header.is-scrolled .brand-name{ font-size:19px; }
+
+  /* Contenido del menú hamburguesa: en vertical (antes era una fila de
+     "píldoras" que se envolvían), el bloque centrado en la pantalla pero
+     cada enlace con su texto alineado a la izquierda, y letra algo más
+     grande — 2026-08-21, a petición de Miq. */
+  .menu-nav-list{
+    flex-direction:column; flex-wrap:nowrap;
+    align-items:center; gap:2px; padding:14px 0;
+  }
+  /* El <li> necesita un ancho explícito e igual en todas las filas — si no,
+     cada uno se encoge a su propio contenido dentro del flex en columna y
+     el texto "alineado a la izquierda" queda igual que centrado (cada
+     caja mide justo lo que mide su texto). Con un ancho común, el bloque
+     entero queda centrado en la pantalla y el texto arranca siempre en el
+     mismo borde izquierdo dentro de ese bloque. */
+  .menu-nav-list li{ width:100%; max-width:300px; }
+  .menu-nav-list a{
+    width:100%;
+    text-align:left; font-size:17px;
+    padding:13px 18px;
+  }
+
+  /* La captura de "Inicio, de un vistazo" cambia a la variante de móvil
+     (ver <picture> en ProductPreview.astro) por debajo de este mismo
+     ancho — la proporción es muy distinta a la de escritorio (vertical en
+     vez de apaisada), así que el aspect-ratio también cambia aquí. */
+  .preview-screenshot{ aspect-ratio:1159/2910; }
 }
 
 /* ---------- Banner de consentimiento de cookies (Analytics) ---------- */
@@ -1169,6 +1240,33 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .plan-comparison-table td{ text-align:center; }
 .plan-comparison-table td.pc-yes{ color:var(--accent-deep); font-weight:600; }
 .plan-comparison-table td.pc-no{ color:var(--ink-faint); }
+
+/* Móvil: antes había que hacer scroll horizontal para llegar a ver
+   Pro/Premium (min-width:640px en un móvil de ~360-390px de ancho). Ahora
+   las 3 columnas de plan se reparten el 100% del ancho a partes fijas
+   (siempre visibles, sin scroll) y es el texto de la columna de
+   funcionalidad el que se hace más pequeño y puede ocupar 2 líneas —
+   2026-08-21, a petición de Miq. Este bloque va DESPUÉS de las reglas de
+   arriba (no en la sección "Responsive" de más arriba en el archivo)
+   porque, a igual especificidad, gana la que aparece más tarde en el CSS —
+   si viviera antes, la regla `.plan-comparison-table{ min-width:640px }`
+   de aquí arriba la pisaría igualmente dentro del media query. */
+@media (max-width:560px){
+  .plan-comparison-scroll{ overflow-x:hidden; }
+  .plan-comparison-table{
+    min-width:0; width:100%;
+    table-layout:fixed;
+  }
+  .plan-comparison-table th.pc-feature-col{
+    width:44%;
+    font-size:12.5px; line-height:1.35;
+    padding:10px 8px;
+  }
+  .plan-comparison-table thead th{ padding:12px 6px; font-size:13px; }
+  .plan-comparison-table thead th:not(.pc-feature-col){ width:18.66%; }
+  .plan-comparison-table td{ padding:10px 6px; font-size:13px; }
+  .pc-group-row th{ font-size:10.5px; padding:10px 8px 6px; }
+}
 
 /* ---------- Página de ayuda (/preguntas-frecuentes) — 2026-08-20 ---------- */
 .help-hero{

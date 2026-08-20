@@ -1,10 +1,29 @@
 ---
-const rows = [
-  { date: '02/07', client: 'Estudio Vela SL', amount: '1.240,00 €', status: 'paid' },
-  { date: '05/07', client: 'Marta Puig — Diseño', amount: '480,50 €', status: 'pending' },
-  { date: '11/07', client: 'Cafés del Norte', amount: '96,80 €', status: 'paid' },
-  { date: '18/07', client: 'Estudio Vela SL', amount: '1.240,00 €', status: 'pending' },
-];
+// 2026-08-21: esta sección mostraba una recreación en CSS (KPIs + tabla de
+// mentira) de la pantalla de Inicio, para no exponer una captura real. Miq
+// ha mandado capturas reales de esa pantalla (cuenta de ejemplo, con datos
+// ficticios) para sustituir la recreación — se mantiene el mismo marco de
+// "ventana de escritorio" (.preview-frame/.preview-topbar) que ya existía,
+// con los puntitos ahora en los colores reales de macOS (antes eran un gris
+// translúcido neutro) y las esquinas del marco a 6px (antes 20px) para que
+// se lea más como una ventana real y menos como una tarjeta genérica. El
+// redondeo de las esquinas se resuelve con `overflow:hidden` en el propio
+// marco (no recortando la imagen en sí) — así queda nítido en pantallas de
+// alta densidad y si el día de mañana cambia el radio, es un solo valor.
+//
+// Dos imágenes, no una: la de escritorio es una captura del navegador
+// (apaisada, 1800×1481) y la de móvil es una captura tomada de verdad en el
+// móvil (vertical, 1159×2910 — layout distinto: los botones de "Pendientes
+// de facturar" van apilados, aparece la píldora "PREMIUM"...). Con
+// <picture>/<source media="(max-width:560px)"> se sirve la de móvil solo
+// por debajo de ese ancho (mismo breakpoint "móvil" que usa el resto de la
+// web) — no es un simple `srcset` de la misma imagen a otro tamaño, son
+// capturas distintas de verdad, así que hace falta el <source> con media
+// query. El `aspect-ratio` en CSS (no solo width/height en el HTML) es lo
+// que reserva el hueco correcto según cuál de las dos imágenes va a cargar
+// — si no, al ser dos proporciones tan distintas (apaisada vs. vertical),
+// habría un salto de layout (CLS) al cargar.
+const DESKTOP_IMG = { width: 1800, height: 1481 };
 ---
 
 <section id="vista-previa" class="preview">
@@ -16,50 +35,23 @@ const rows = [
     </div>
     <div class="preview-frame">
       <div class="preview-topbar">
-        <span class="preview-dot"></span>
-        <span class="preview-dot"></span>
-        <span class="preview-dot"></span>
+        <span class="preview-dot preview-dot-red"></span>
+        <span class="preview-dot preview-dot-amber"></span>
+        <span class="preview-dot preview-dot-green"></span>
         <span class="preview-title">app.copermiq.com / inicio</span>
       </div>
-      <div class="preview-body">
-        <div class="kpi-row">
-          <div class="kpi accent">
-            <div class="label">Facturado (año)</div>
-            <div class="value">18.420 €</div>
-          </div>
-          <div class="kpi amber">
-            <div class="label">Pendiente de cobro</div>
-            <div class="value">1.720 €</div>
-          </div>
-          <div class="kpi red">
-            <div class="label">Gastos deducibles</div>
-            <div class="value">3.960 €</div>
-          </div>
-          <div class="kpi">
-            <div class="label">Resultado neto</div>
-            <div class="value">14.460 €</div>
-          </div>
-        </div>
-        <div class="mock-table">
-          <div class="mock-row head">
-            <span>Fecha</span>
-            <span>Cliente</span>
-            <span class="amount">Importe</span>
-            <span class="status">Estado</span>
-          </div>
-          {rows.map((r) => (
-            <div class="mock-row">
-              <span class="mono">{r.date}</span>
-              <span>{r.client}</span>
-              <span class="amount mono">{r.amount}</span>
-              <span class="status">
-                <span class={`tag ${r.status}`}>{r.status === 'paid' ? 'Cobrada' : 'Pendiente'}</span>
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <picture>
+        <source media="(max-width: 560px)" srcset="/images/inicio-preview-mobile.webp" />
+        <img
+          src="/images/inicio-preview.webp"
+          alt="Pantalla de Inicio de Copermiq: pendientes de facturar y resumen del año (facturado, IVA, IRPF, gastos y resultado neto)"
+          width={DESKTOP_IMG.width}
+          height={DESKTOP_IMG.height}
+          loading="lazy"
+          class="preview-screenshot"
+        />
+      </picture>
     </div>
-    <p class="preview-caption">Recreación ilustrativa de la pantalla de Inicio — los datos son de ejemplo.</p>
+    <p class="preview-caption">Captura real de la app — cuenta de ejemplo, datos ficticios.</p>
   </div>
 </section>
