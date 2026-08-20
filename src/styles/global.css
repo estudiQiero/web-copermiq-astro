@@ -1170,21 +1170,74 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .help-lede{ font-size:17px; color:rgba(233,240,247,0.75); max-width:560px; margin:0 auto 36px; }
 
 /* Buscador grande y centrado, "que se vea" — fondo blanco sólido a
-   propósito, para que destaque con fuerza sobre el navy de la cabecera. */
-.help-search-wrap{ max-width:640px; margin:0 auto 32px; position:relative; }
-.help-search-wrap svg{
-  position:absolute; left:22px; top:50%; transform:translateY(-50%);
-  width:20px; height:20px; color:var(--ink-faint); pointer-events:none;
-}
-.help-search{
-  width:100%; padding:18px 22px 18px 54px;
+   propósito, para que destaque con fuerza sobre el navy de la cabecera.
+   2026-08-20: rediseñado como una única "barra" (estilo Ctrl+F de VSCode)
+   que agrupa el icono de lupa, el campo de texto, el recuento de
+   coincidencias y los dos botones de modo de búsqueda. */
+.help-search-wrap{ max-width:720px; margin:0 auto 32px; }
+.help-search-box{
+  display:flex; align-items:center; gap:4px;
+  padding:6px 8px 6px 20px;
   border-radius:999px; border:1px solid transparent;
-  font-family:inherit; font-size:16px; color:var(--ink);
   background:var(--white);
   box-shadow:var(--shadow-lg);
+  transition:box-shadow .15s ease;
+}
+.help-search-box:focus-within{ box-shadow:var(--shadow-lg), 0 0 0 3px rgba(31,111,74,0.25); }
+.help-search-icon{ flex-shrink:0; width:20px; height:20px; color:var(--ink-faint); }
+.help-search{
+  flex:1 1 auto; min-width:0;
+  border:none; background:transparent; outline:none;
+  padding:12px 6px; font-family:inherit; font-size:16px; color:var(--ink);
 }
 .help-search::placeholder{ color:var(--ink-faint); }
-.help-search:focus{ outline:none; border-color:var(--accent); }
+/* Quita la "x" nativa de limpiar de Chrome/Safari en type="search" — con el
+   recuento y los botones de modo tan cerca, dos "x" clicables (la nativa y
+   nuestros propios controles) confundían más que ayudaban. */
+.help-search::-webkit-search-cancel-button{ display:none; }
+
+/* Recuento de coincidencias, a la derecha del campo de texto. */
+.help-search-count{
+  flex-shrink:0; font-size:12.5px; color:var(--ink-faint);
+  padding:0 8px; white-space:nowrap;
+}
+
+/* Modo de búsqueda — dos botones excluyentes entre sí ("palabra entera" vs.
+   "cualquier fragmento"), estilo iconos de VSCode (Ctrl+F): un grupo con
+   fondo suave y cada botón resaltado cuando está activo. */
+.help-search-modes{
+  flex-shrink:0; display:flex; gap:2px;
+  background:var(--paper); border-radius:10px; padding:3px;
+}
+.help-mode-btn{
+  width:30px; height:30px; padding:0; border-radius:7px;
+  display:flex; align-items:center; justify-content:center;
+  background:transparent; border:1px solid transparent; color:var(--ink-faint);
+  cursor:pointer; transition:background .15s ease, color .15s ease, border-color .15s ease;
+}
+.help-mode-btn:hover{ color:var(--ink); }
+.help-mode-btn.is-active{
+  background:var(--accent-tint); color:var(--accent-deep);
+  border-color:rgba(19,68,48,0.18);
+}
+.help-mode-glyph{ font-family:'IBM Plex Mono', monospace; font-size:12px; font-weight:700; line-height:1; }
+.help-mode-underline{ text-decoration:underline; text-underline-offset:3px; }
+
+/* Resaltado de coincidencias — "como un rotulador", fondo amarillo sobre el
+   texto normal de preguntas/respuestas (ink/ink-soft, según el elemento). */
+.help-hl{
+  background:#FDE68A; color:inherit;
+  border-radius:3px; padding:0 1px;
+  box-decoration-break:clone; -webkit-box-decoration-break:clone;
+}
+
+@media (max-width:560px){
+  .help-search-wrap{ max-width:100%; }
+  .help-search-box{ padding:5px 6px 5px 16px; }
+  .help-search{ font-size:15px; padding:10px 4px; }
+  .help-search-count{ display:none; }
+  .help-mode-btn{ width:28px; height:28px; }
+}
 
 /* Menú rápido de secciones, en horizontal, justo debajo del buscador. */
 .help-quicknav{
@@ -1220,9 +1273,39 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .help-icon svg{ width:26px; height:26px; }
 .help-section-head h2{ font-size:24px; }
 
-/* ---------- Página legal simple (/privacidad) — 2026-08-20 ---------- */
+/* ---------- Página legal (/privacidad) — 2026-08-20 ---------- */
 .legal-page{ padding:72px 0 96px; }
 .legal-page .wrap{ max-width:680px; }
-.legal-page h1{ font-size:32px; margin:16px 0 24px; }
+.legal-page h1{ font-size:32px; margin:16px 0 0; }
+.legal-page .legal-meta{ color:var(--ink-faint); font-size:13.5px; margin:8px 0 28px; }
 .legal-page p{ color:var(--ink-soft); font-size:15.5px; line-height:1.7; margin-bottom:16px; }
 .legal-page a{ color:var(--accent-deep); text-decoration:underline; }
+.legal-page h2{ font-size:21px; margin:40px 0 12px; }
+.legal-page ul{ margin:0 0 16px; padding-left:20px; }
+.legal-page li{ color:var(--ink-soft); font-size:15.5px; line-height:1.65; margin-bottom:8px; }
+
+/* Aviso destacado arriba de la página — reutiliza el tono ámbar ya usado
+   en el resto del sitio (p. ej. el punto de "cancela al final del
+   periodo" del panel de admin) para señalar "atención, revisar antes de
+   publicar", sin inventar un nuevo color de alerta. */
+.legal-disclaimer{
+  background:var(--stamp-amber-tint); border:1px solid rgba(185,121,30,0.35);
+  border-radius:var(--radius); padding:16px 18px; margin-bottom:28px;
+}
+.legal-disclaimer p{ color:#7A5215; font-size:14px; margin:0; }
+.legal-disclaimer mark{ background:none; color:inherit; font-weight:700; }
+
+/* Placeholders de identidad legal — bien visibles para que no pasen
+   desapercibidos y acaben publicados sin rellenar. */
+.legal-page mark{
+  background:var(--stamp-amber-tint); color:var(--stamp-amber);
+  font-weight:700; padding:1px 5px; border-radius:4px;
+}
+
+.legal-toc{
+  list-style:none; margin:0 0 40px; padding:16px 20px;
+  background:var(--card); border:1px solid var(--paper-line); border-radius:var(--radius-lg);
+  display:flex; flex-direction:column; gap:8px;
+}
+.legal-toc a{ font-size:14.5px; text-decoration:none; }
+.legal-toc a:hover{ text-decoration:underline; }

@@ -1,20 +1,49 @@
 ---
-// Página de aviso legal / privacidad — 2026-08-20. Placeholder honesto (NO
-// es una política de privacidad real ni redactada por un profesional): se
-// crea solo para que el enlace nuevo del footer ("Privacidad") no dé un
-// 404. IMPORTANTE — pendiente y necesario de verdad, no solo estético: la
-// app ya trata datos personales reales (cuentas, facturas, pagos vía
-// Stripe, Supabase) así que hace falta una política de privacidad/RGPD
-// redactada o revisada por alguien con criterio legal antes de considerar
-// esto "hecho". Miq: no publiques esto como política definitiva.
+// Política de privacidad — redactada el 2026-08-20 a petición de Miq
+// ("Habria que redactar una pagina de privacidad"), sustituyendo el
+// placeholder honesto que había antes.
+//
+// IMPORTANTE — leer antes de publicar:
+// 1) Esto NO es asesoramiento legal ni un documento certificado por un
+//    abogado — es un borrador redactado con criterio razonable a partir de
+//    cómo funciona Copermiq de verdad (Supabase en Frankfurt, Stripe,
+//    Google Analytics solo con consentimiento, etc.), pensado para que
+//    Miq lo revise (idealmente con un gestor/abogado) antes de darlo por
+//    definitivo, sobre todo porque la app ya trata datos personales
+//    reales y hay sanciones reales de la AEPD si el texto no es preciso.
+// 2) Faltan tres datos que NO se pueden inventar — la identidad legal del
+//    responsable del tratamiento — marcados abajo entre corchetes:
+//    nombre/razón social, NIF, y domicilio. Búscalos con Ctrl/Cmd+F por
+//    "[COMPLETAR" en este archivo. La página funciona igual mientras
+//    tanto, pero no debería publicarse así.
+// 3) Todo lo demás (qué datos se tratan, con quién se comparten, cuánto
+//    se guardan) está verificado contra el código real de este repo y
+//    contra copermiq-billing-architecture.md — no es genérico copiado de
+//    otra web.
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+
+const LAST_UPDATED = '20 de agosto de 2026';
+
+const sections = [
+  { id: 'responsable', title: '1. Quién es el responsable del tratamiento' },
+  { id: 'datos', title: '2. Qué datos tratamos y para qué' },
+  { id: 'base-legal', title: '3. Con qué base legal' },
+  { id: 'destinatarios', title: '4. Con quién compartimos datos' },
+  { id: 'transferencias', title: '5. Transferencias internacionales' },
+  { id: 'conservacion', title: '6. Cuánto tiempo conservamos tus datos' },
+  { id: 'derechos', title: '7. Tus derechos' },
+  { id: 'seguridad', title: '8. Seguridad' },
+  { id: 'cookies', title: '9. Cookies' },
+  { id: 'menores', title: '10. Menores de edad' },
+  { id: 'cambios', title: '11. Cambios en esta política' },
+];
 ---
 
 <Layout
   title="Privacidad — Copermiq"
-  description="Aviso de privacidad de Copermiq."
+  description="Política de privacidad de Copermiq: qué datos tratamos, para qué, con quién los compartimos y cómo ejercer tus derechos."
   noindex
 >
   <Header />
@@ -23,15 +52,163 @@ import Footer from '../components/Footer.astro';
     <div class="wrap">
       <span class="eyebrow">Legal</span>
       <h1>Política de privacidad</h1>
+      <p class="legal-meta">Última actualización: {LAST_UPDATED}</p>
+
+      <div class="legal-disclaimer">
+        <p>
+          <strong>Nota antes de publicar:</strong> este texto está redactado con criterio razonable
+          a partir del funcionamiento real de Copermiq, pero no sustituye la revisión de un
+          profesional (abogado o gestor) antes de considerarlo definitivo. Además, faltan por
+          completar los datos de identidad del responsable del tratamiento — verás los huecos
+          marcados como <mark>[COMPLETAR]</mark> más abajo.
+        </p>
+      </div>
+
       <p>
-        Estamos preparando el texto definitivo de esta página. Copermiq trata los datos que necesita
-        para ofrecerte el servicio — tu cuenta, tus facturas y gastos, y los datos de facturación
-        gestionados a través de Stripe — y no los comparte con terceros salvo lo estrictamente
-        necesario para prestar el servicio (por ejemplo, el propio procesador de pago).
+        En Copermiq nos tomamos en serio los datos de tu negocio — al fin y al cabo, son facturas,
+        gastos y clientes reales. Esta página explica, en el mismo tono directo que el resto de la
+        web, qué datos tratamos, para qué, con quién los compartimos y qué puedes hacer en
+        cualquier momento con ellos.
       </p>
+
+      <ul class="legal-toc">
+        {sections.map((s) => (
+          <li><a href={`#${s.id}`}>{s.title}</a></li>
+        ))}
+      </ul>
+
+      <h2 id="responsable">1. Quién es el responsable del tratamiento</h2>
       <p>
-        Si tienes cualquier duda sobre tus datos mientras tanto, escríbenos a
+        <mark>[COMPLETAR: nombre y apellidos o razón social del titular]</mark>, con NIF
+        <mark>[COMPLETAR: NIF/CIF]</mark> y domicilio en <mark>[COMPLETAR: domicilio fiscal, al
+        menos ciudad y provincia]</mark>, es quien decide para qué y cómo se tratan los datos
+        personales que recoge esta web y la aplicación Copermiq (<a href="https://app.copermiq.com" target="_blank" rel="noopener">app.copermiq.com</a>).
+        Para cualquier cuestión sobre privacidad, puedes escribir a
         <a href="mailto:admin@copermiq.com">admin@copermiq.com</a>.
+      </p>
+
+      <h2 id="datos">2. Qué datos tratamos y para qué</h2>
+      <p>Según cómo uses Copermiq, tratamos distintos tipos de datos:</p>
+      <ul>
+        <li>
+          <strong>Datos de cuenta</strong>: email y contraseña (gestionados por Supabase Auth, cifrada
+          la contraseña — nunca la vemos en texto plano), y si activas la verificación en dos pasos,
+          los datos técnicos necesarios para validarla.
+        </li>
+        <li>
+          <strong>Datos de tu negocio</strong>: los que introduces tú mismo al usar la app — nombre y
+          datos fiscales de tu negocio, tus clientes y proveedores, tus facturas, presupuestos y
+          gastos (incluidos los recibos o PDFs que adjuntes), y los cálculos fiscales que se derivan
+          de ello (resúmenes de IVA e IRPF). Son datos que necesitamos para el propio servicio: sin
+          ellos, Copermiq no puede facturar por ti.
+        </li>
+        <li>
+          <strong>Datos de pago</strong>: si contratas un plan de pago, el número de tu tarjeta y el
+          resto de datos de cobro los recoge y procesa directamente Stripe — nosotros nunca los
+          vemos ni los guardamos (ver la sección 4).
+        </li>
+        <li>
+          <strong>Comunicaciones</strong>: si nos escribes (por ejemplo, a admin@copermiq.com), el
+          contenido de esa comunicación y tu dirección de email, para poder responderte.
+        </li>
+        <li>
+          <strong>Datos de navegación (analítica)</strong>: solo si aceptas la casilla de cookies,
+          usamos Google Analytics para saber cuántas personas visitan esta web y cómo la navegan —
+          ver la sección 9.
+        </li>
+      </ul>
+
+      <h2 id="base-legal">3. Con qué base legal</h2>
+      <ul>
+        <li><strong>Ejecución de un contrato</strong>: los datos de cuenta y los de tu negocio, porque son necesarios para prestarte el servicio que has contratado (el uso de la app, gratis o de pago).</li>
+        <li><strong>Obligación legal</strong>: parte de los datos fiscales y contables se conservan porque la normativa mercantil y tributaria española nos obliga a ello (ver sección 6).</li>
+        <li><strong>Interés legítimo</strong>: para responder a tus comunicaciones y para la seguridad del servicio (por ejemplo, detectar accesos indebidos).</li>
+        <li><strong>Consentimiento</strong>: para la analítica web (Google Analytics), que solo se activa si pulsas "Aceptar" en el aviso de cookies — puedes retirarlo cuando quieras (sección 9).</li>
+      </ul>
+
+      <h2 id="destinatarios">4. Con quién compartimos datos</h2>
+      <p>
+        No vendemos tus datos a nadie. Los compartimos solo con los proveedores estrictamente
+        necesarios para que Copermiq funcione, todos actuando como encargados del tratamiento:
+      </p>
+      <ul>
+        <li><strong>Supabase</strong> — aloja la base de datos y gestiona el acceso (login) de Copermiq. Los datos se guardan en un centro de datos en Frankfurt (Alemania, Unión Europea).</li>
+        <li><strong>Stripe</strong> — procesa los pagos de los planes de pago. Recibe y guarda tus datos de tarjeta directamente (Copermiq nunca los ve ni los almacena); solo recibimos de vuelta el estado de tu suscripción (activa, cancelada, etc.).</li>
+        <li><strong>Proveedor de email transaccional</strong> — envía en nuestro nombre los correos automáticos del servicio: confirmación de cuenta, recuperación de contraseña, copias de seguridad periódicas que hayas activado, y el envío de tus facturas a tus clientes cuando lo pides desde la app.</li>
+        <li><strong>Google Analytics</strong> — solo si has dado tu consentimiento explícito en el banner de cookies (ver sección 9).</li>
+      </ul>
+      <p>
+        También podríamos compartir datos si nos lo exige la ley (por ejemplo, un requerimiento de
+        la Agencia Tributaria o de un juzgado), pero nunca por iniciativa propia.
+      </p>
+
+      <h2 id="transferencias">5. Transferencias internacionales</h2>
+      <p>
+        Los datos de tu negocio (facturas, gastos, cuenta) se guardan en la Unión Europea
+        (Supabase, Frankfurt). Algunos de nuestros proveedores (Stripe y Google) pueden transferir
+        determinados datos fuera del Espacio Económico Europeo como parte de su propia
+        infraestructura — en ese caso, lo hacen amparados en las garantías que exige el RGPD
+        (cláusulas contractuales tipo de la Comisión Europea u otro mecanismo equivalente). Puedes
+        consultar las políticas de privacidad de <a href="https://stripe.com/es/privacy" target="_blank" rel="noopener">Stripe</a>
+        y de <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google</a> para más detalle.
+      </p>
+
+      <h2 id="conservacion">6. Cuánto tiempo conservamos tus datos</h2>
+      <ul>
+        <li><strong>Mientras tengas una cuenta activa</strong>: guardamos tus datos de cuenta y de negocio para que puedas seguir usando el servicio.</li>
+        <li><strong>Si eliminas tu cuenta</strong>: puedes hacerlo tú mismo en cualquier momento desde los ajustes de tu cuenta (con doble confirmación), y tus datos de cuenta se eliminan. Las facturas emitidas y otros documentos con relevancia fiscal, sin embargo, están sujetos a los plazos de conservación que marca la normativa mercantil y tributaria española (con carácter general, un mínimo de 6 años desde el último asiento, art. 30 del Código de Comercio) — consulta con tu gestor el plazo exacto aplicable a tu caso.</li>
+        <li><strong>Datos de pago</strong>: los conserva Stripe según su propia política, no nosotros.</li>
+        <li><strong>Analítica (Google Analytics)</strong>: solo si has dado tu consentimiento, y según la configuración de retención de datos de esa propiedad de Analytics.</li>
+      </ul>
+
+      <h2 id="derechos">7. Tus derechos</h2>
+      <p>Como usuario de Copermiq, en cualquier momento puedes:</p>
+      <ul>
+        <li><strong>Acceder</strong> a los datos que tenemos sobre ti.</li>
+        <li><strong>Rectificar</strong> datos incorrectos (directamente desde la app, en la mayoría de los casos).</li>
+        <li><strong>Suprimir</strong> tu cuenta y tus datos, desde los ajustes de tu cuenta — salvo lo que estemos legalmente obligados a conservar (ver sección 6).</li>
+        <li><strong>Portar</strong> tus datos: puedes descargar una copia de toda tu información desde la app en cualquier momento, sin tener que pedirla.</li>
+        <li><strong>Oponerte</strong> u <strong>limitar</strong> determinados tratamientos, y <strong>retirar tu consentimiento</strong> a la analítica cuando quieras (sección 9).</li>
+      </ul>
+      <p>
+        Para ejercer cualquiera de estos derechos, escríbenos a
+        <a href="mailto:admin@copermiq.com">admin@copermiq.com</a>. Si consideras que no hemos
+        atendido tu solicitud correctamente, puedes presentar una reclamación ante la
+        <a href="https://www.aepd.es" target="_blank" rel="noopener">Agencia Española de Protección de Datos (AEPD)</a>.
+      </p>
+
+      <h2 id="seguridad">8. Seguridad</h2>
+      <p>
+        Tu cuenta puede protegerse con verificación en dos pasos (2FA), y las comunicaciones entre
+        tu navegador y nuestros servidores viajan cifradas (HTTPS). El acceso a la base de datos
+        está restringido por reglas de seguridad a nivel de fila (cada usuario solo puede leer y
+        escribir sus propios datos). Ningún sistema es invulnerable al 100%, pero tomamos medidas
+        razonables acordes al tipo de datos que manejamos.
+      </p>
+
+      <h2 id="cookies">9. Cookies</h2>
+      <p>
+        Esta web usa el mínimo imprescindible de cookies. Al entrar, verás un aviso pidiendo tu
+        consentimiento — hasta que lo aceptes, no se carga ningún script de analítica ni se instala
+        ninguna cookie de este tipo. Si rechazas o aceptas, recordamos tu elección en el
+        almacenamiento local de tu navegador (no en una cookie), y puedes cambiar de opinión cuando
+        quieras con el botón redondo de "Preferencias de cookies", abajo a la izquierda de la
+        pantalla. Copermiq (la app, tras iniciar sesión) guarda tu sesión también en el
+        almacenamiento local del navegador, no mediante cookies de seguimiento.
+      </p>
+
+      <h2 id="menores">10. Menores de edad</h2>
+      <p>
+        Copermiq está pensada para autónomos y profesionales, no para menores de edad. No
+        recogemos conscientemente datos de menores de 18 años.
+      </p>
+
+      <h2 id="cambios">11. Cambios en esta política</h2>
+      <p>
+        Podemos actualizar este texto si cambia cómo tratamos tus datos (por ejemplo, si
+        incorporamos un nuevo proveedor). Si el cambio es relevante, te avisaremos por email o con
+        un aviso visible en la app; la fecha de la última actualización siempre está arriba de esta
+        página.
       </p>
     </div>
   </section>

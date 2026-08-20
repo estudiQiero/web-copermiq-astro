@@ -206,18 +206,45 @@ const sections = [
       <p class="help-lede">Todo lo que necesitas saber sobre facturación, gastos, fiscalidad, seguridad y tu cuenta.</p>
 
       <div class="help-search-wrap">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
-          <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
-        <input
-          type="search"
-          id="help-search"
-          class="help-search"
-          placeholder="Busca por palabra clave — por ejemplo, «IVA» o «cancelar»…"
-          autocomplete="off"
-          aria-label="Buscar en las preguntas frecuentes"
-        />
+        <div class="help-search-box">
+          <svg class="help-search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <input
+            type="search"
+            id="help-search"
+            class="help-search"
+            placeholder="Busca por palabra clave — por ejemplo, «IVA» o «cancelar»…"
+            autocomplete="off"
+            aria-label="Buscar en las preguntas frecuentes"
+          />
+          <span id="help-search-count" class="help-search-count mono" aria-live="polite"></span>
+
+          <!-- Modo de búsqueda, estilo VSCode (Ctrl+F): dos botones excluyentes
+               entre sí, no dos interruptores independientes — o se busca
+               cualquier fragmento de texto, o solo la palabra completa. -->
+          <div class="help-search-modes" role="group" aria-label="Modo de búsqueda">
+            <button
+              type="button"
+              id="help-mode-partial"
+              class="help-mode-btn is-active"
+              aria-pressed="true"
+              title="Buscar cualquier fragmento de texto (por defecto)"
+            >
+              <span class="help-mode-glyph">[ab]</span>
+            </button>
+            <button
+              type="button"
+              id="help-mode-whole"
+              class="help-mode-btn"
+              aria-pressed="false"
+              title="Buscar solo la palabra completa"
+            >
+              <span class="help-mode-glyph help-mode-underline">ab</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <ul class="help-quicknav">
@@ -290,12 +317,20 @@ const sections = [
   });
 
   // Buscador: filtra por texto de pregunta + respuesta (sin tildes, para que
-  // "facturacion" también encuentre "facturación"). Oculta secciones enteras
-  // sin ningún resultado, y abre automáticamente los ítems que sí coinciden
-  // para que la respuesta se vea sin tener que hacer clic aparte.
+  // "facturacion" tambien encuentre "facturacion"), resalta en amarillo cada
+  // coincidencia encontrada (como un rotulador), cuenta cuantas hay, y deja
+  // elegir si se busca cualquier fragmento de texto o solo la palabra
+  // completa (dos botones excluyentes entre si, estilo VSCode). Oculta
+  // secciones enteras sin ningun resultado, y abre automaticamente los
+  // items que si coinciden para que la respuesta se vea sin clic aparte.
   const searchInput = document.getElementById('help-search');
+  const searchCount = document.getElementById('help-search-count');
+  const modePartialBtn = document.getElementById('help-mode-partial');
+  const modeWholeBtn = document.getElementById('help-mode-whole');
   const sections = Array.from(document.querySelectorAll('[data-help-section]'));
   const noResults = document.getElementById('help-no-results');
+
+  let searchMode = 'partial'; // 'partial' (contiene) | 'whole' (palabra completa)
 
   function normalize(str) {
     return str
@@ -304,27 +339,127 @@ const sections = [
       .replace(/[\u0300-\u036f]/g, '');
   }
 
+  function escapeRegExp(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  // Los acentos espanoles se descomponen en NFD como "letra base + marca
+  // combinada" - al quitar la marca, cada caracter original sigue
+  // correspondiendo a exactamente un caracter del texto normalizado. Por
+  // eso los indices encontrados en el texto normalizado (sin tildes) se
+  // pueden usar tal cual sobre el texto original (con tildes) para
+  // resaltar en el sitio correcto.
+  function findMatches(normalizedText, normalizedTerm) {
+    if (!normalizedTerm) return [];
+    const matches = [];
+    if (searchMode === 'whole') {
+      const re = new RegExp('\\b' + escapeRegExp(normalizedTerm) + '\\b', 'g');
+      let m;
+      while ((m = re.exec(normalizedText))) {
+        matches.push([m.index, m.index + normalizedTerm.length]);
+        if (re.lastIndex === m.index) re.lastIndex += 1;
+      }
+    } else {
+      let from = 0;
+      while (true) {
+        const found = normalizedText.indexOf(normalizedTerm, from);
+        if (found === -1) break;
+        matches.push([found, found + normalizedTerm.length]);
+        from = found + normalizedTerm.length;
+      }
+    }
+    return matches;
+  }
+
+  // Envuelve cada coincidencia de un nodo de texto en <mark class="help-hl">,
+  // recorriendo tambien dentro de elementos hijos (como el <a> de la
+  // respuesta de "¿Que diferencia hay entre los planes?") para no romper su
+  // estructura - solo se tocan los nodos de texto, nunca las etiquetas.
+  function highlightNode(node, normalizedTerm) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.data;
+      const matches = findMatches(normalize(text), normalizedTerm);
+      if (!matches.length) return 0;
+      const frag = document.createDocumentFragment();
+      let last = 0;
+      matches.forEach(([start, end]) => {
+        if (start > last) frag.appendChild(document.createTextNode(text.slice(last, start)));
+        const mark = document.createElement('mark');
+        mark.className = 'help-hl';
+        mark.textContent = text.slice(start, end);
+        frag.appendChild(mark);
+        last = end;
+      });
+      if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+      node.replaceWith(frag);
+      return matches.length;
+    }
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      let count = 0;
+      Array.from(node.childNodes).forEach((child) => {
+        count += highlightNode(child, normalizedTerm);
+      });
+      return count;
+    }
+    return 0;
+  }
+
+  // Restaura el HTML original (guardado en data-original al cargar la
+  // pagina) antes de volver a resaltar - asi cada busqueda parte de cero en
+  // vez de acumular <mark> de busquedas anteriores.
+  function resetAndHighlight(el, normalizedTerm) {
+    if (!el) return 0;
+    el.innerHTML = el.dataset.original ?? el.innerHTML;
+    if (!normalizedTerm) return 0;
+    return highlightNode(el, normalizedTerm);
+  }
+
+  document.querySelectorAll('.pf-question span, .pf-answer p').forEach((el) => {
+    el.dataset.original = el.innerHTML;
+  });
+
+  function setMode(mode) {
+    searchMode = mode;
+    const isWhole = mode === 'whole';
+    modeWholeBtn?.classList.toggle('is-active', isWhole);
+    modeWholeBtn?.setAttribute('aria-pressed', String(isWhole));
+    modePartialBtn?.classList.toggle('is-active', !isWhole);
+    modePartialBtn?.setAttribute('aria-pressed', String(!isWhole));
+    applySearch();
+  }
+
+  modePartialBtn?.addEventListener('click', () => setMode('partial'));
+  modeWholeBtn?.addEventListener('click', () => setMode('whole'));
+
   function applySearch() {
     const term = normalize(searchInput instanceof HTMLInputElement ? searchInput.value.trim() : '');
-    let totalVisible = 0;
+    let totalVisibleItems = 0;
+    let totalMatches = 0;
 
     sections.forEach((section) => {
       let sectionVisible = 0;
       section.querySelectorAll('[data-help-item]').forEach((item) => {
-        const question = item.querySelector('.pf-question span')?.textContent ?? '';
-        const answer = item.querySelector('.pf-answer p')?.textContent ?? '';
-        const matches = !term || normalize(question + ' ' + answer).includes(term);
+        const qCount = resetAndHighlight(item.querySelector('.pf-question span'), term);
+        const aCount = resetAndHighlight(item.querySelector('.pf-answer p'), term);
+        const itemMatches = qCount + aCount;
+        const matches = !term || itemMatches > 0;
         item.hidden = !matches;
         item.classList.toggle('is-open', Boolean(term) && matches);
         item.querySelector('.pf-question')?.setAttribute('aria-expanded', String(Boolean(term) && matches));
-        if (matches) sectionVisible += 1;
+        if (matches) {
+          sectionVisible += 1;
+          totalMatches += itemMatches;
+        }
       });
       section.hidden = sectionVisible === 0;
-      totalVisible += sectionVisible;
+      totalVisibleItems += sectionVisible;
     });
 
     if (noResults instanceof HTMLElement) {
-      noResults.style.display = term && totalVisible === 0 ? 'block' : 'none';
+      noResults.style.display = term && totalVisibleItems === 0 ? 'block' : 'none';
+    }
+    if (searchCount instanceof HTMLElement) {
+      searchCount.textContent = term ? (totalMatches + ' ' + (totalMatches === 1 ? 'coincidencia' : 'coincidencias')) : '';
     }
   }
 
