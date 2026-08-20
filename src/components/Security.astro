@@ -18,9 +18,17 @@ const items = [
 ];
 ---
 
-<section>
+<!-- 2026-08-21: a petición de Miq, esta sección pasa de ser una tarjeta
+     redondeada dentro del ancho normal de la página a una franja azul a
+     todo lo ancho de la ventana, sin esquinas redondeadas — el fondo va en
+     el <section> (que ocupa el 100% del viewport de forma natural) y el
+     contenido interior se sigue alineando con el resto de la web gracias
+     al .wrap de dentro. El id="seguridad" (usado por el enlace "Seguridad"
+     del menú) se mueve del div interior al <section>, como ya hacen el
+     resto de secciones ancladas de la home (#precios, #vista-previa). -->
+<section class="security-band" id="seguridad">
   <div class="wrap">
-    <div class="security" id="seguridad">
+    <div class="security">
       <div>
         <h2>Tus datos, con la seguridad que merece tu contabilidad</h2>
         <p>

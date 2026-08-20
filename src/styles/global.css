@@ -507,6 +507,31 @@ section{ padding:96px 0; }
 }
 .preview-caption.on-dark{ color:rgba(243,245,242,0.4); margin-top:32px; transition:color .3s ease; }
 
+/* Aviso "hecho en España / km 0" dentro de la sección "A tu manera" —
+   2026-08-21, a petición de Miq: quería destacar este mensaje, así que en
+   vez de otro párrafo suelto se le da su propia tarjeta (icono + texto)
+   dentro del .section-head, para que resalte visualmente del resto de la
+   intro sin salirse del ancho de texto centrado de la sección. */
+.origin-statement{
+  display:flex; align-items:flex-start; gap:12px;
+  max-width:560px; margin:20px auto 0;
+  padding:16px 20px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.14);
+  border-radius:16px;
+  text-align:left;
+  transition:background .3s ease, border-color .3s ease;
+}
+.origin-statement svg{ width:22px; height:22px; margin-top:2px; color:var(--accent-bright); flex-shrink:0; transition:color .3s ease; }
+.origin-statement span{ font-size:14.5px; line-height:1.55; color:rgba(243,245,242,0.78); transition:color .3s ease; }
+.origin-statement strong{ color:#F3F5F2; font-weight:600; transition:color .3s ease; }
+.tinted-section.is-light-bg .origin-statement{
+  background:rgba(30,42,34,0.06); border-color:rgba(30,42,34,0.18);
+}
+.tinted-section.is-light-bg .origin-statement svg{ color:var(--accent-deep); }
+.tinted-section.is-light-bg .origin-statement span{ color:var(--ink-soft); }
+.tinted-section.is-light-bg .origin-statement strong{ color:var(--ink); }
+
 /* Interruptor grande de "vista previa" — controla el tema de las dos cápsulas */
 .preview-switch{
   display:flex; align-items:center; justify-content:center; gap:14px;
@@ -756,10 +781,18 @@ section{ padding:96px 0; }
 }
 
 /* ---------- Security band ---------- */
+/* 2026-08-21: franja a todo lo ancho de la ventana (antes era una tarjeta
+   redondeada dentro del wrap). El fondo y el padding vertical viven en
+   .security-band (el <section>, ancho completo por defecto); .security
+   solo pone el grid interior, sin fondo ni radio propios, y hereda el
+   ancho máximo + padding horizontal del .wrap que lo envuelve. */
+.security-band{
+  background:var(--navy);
+  /* Sin padding propio: hereda el ritmo vertical estándar de `section`
+     (96px arriba/abajo) igual que el resto de secciones de la home. */
+}
 .security{
-  background:var(--navy); color:var(--navy-text);
-  border-radius:28px;
-  padding:56px 48px;
+  color:var(--navy-text);
   display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:center;
 }
 .security h2{ font-size:30px; margin-bottom:14px; }
@@ -1048,7 +1081,8 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
   .features-grid{ grid-template-columns:1fr 1fr; }
   .pricing-grid{ grid-template-columns:1fr; max-width:440px; margin-left:auto; margin-right:auto; }
   .how-grid{ grid-template-columns:1fr; }
-  .security{ grid-template-columns:1fr; padding:40px 24px; border-radius:20px; }
+  .security{ grid-template-columns:1fr; }
+  .security-band{ padding:56px 0; }
   .kpi-row{ grid-template-columns:1fr 1fr; }
   .mock-row{ grid-template-columns:70px 1fr 90px; }
   .mock-row .status{ display:none; }
