@@ -6,9 +6,15 @@
   --ink:#1E2A22;
   --ink-soft:#57685C;
   --ink-faint:#8B978A;
-  --accent:#1F6F4A;
-  --accent-deep:#134430;
-  --accent-tint:#DCEBE2;
+  --accent:#14B8A6;
+  --accent-deep:#0F766E;
+  --accent-tint:#CCFBF1;
+  /* Turquesa vivo para texto/iconos sobre fondos oscuros (hero, "Why
+     Copermiq") — antes era un verde menta (#9FD6BB) sin relación con
+     --accent; ahora ambos son la misma familia turquesa, así que el color
+     de marca tiene más presencia real en la web que el verde oscuro
+     anterior (2026-08-20, a petición de Miq). */
+  --accent-bright:#5EEAD4;
   --stamp-red:#A6392D;
   --stamp-red-tint:#F3E1DE;
   --stamp-amber:#B9791E;
@@ -79,7 +85,11 @@ img{ max-width:100%; display:block; }
 }
 .btn:hover{ transform:translateY(-1px); }
 .btn-primary{ background:var(--accent-deep); color:var(--navy-text); box-shadow:var(--shadow); }
-.btn-primary:hover{ background:var(--accent); }
+/* El turquesa claro (--accent) es más vivo que --accent-deep, pero con
+   texto claro encima no llega al contraste mínimo (WCAG AA) — en el hover
+   pasamos el texto a tinta oscura para mantener legibilidad sin perder el
+   turquesa vivo que buscamos en el botón. */
+.btn-primary:hover{ background:var(--accent); color:var(--ink); }
 .btn-ghost{ background:transparent; color:var(--ink); border-color:var(--paper-line); }
 .btn-ghost:hover{ border-color:var(--ink-faint); }
 .btn-on-navy{ background:var(--navy-text); color:var(--navy); }
@@ -285,7 +295,7 @@ img{ max-width:100%; display:block; }
 }
 .hero-quote-work{
   font-family:'EB Garamond', 'Zilla Slab', serif; font-style:italic; font-weight:600;
-  font-size:14px; color:#9FD6BB; letter-spacing:0.01em;
+  font-size:14px; color:var(--accent-bright); letter-spacing:0.01em;
 }
 /* ---------- Banda de CTA bajo el Hero ---------- */
 /* Mismo azul marino que el Hero y sin borde/línea entre ambos (a propósito:
@@ -306,7 +316,7 @@ img{ max-width:100%; display:block; }
   max-width:760px; width:100%;
 }
 .hero-cta-trust-item{ display:flex; align-items:flex-start; gap:10px; text-align:left; font-size:13.5px; color:rgba(233,240,247,0.65); line-height:1.5; }
-.hero-cta-trust-item svg{ width:16px; height:16px; margin-top:2px; color:#9FD6BB; flex-shrink:0; }
+.hero-cta-trust-item svg{ width:16px; height:16px; margin-top:2px; color:var(--accent-bright); flex-shrink:0; }
 
 @media (max-width:640px){
   .hero-cta-trust{ grid-template-columns:1fr; max-width:440px; }
@@ -474,7 +484,7 @@ section{ padding:96px 0; }
 .section-head.on-dark p{ color:rgba(243,245,242,0.66); transition:color .3s ease; }
 .eyebrow-dark{
   background:rgba(255,255,255,0.08);
-  color:#9FD6BB;
+  color:var(--accent-bright);
   border:1px solid rgba(255,255,255,0.14);
   transition:background .3s ease, color .3s ease, border-color .3s ease;
 }
@@ -522,7 +532,7 @@ section{ padding:96px 0; }
 .faq-groups{ max-width:760px; margin:0 auto; }
 .faq-category-title{
   font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
-  color:#9FD6BB; margin:44px 0 4px; transition:color .3s ease;
+  color:var(--accent-bright); margin:44px 0 4px; transition:color .3s ease;
 }
 .faq-category-title:first-child{ margin-top:0; }
 .faq-item{ border-bottom:1px solid rgba(233,240,247,0.14); transition:border-color .3s ease; }
@@ -684,7 +694,7 @@ section{ padding:96px 0; }
   margin-bottom:22px;
 }
 .why-body strong{ color:#FFFFFF; font-weight:600; }
-.why-body em{ font-style:italic; color:#9FD6BB; }
+.why-body em{ font-style:italic; color:var(--accent-bright); }
 .why-pull{
   font-family:'EB Garamond', 'Zilla Slab', serif;
   font-style:italic;
@@ -696,8 +706,8 @@ section{ padding:96px 0; }
   border-left:2px solid rgba(159,214,187,0.4);
 }
 .why-pull-accent{
-  color:#9FD6BB !important;
-  border-left-color:#9FD6BB;
+  color:var(--accent-bright) !important;
+  border-left-color:var(--accent-bright);
 }
 
 /* Desplegable "Descubre toda la historia" */
@@ -708,14 +718,14 @@ section{ padding:96px 0; }
   display:inline-flex; align-items:center; gap:8px;
   font-family:'IBM Plex Mono', monospace; font-size:13px; font-weight:600;
   letter-spacing:0.03em; text-transform:uppercase;
-  color:#9FD6BB; cursor:pointer;
+  color:var(--accent-bright); cursor:pointer;
   padding:6px 0; margin-bottom:8px;
   user-select:none;
 }
 .why-toggle:hover{ color:#F3F5F2; }
 .why-toggle:hover .why-chevron{ color:#F3F5F2; }
 .why-chevron{
-  width:16px; height:16px; color:#9FD6BB;
+  width:16px; height:16px; color:var(--accent-bright);
   transition: transform .2s ease, color .15s ease;
   flex-shrink:0;
 }
