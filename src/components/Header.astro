@@ -36,19 +36,18 @@
     </div>
   </div>
 
-  <!-- Panel deslizante desde la derecha (ver .site-menu en global.css). El
-       botón de la hamburguesa hace de abrir/cerrar (con su animación de
-       cruz); el panel además incluye su propio botón de cerrar, porque una
-       vez abierto queda por encima del icono de la cabecera. -->
+  <!-- Prueba 2026-08-20: en vez de panel lateral, el menú se despliega
+       horizontal justo debajo de la cabecera, integrado con ella (mismo
+       fondo, sin hueco) y SIN empujar el contenido de la página —
+       `position:absolute` respecto a `.site-header` (que ya es
+       `position:sticky`, así que hace de referencia) en vez de ocupar
+       espacio en el flujo normal. La cabecera sigue siendo sticky y el
+       icono de hamburguesa queda siempre visible y hace de abrir/cerrar
+       (su propia animación de cruz), así que ya no hace falta un botón de
+       cerrar aparte ni un fondo oscurecido tapando la página — solo la
+       sombra debajo del propio desplegable. -->
   <nav id="site-menu" class="site-menu" aria-hidden="true">
-    <div class="site-menu-top">
-      <button class="menu-close" type="button" aria-label="Cerrar menú">
-        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M5 5L15 15M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
-      </button>
-    </div>
-    <div class="site-menu-links">
+    <div class="wrap">
       <ul class="menu-nav-list">
         <!-- Solo visible con sesión iniciada (ver AuthModal.astro, que
              quita/pone el atributo hidden según el estado de la sesión). -->
@@ -63,13 +62,10 @@
       </ul>
     </div>
   </nav>
-  <div class="menu-backdrop" data-menu-backdrop aria-hidden="true"></div>
 </header>
 
 <script>
   const menuToggle = document.querySelector('.menu-toggle');
-  const menuClose = document.querySelector('.menu-close');
-  const menuBackdrop = document.querySelector('[data-menu-backdrop]');
   const siteHeader = document.querySelector('.site-header');
   const siteMenu = document.querySelector('#site-menu');
 
@@ -87,7 +83,8 @@
     siteMenu?.setAttribute('aria-hidden', 'false');
   }
 
-  menuToggle?.addEventListener('click', () => {
+  menuToggle?.addEventListener('click', (event) => {
+    event.stopPropagation();
     const isOpen = siteHeader?.classList.contains('menu-open') ?? false;
     if (isOpen) {
       closeMenu();
@@ -96,11 +93,18 @@
     }
   });
 
-  menuClose?.addEventListener('click', closeMenu);
-  menuBackdrop?.addEventListener('click', closeMenu);
-
-  // Al elegir un enlace del menú se cierra el panel.
+  // Al elegir un enlace del menú se cierra el desplegable.
   siteMenu?.querySelectorAll('a').forEach((link) => {
     link.addEventListener('click', closeMenu);
+  });
+
+  // Sin fondo oscurecido esta vez — pero un clic fuera del desplegable
+  // (en el resto de la página) lo sigue cerrando, como es habitual en un
+  // menú de este tipo.
+  document.addEventListener('click', (event) => {
+    const isOpen = siteHeader?.classList.contains('menu-open') ?? false;
+    if (isOpen && siteMenu && !siteMenu.contains(event.target)) {
+      closeMenu();
+    }
   });
 </script>

@@ -144,50 +144,38 @@ img{ max-width:100%; display:block; }
 .site-header.menu-open .menu-bar:nth-child(2){ opacity:0; }
 .site-header.menu-open .menu-bar:nth-child(3){ transform: translateY(-7px) rotate(-45deg); }
 
-/* Panel del menú: columna deslizante desde la derecha, no un desplegable
-   que empuje el resto de la página hacia abajo. Ancho fijo ~400px (el
-   ancho aproximado de un móvil) con tope en el 100% del viewport para que
-   en pantallas más estrechas ocupe todo el ancho disponible. */
+/* Panel del menú — prueba 2026-08-20: desplegable horizontal integrado
+   justo debajo de la cabecera (mismo fondo, sin hueco entre ambos), en vez
+   del panel vertical anterior. `position:absolute` respecto a
+   `.site-header` (que ya es `position:sticky`, así que sirve de referencia
+   de posicionamiento) para que se superponga al contenido de la página en
+   vez de empujarlo hacia abajo. Se anima con `max-height` + `opacity`
+   porque su altura depende del contenido (no es fijo como el panel
+   anterior). La sombra de abajo hace las veces de separación visual que
+   antes daba el fondo oscurecido de página completa (ya no hay backdrop:
+   la cabecera queda siempre visible y su icono de hamburguesa sigue
+   sirviendo para cerrar). */
 .site-menu{
-  position:fixed; top:0; right:0;
-  width:400px; max-width:100vw;
-  height:100vh; height:100dvh;
-  overflow-y:auto;
+  position:absolute; top:100%; left:0; right:0;
   background:var(--navy);
-  box-shadow:-16px 0 50px rgba(0,0,0,0.35);
-  transform:translateX(100%);
-  transition:transform .35s ease;
-  z-index:55;
+  max-height:0; overflow:hidden;
+  opacity:0;
+  box-shadow:0 20px 45px rgba(0,0,0,0.35);
+  transition:max-height .35s ease, opacity .25s ease;
 }
-.site-header.menu-open .site-menu{ transform:translateX(0); }
-
-/* Fondo oscuro que cubre el resto de la página mientras el panel está
-   abierto — refuerza la separación visual y permite cerrar tocando fuera. */
-.menu-backdrop{
-  position:fixed; inset:0; z-index:54;
-  background:rgba(10,18,28,0.55);
-  opacity:0; pointer-events:none;
-  transition:opacity .3s ease;
+.site-header.menu-open .site-menu{
+  max-height:600px;
+  opacity:1;
 }
-.site-header.menu-open .menu-backdrop{ opacity:1; pointer-events:auto; }
 
-.site-menu-top{ display:flex; justify-content:flex-end; padding:14px 20px 0; }
-.menu-close{
-  display:inline-flex; align-items:center; justify-content:center;
-  width:38px; height:38px; border-radius:999px;
-  background:transparent; border:1px solid transparent; padding:0;
-  color:var(--navy-text); cursor:pointer;
-  transition:background .15s ease;
+.menu-nav-list{
+  list-style:none; display:flex; flex-wrap:wrap;
+  align-items:center; justify-content:center;
+  gap:4px 6px; margin:0; padding:18px 0;
 }
-.menu-close:hover{ background:rgba(233,240,247,0.1); }
-.menu-close svg{ width:18px; height:18px; }
-
-.site-menu-links{ padding:8px 24px 32px; }
-
-.menu-nav-list{ list-style:none; display:flex; flex-direction:column; gap:2px; margin:0; padding:0; }
 .menu-nav-list a{
-  display:block; padding:12px 6px; border-radius:8px;
-  font-size:16px; color:var(--navy-text);
+  display:block; padding:10px 16px; border-radius:8px;
+  font-size:15px; color:var(--navy-text);
   transition:background .15s ease, color .15s ease;
 }
 .menu-nav-list a:hover{ background:rgba(233,240,247,0.08); }
