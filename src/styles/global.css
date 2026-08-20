@@ -160,7 +160,16 @@ img{ max-width:100%; display:block; }
   background:var(--navy);
   max-height:0; overflow:hidden;
   opacity:0;
-  box-shadow:0 20px 45px rgba(0,0,0,0.35);
+  /* Sombra en dos capas, ambas con spread negativo mayor que el blur menos
+     el offset vertical — así el desenfoque no "sangra" hacia arriba, por
+     encima del propio borde superior del desplegable (eso era lo que se
+     veía como un cambio de tono justo en la unión con la cabecera). La
+     primera capa es corta y más opaca, para oscurecer de verdad lo que
+     queda justo debajo (la pastilla "FACTURACIÓN · GASTOS · FISCALIDAD"
+     del Hero); la segunda es el degradado largo de caída. */
+  box-shadow:
+    0 10px 16px -6px rgba(0,0,0,0.5),
+    0 26px 40px -18px rgba(0,0,0,0.35);
   transition:max-height .35s ease, opacity .25s ease;
 }
 .site-header.menu-open .site-menu{
