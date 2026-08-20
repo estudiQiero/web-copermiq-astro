@@ -28,7 +28,14 @@
    un componente concreto — si no, un elemento "oculto" puede seguir viéndose. */
 [hidden]{ display:none !important; }
 html{ scroll-behavior:smooth; }
-html,body{ margin:0; padding:0; background:var(--paper); overflow-x:hidden; }
+/* overflow-x:clip, no overflow-x:hidden a propósito: "hidden" convierte a
+   html/body en un contenedor con scroll propio (aunque sea solo en el eje
+   X), y eso es justo lo que rompe `position:sticky` en Safari — el
+   navegador ata el elemento sticky a ese contenedor en vez de al viewport,
+   y como body no se desplaza de forma independiente, deja de "pegarse" al
+   hacer scroll. `clip` recorta igual el desbordamiento horizontal (evita
+   la barra de scroll lateral) sin crear ese contenedor de scroll. */
+html,body{ margin:0; padding:0; background:var(--paper); overflow-x:clip; }
 body{
   color:var(--ink);
   font-family:'Inter', system-ui, sans-serif;
@@ -85,10 +92,22 @@ img{ max-width:100%; display:block; }
   position:sticky; top:0; z-index:50;
   background:var(--navy);
 }
-.site-header .wrap{ display:flex; align-items:center; justify-content:space-between; padding-top:14px; padding-bottom:14px; }
+.site-header .wrap{
+  display:flex; align-items:center; justify-content:space-between;
+  padding-top:14px; padding-bottom:14px;
+  transition:padding .2s ease;
+}
 .brand{ display:flex; align-items:center; gap:14px; }
-.brand img{ width:68px; height:68px; border-radius:14px; }
-.brand-name{ font-family:'Zilla Slab',serif; font-weight:700; font-size:36px; color:var(--navy-text); }
+.brand img{ width:68px; height:68px; border-radius:14px; transition:width .2s ease, height .2s ease; }
+.brand-name{ font-family:'Zilla Slab',serif; font-weight:700; font-size:36px; color:var(--navy-text); transition:font-size .2s ease; }
+
+/* Cabecera "encogida": añadida por JS (`Header.astro`) en cuanto hay algo
+   de scroll, para que el logo ocupe menos sitio una vez que ya no está en
+   la parte alta de la página — la cabecera sigue siempre fija arriba
+   (sticky), esto es solo un ajuste de tamaño. */
+.site-header.is-scrolled .wrap{ padding-top:8px; padding-bottom:8px; }
+.site-header.is-scrolled .brand img{ width:44px; height:44px; }
+.site-header.is-scrolled .brand-name{ font-size:24px; }
 
 .header-actions{ display:flex; align-items:center; gap:6px; }
 
@@ -984,9 +1003,17 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
      derecha se quedan exactamente donde estaban (primera línea). */
   .site-header .wrap{ flex-wrap:wrap; }
   .header-actions{ order:1; margin-left:auto; }
-  .brand{ order:2; width:100%; justify-content:flex-start; margin-top:18px; gap:16px; }
+  .brand{ order:2; width:100%; justify-content:flex-start; margin-top:18px; gap:16px; transition:margin-top .2s ease; }
   .brand img{ width:80px; height:80px; border-radius:16px; }
   .brand-name{ font-size:42px; }
+
+  /* Versión encogida en móvil: el logo baja de tamaño igual que en
+     escritorio, y además se reduce el hueco que lo separaba de la fila de
+     iconos (si no, la cabecera seguiría viéndose alta aunque el logo en sí
+     fuera más pequeño). */
+  .site-header.is-scrolled .brand{ margin-top:8px; }
+  .site-header.is-scrolled .brand img{ width:52px; height:52px; }
+  .site-header.is-scrolled .brand-name{ font-size:28px; }
 }
 
 /* ---------- Banner de consentimiento de cookies (Analytics) ---------- */

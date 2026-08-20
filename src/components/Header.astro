@@ -107,4 +107,16 @@
       closeMenu();
     }
   });
+
+  // Logo más pequeño en cuanto hay algo de scroll (la cabecera en sí ya es
+  // sticky por CSS y se queda fija arriba siempre — esto solo encoge el
+  // logo una vez que ya no está en lo alto de la página). Umbral pequeño
+  // (12px) para que no vaya cambiando de tamaño con cada pixel de scroll,
+  // y comprobación al cargar por si la página no arranca en la posición 0
+  // (p.ej. al volver atrás con el scroll ya guardado por el navegador).
+  function updateScrolledState() {
+    siteHeader?.classList.toggle('is-scrolled', window.scrollY > 12);
+  }
+  updateScrolledState();
+  window.addEventListener('scroll', updateScrolledState, { passive: true });
 </script>
