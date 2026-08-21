@@ -1222,6 +1222,11 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 }
 
 /* ---------- Banner de consentimiento de cookies (Analytics) ---------- */
+/* 2026-08-21: banner en 2 columnas (Miq) — icono grande de galleta en gris
+   en una columna fija a la izquierda, y a la derecha el contenido de
+   siempre (texto + botones) sin cambiar cómo se comporta. Fondo blanco
+   (var(--card)) — se probó var(--accent-tint), un verde clarito ya usado en
+   el resto de la web, pero a Miq no le convenció y pidió volver a blanco. */
 .cookie-banner{
   position:fixed; left:16px; right:16px; bottom:16px; z-index:200;
   max-width:640px; margin:0 auto;
@@ -1230,8 +1235,15 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
   border-radius:var(--radius-lg);
   box-shadow:var(--shadow-lg);
   padding:20px 22px;
-  display:flex; flex-direction:column; gap:14px;
+  display:flex; flex-direction:row; align-items:flex-start; gap:16px;
 }
+.cookie-banner-icon{
+  flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  width:56px; height:56px;
+}
+.cookie-banner-icon svg{ width:100%; height:100%; }
+.cookie-banner-content{ flex:1; min-width:0; display:flex; flex-direction:column; gap:14px; }
 .cookie-banner-text p{ font-size:14px; line-height:1.55; color:var(--ink-soft); }
 .cookie-banner-actions{ display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; }
 .cookie-banner-actions .btn{ padding:10px 20px; font-size:14px; }
@@ -1256,7 +1268,7 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .cookie-preferences-link:hover{ transform:translateY(-1px); background:var(--accent-deep); }
 
 @media (min-width:640px){
-  .cookie-banner{ flex-direction:row; align-items:center; justify-content:space-between; }
+  .cookie-banner-content{ flex-direction:row; align-items:center; justify-content:space-between; }
   .cookie-banner-text p{ font-size:13.5px; }
   .cookie-banner-actions{ flex-shrink:0; }
 }

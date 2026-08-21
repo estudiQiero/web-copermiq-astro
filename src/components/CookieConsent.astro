@@ -12,16 +12,32 @@ const GA_MEASUREMENT_ID = import.meta.env.PUBLIC_GA_MEASUREMENT_ID;
 
 {GA_MEASUREMENT_ID && (
   <div id="cookie-banner" class="cookie-banner" hidden>
-    <div class="cookie-banner-text">
-      <p>
-        Usamos Google Analytics para saber cuántas personas visitan esta web —
-        no activamos nada hasta que lo aceptes. Puedes cambiar de opinión
-        cuando quieras desde "Preferencias de cookies", abajo a la izquierda.
-      </p>
+    <!-- 2026-08-21: icono grande de galleta en gris, en su propia columna a
+         la izquierda (Miq) — mismo patrón de "circunferencia + pepitas" que
+         el botón redondo de abajo a la izquierda, pero a mayor tamaño y con
+         las pepitas en var(--card) para que contrasten sobre el gris. -->
+    <div class="cookie-banner-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="9" fill="var(--ink-faint)"/>
+        <circle cx="9" cy="9.5" r="1.15" fill="var(--card)"/>
+        <circle cx="14.5" cy="8.5" r="1" fill="var(--card)"/>
+        <circle cx="9.5" cy="14.5" r="1" fill="var(--card)"/>
+        <circle cx="14.5" cy="14" r="1.2" fill="var(--card)"/>
+        <circle cx="12" cy="11.5" r="0.9" fill="var(--card)"/>
+      </svg>
     </div>
-    <div class="cookie-banner-actions">
-      <button id="cookie-reject" class="btn btn-ghost" type="button">Rechazar</button>
-      <button id="cookie-accept" class="btn btn-primary" type="button">Aceptar</button>
+    <div class="cookie-banner-content">
+      <div class="cookie-banner-text">
+        <p>
+          Usamos Google Analytics para saber cuántas personas visitan esta web —
+          no activamos nada hasta que lo aceptes. Puedes cambiar de opinión
+          cuando quieras desde "Preferencias de cookies", abajo a la izquierda.
+        </p>
+      </div>
+      <div class="cookie-banner-actions">
+        <button id="cookie-reject" class="btn btn-ghost" type="button">Rechazar</button>
+        <button id="cookie-accept" class="btn btn-primary" type="button">Aceptar</button>
+      </div>
     </div>
   </div>
 
