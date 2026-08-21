@@ -11,20 +11,42 @@
 //    Miq lo revise (idealmente con un gestor/abogado) antes de darlo por
 //    definitivo, sobre todo porque la app ya trata datos personales
 //    reales y hay sanciones reales de la AEPD si el texto no es preciso.
-// 2) Faltan tres datos que NO se pueden inventar — la identidad legal del
-//    responsable del tratamiento — marcados abajo entre corchetes:
-//    nombre/razón social, NIF, y domicilio. Búscalos con Ctrl/Cmd+F por
-//    "[COMPLETAR" en este archivo. La página funciona igual mientras
-//    tanto, pero no debería publicarse así.
+// 2) [RESUELTO 2026-08-21] Los tres datos de identidad del responsable del
+//    tratamiento (nombre, NIF, domicilio) que faltaban por completar los
+//    dio Miq y ya están en la sección 1. El aviso de "nota antes de
+//    publicar" se ha comentado (no borrado) a petición suya, por si se
+//    quiere reactivar más adelante.
 // 3) Todo lo demás (qué datos se tratan, con quién se comparten, cuánto
 //    se guardan) está verificado contra el código real de este repo y
 //    contra copermiq-billing-architecture.md — no es genérico copiado de
 //    otra web.
+//
+// 2026-08-21 — Cloudflare Turnstile (captcha) en login/registro, en la app
+// y (previsiblemente) también en esta web: Miq confirmó que quiere el
+// captcha en ambas superficies. Se añade Cloudflare como nuevo encargado
+// del tratamiento en las secciones 2 (qué datos), 3 (base legal), 4 (con
+// quién compartimos), 5 (transferencias internacionales) y 9 (cookies).
+// Hechos verificados contra las páginas oficiales de Cloudflare antes de
+// escribir (no inventados):
+// - Qué señales recoge Turnstile y para qué: la propia política de
+//   privacidad de Turnstile (cloudflare.com/turnstile-privacy-policy) dice
+//   que procesa señales del lado del cliente —IP, huella TLS, cabecera
+//   User-Agent, sitekey/origen— "estrictamente necesarias" para detectar y
+//   bloquear bots, que Cloudflare no puede identificar directamente a
+//   ninguna persona a partir de esas señales, y que el uso declarado es
+//   solo detección de bots y mejora del propio algoritmo — nunca
+//   publicidad ni seguimiento.
+// - Transferencias internacionales: la página de GDPR de Cloudflare
+//   (cloudflare.com/trust-hub/gdpr) confirma que, a día de hoy, Cloudflare
+//   está certificada en el EU-U.S. Data Privacy Framework (y sus
+//   extensiones suiza y de Reino Unido) para transferir datos del EEE a
+//   EEUU, con cláusulas contractuales tipo como mecanismo de respaldo si
+//   esa certificación dejara de aplicar.
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
-const LAST_UPDATED = '20 de agosto de 2026';
+const LAST_UPDATED = '21 de agosto de 2026';
 
 const sections = [
   { id: 'responsable', title: '1. Quién es el responsable del tratamiento' },
@@ -114,13 +136,21 @@ const sections = [
           usamos Google Analytics para saber cuántas personas visitan esta web y cómo la navegan —
           ver la sección 9.
         </li>
+        <li>
+          <strong>Datos de verificación anti-bots</strong>: al iniciar sesión o registrarte, usamos
+          Cloudflare Turnstile para comprobar que quien lo hace es una persona y no un robot. Para
+          eso, Turnstile procesa señales técnicas de tu navegador —como tu dirección IP, la huella
+          de tu conexión y la cabecera de user-agent—, que Cloudflare declara no poder usar para
+          identificarte directamente y que solo emplea para detectar bots y mejorar esa detección,
+          nunca para publicidad ni seguimiento.
+        </li>
       </ul>
 
       <h2 id="base-legal">3. Con qué base legal</h2>
       <ul>
         <li><strong>Ejecución de un contrato</strong>: los datos de cuenta y los de tu negocio, porque son necesarios para prestarte el servicio que has contratado (el uso de la app, gratis o de pago).</li>
         <li><strong>Obligación legal</strong>: parte de los datos fiscales y contables se conservan porque la normativa mercantil y tributaria española nos obliga a ello (ver sección 6).</li>
-        <li><strong>Interés legítimo</strong>: para responder a tus comunicaciones y para la seguridad del servicio (por ejemplo, detectar accesos indebidos).</li>
+        <li><strong>Interés legítimo</strong>: para responder a tus comunicaciones y para la seguridad del servicio — por ejemplo, detectar accesos indebidos y bloquear robots automatizados en el inicio de sesión y el registro (Cloudflare Turnstile).</li>
         <li><strong>Consentimiento</strong>: para la analítica web (Google Analytics), que solo se activa si pulsas "Aceptar" en el aviso de cookies — puedes retirarlo cuando quieras (sección 9).</li>
       </ul>
 
@@ -131,6 +161,7 @@ const sections = [
       </p>
       <ul>
         <li><strong>Supabase</strong> — aloja la base de datos y gestiona el acceso (login) de Copermiq. Los datos se guardan en un centro de datos en Frankfurt (Alemania, Unión Europea).</li>
+        <li><strong>Cloudflare</strong> — mediante Cloudflare Turnstile, comprueba que quien inicia sesión o se registra es una persona real y no un robot, como protección frente a ataques automatizados.</li>
         <li><strong>Stripe</strong> — procesa los pagos de los planes de pago. Recibe y guarda tus datos de tarjeta directamente (Copermiq nunca los ve ni los almacena); solo recibimos de vuelta el estado de tu suscripción (activa, cancelada, etc.).</li>
         <li><strong>Proveedor de email transaccional</strong> — envía en nuestro nombre los correos automáticos del servicio: confirmación de cuenta, recuperación de contraseña, copias de seguridad periódicas que hayas activado, y el envío de tus facturas a tus clientes cuando lo pides desde la app.</li>
         <li><strong>Google Analytics</strong> — solo si has dado tu consentimiento explícito en el banner de cookies (ver sección 9).</li>
@@ -143,12 +174,16 @@ const sections = [
       <h2 id="transferencias">5. Transferencias internacionales</h2>
       <p>
         Los datos de tu negocio (facturas, gastos, cuenta) se guardan en la Unión Europea
-        (Supabase, Frankfurt). Algunos de nuestros proveedores (Stripe y Google) pueden transferir
-        determinados datos fuera del Espacio Económico Europeo como parte de su propia
-        infraestructura — en ese caso, lo hacen amparados en las garantías que exige el RGPD
-        (cláusulas contractuales tipo de la Comisión Europea u otro mecanismo equivalente). Puedes
-        consultar las políticas de privacidad de <a href="https://stripe.com/es/privacy" target="_blank" rel="noopener">Stripe</a>
-        y de <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google</a> para más detalle.
+        (Supabase, Frankfurt). Algunos de nuestros proveedores (Stripe, Google y Cloudflare) pueden
+        transferir determinados datos fuera del Espacio Económico Europeo como parte de su propia
+        infraestructura — en ese caso, lo hacen amparados en las garantías que exige el RGPD.
+        Cloudflare, por ejemplo, está certificada en el marco de transferencia de datos UE-EEUU
+        (EU-U.S. Data Privacy Framework), y recurre a las cláusulas contractuales tipo de la
+        Comisión Europea como mecanismo de respaldo si esa certificación dejara de aplicar; el resto
+        de proveedores se amparan en cláusulas contractuales tipo u otro mecanismo equivalente.
+        Puedes consultar las políticas de privacidad de <a href="https://stripe.com/es/privacy" target="_blank" rel="noopener">Stripe</a>,
+        de <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google</a> y
+        de <a href="https://www.cloudflare.com/turnstile-privacy-policy/" target="_blank" rel="noopener">Cloudflare (Turnstile)</a> para más detalle.
       </p>
 
       <h2 id="conservacion">6. Cuánto tiempo conservamos tus datos</h2>
@@ -193,6 +228,13 @@ const sections = [
         quieras con el botón redondo de "Preferencias de cookies", abajo a la izquierda de la
         pantalla. Copermiq (la app, tras iniciar sesión) guarda tu sesión también en el
         almacenamiento local del navegador, no mediante cookies de seguimiento.
+      </p>
+      <p>
+        Al iniciar sesión o registrarte, además usamos Cloudflare Turnstile para comprobar que no
+        eres un robot; esto puede implicar el uso de alguna cookie o almacenamiento técnico en tu
+        navegador, estrictamente necesario para esa comprobación de seguridad — nunca para
+        publicidad ni para seguirte por otras webs. Por eso, a diferencia de la analítica, no
+        depende de tu consentimiento previo en el banner de cookies.
       </p>
 
       <h2 id="menores">10. Menores de edad</h2>

@@ -7,6 +7,58 @@
 //
 // De momento esto es solo la base de autenticación: no hay todavía compra
 // de plantillas ni Stripe (fase posterior).
+//
+// ============================================================================
+// 2026-08-21 — Cloudflare Turnstile (captcha), URGENTE
+// ============================================================================
+// El 21 de agosto se activó "Attack Protection" en Supabase Auth para el
+// proyecto COMPARTIDO con la app (app.copermiq.com) — esa protección es de
+// TODO el proyecto, no solo de la app, así que desde ese momento este
+// formulario estaba roto en producción: cualquier login, alta o
+// recuperación de contraseña fallaba con "no captcha_token found" porque
+// no mandábamos ningún token. Este cambio lo arregla.
+//
+// Cómo funciona (confirmado por la persona que lo integró en la app,
+// después de que a ellos también les diera problemas — no es una
+// suposición nuestra):
+// - No hace falta ninguna función de servidor propia. Supabase Auth
+//   verifica el token de Turnstile de forma nativa contra Cloudflare, en
+//   cuanto tiene la Secret Key configurada en su panel (Authentication →
+//   Attack Protection) — cosa que ya está hecha, la hizo la app. Aquí solo
+//   hace falta que el cliente (este archivo) monte el widget y mande el
+//   captchaToken que genera, en las TRES llamadas de Auth: signInWithPassword,
+//   resetPasswordForEmail y signUp. Se les olvidó cubrir el login y la
+//   recuperación en su primera versión, y por eso se quedaron bloqueados
+//   hasta de su propio panel de admin — aquí se cubren los tres desde el
+//   principio para no repetir ese fallo.
+// - El site key que ya tienen (0x4AAAAAAEXdHW6UM2BzY75G) está atado en
+//   Cloudflare solo al hostname app.copermiq.com. Para que funcione aquí,
+//   Miq tiene que añadir copermiq.com (y probablemente www.copermiq.com) a
+//   la lista de hostnames permitidos de ESE MISMO widget en el panel de
+//   Cloudflare (Turnstile → ese widget → Settings) — así se reutiliza la
+//   misma Secret Key ya configurada en Supabase, sin tocar nada más ahí.
+//   Sin ese paso (que solo puede hacerlo Miq, no es código), el widget
+//   cargará pero Cloudflare lo rechazará por dominio no autorizado.
+// - Se usa el modo explícito (`turnstile.render()`, no el automático) tal
+//   como recomendó la app — aunque aquí el formulario no se reconstruye en
+//   cada render (a diferencia del suyo), el modo explícito da control
+//   directo sobre cuándo resetear el widget (tras cada intento, para que
+//   el siguiente tenga un token fresco) y sobre qué token va a cada
+//   llamada, así que se mantiene por seguridad y no por necesidad estricta.
+// - Estética: `theme: 'light'` fijo (la tarjeta del modal es blanca,
+//   `--card:#FFFFFF`) y el contenedor del widget con `border-radius` +
+//   `overflow:hidden` para redondear las esquinas del iframe — el propio
+//   contenido de dentro no se puede repintar por venir de otro dominio,
+//   pero el marco sí.
+//
+// Falta un dato que SOLO Miq puede rellenar (no se puede inventar, mismo
+// criterio que con las claves de Supabase): el site key real de Turnstile,
+// como variable de entorno PUBLIC_TURNSTILE_SITE_KEY (ver .env.example y
+// el mismo patrón de src/lib/supabaseClient.js). Sin esa variable, el
+// formulario se deshabilita con un aviso — igual que ya pasaba antes si
+// faltaban las claves de Supabase — en vez de fallar en seco.
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+const hasTurnstileKey = Boolean(turnstileSiteKey);
 ---
 
 <div id="auth-overlay" class="auth-overlay" hidden>
@@ -35,6 +87,10 @@
           Contraseña
           <input type="password" name="password" autocomplete="current-password" required minlength="6" />
         </label>
+        <!-- Un solo widget cubre "Iniciar sesión" y "He olvidado mi
+             contraseña" — ambas acciones viven en este mismo formulario
+             visible, y el token se resetea tras cada intento. -->
+        {hasTurnstileKey && <div id="turnstile-login" class="turnstile-wrap" data-sitekey={turnstileSiteKey}></div>}
         <button type="submit" class="btn btn-primary auth-submit">Iniciar sesión</button>
         <button type="button" class="auth-forgot">He olvidado mi contraseña</button>
       </form>
@@ -48,6 +104,7 @@
           Contraseña
           <input type="password" name="password" autocomplete="new-password" required minlength="6" />
         </label>
+        {hasTurnstileKey && <div id="turnstile-signup" class="turnstile-wrap" data-sitekey={turnstileSiteKey}></div>}
         <button type="submit" class="btn btn-primary auth-submit">Crear cuenta</button>
       </form>
 
@@ -75,6 +132,19 @@
     </div>
   </div>
 </div>
+
+{hasTurnstileKey && (
+  <script is:inline>
+    // Promesa que se resuelve cuando el script de Cloudflare ha cargado y
+    // `window.turnstile` ya existe — el módulo de abajo espera a esto antes
+    // de intentar renderizar los widgets. `render=explicit` evita que
+    // Cloudflare los monte solo, para poder controlar nosotros el reset.
+    window.__turnstileReady = new Promise((resolve) => {
+      window.onloadTurnstileCallback = resolve;
+    });
+  </script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback&render=explicit" async defer></script>
+)}
 
 <script>
   import { supabase, isSupabaseConfigured } from '../lib/supabaseClient.js';
@@ -211,9 +281,71 @@
     return msg || 'Ha ocurrido un error. Inténtalo de nuevo.';
   }
 
+  // ----------------------------------------------------------------------
+  // Cloudflare Turnstile — ver el comentario largo al principio del
+  // frontmatter para el porqué. `loginToken`/`signupToken` guardan el
+  // token vigente de cada widget; se limpian al montar, al expirar y tras
+  // cada intento (con éxito o con error), para que el siguiente intento
+  // siempre mande un token fresco — un token de Turnstile es de un solo
+  // uso.
+  const hasTurnstileKey = Boolean(document.getElementById('turnstile-login') || document.getElementById('turnstile-signup'));
+  let loginWidgetId = null;
+  let signupWidgetId = null;
+  let loginToken = '';
+  let signupToken = '';
+
+  async function renderTurnstileWidgets() {
+    if (!hasTurnstileKey || !window.__turnstileReady) return;
+    await window.__turnstileReady;
+    const loginEl = document.getElementById('turnstile-login');
+    const signupEl = document.getElementById('turnstile-signup');
+    if (loginEl && window.turnstile) {
+      loginWidgetId = window.turnstile.render(loginEl, {
+        sitekey: loginEl.dataset.sitekey,
+        theme: 'light',
+        size: 'flexible',
+        callback: (token) => { loginToken = token; },
+        'expired-callback': () => { loginToken = ''; },
+        'error-callback': () => { loginToken = ''; },
+      });
+    }
+    if (signupEl && window.turnstile) {
+      signupWidgetId = window.turnstile.render(signupEl, {
+        sitekey: signupEl.dataset.sitekey,
+        theme: 'light',
+        size: 'flexible',
+        callback: (token) => { signupToken = token; },
+        'expired-callback': () => { signupToken = ''; },
+        'error-callback': () => { signupToken = ''; },
+      });
+    }
+  }
+  renderTurnstileWidgets();
+
+  function resetLoginWidget() {
+    loginToken = '';
+    if (window.turnstile && loginWidgetId !== null) window.turnstile.reset(loginWidgetId);
+  }
+  function resetSignupWidget() {
+    signupToken = '';
+    if (window.turnstile && signupWidgetId !== null) window.turnstile.reset(signupWidgetId);
+  }
+
   if (!isSupabaseConfigured) {
     setMessage(
       'Configuración pendiente: faltan las claves de Supabase (ver src/lib/supabaseClient.js).',
+      'error'
+    );
+    loginForm?.querySelectorAll('input, button').forEach((el) => (el.disabled = true));
+    signupForm?.querySelectorAll('input, button').forEach((el) => (el.disabled = true));
+  } else if (!hasTurnstileKey) {
+    // Desde que se activó "Attack Protection" en Supabase (proyecto
+    // compartido con la app, 2026-08-21), el login/alta/recuperación no
+    // funcionan sin un token de Turnstile — así que sin la clave
+    // configurada, es más honesto avisar y deshabilitar el formulario que
+    // dejar que la persona lo intente y se encuentre un error técnico.
+    setMessage(
+      'Configuración pendiente: falta la clave de Cloudflare Turnstile (ver src/components/AuthModal.astro).',
       'error'
     );
     loginForm?.querySelectorAll('input, button').forEach((el) => (el.disabled = true));
@@ -223,12 +355,18 @@
   loginForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!supabase) return;
+    if (hasTurnstileKey && !loginToken) {
+      setMessage('Espera un momento a que cargue la verificación de seguridad e inténtalo de nuevo.', 'error');
+      return;
+    }
     setMessage('Comprobando…');
     const formData = new FormData(loginForm);
     const { data, error } = await supabase.auth.signInWithPassword({
       email: String(formData.get('email') || ''),
       password: String(formData.get('password') || ''),
+      options: hasTurnstileKey ? { captchaToken: loginToken } : undefined,
     });
+    resetLoginWidget();
     if (error) {
       setMessage(translateError(error), 'error');
       return;
@@ -239,10 +377,12 @@
   });
 
   // "He olvidado mi contraseña" — reutiliza el campo de email del propio
-  // formulario de login (si ya lo ha escrito) en vez de pedirlo aparte.
-  // resetPasswordForEmail() es una llamada directa al Auth de Supabase
-  // (no una Edge Function propia ni de la app), así que no hay nada nuevo
-  // que desplegar — ver el comentario de RESET_PASSWORD_URL arriba.
+  // formulario de login (si ya lo ha escrito) en vez de pedirlo aparte, y
+  // el mismo widget de Turnstile del formulario de login (misma sección
+  // visible). resetPasswordForEmail() es una llamada directa al Auth de
+  // Supabase (no una Edge Function propia ni de la app), así que no hay
+  // nada nuevo que desplegar — ver el comentario de RESET_PASSWORD_URL
+  // arriba.
   forgotBtn?.addEventListener('click', async () => {
     if (!supabase) return;
     const emailInput = loginForm?.querySelector('input[name="email"]');
@@ -252,9 +392,17 @@
       if (emailInput instanceof HTMLInputElement) emailInput.focus();
       return;
     }
+    if (hasTurnstileKey && !loginToken) {
+      setMessage('Espera un momento a que cargue la verificación de seguridad e inténtalo de nuevo.', 'error');
+      return;
+    }
     if (forgotBtn instanceof HTMLButtonElement) forgotBtn.disabled = true;
     setMessage('Enviando…');
-    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: RESET_PASSWORD_URL });
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: RESET_PASSWORD_URL,
+      ...(hasTurnstileKey ? { captchaToken: loginToken } : {}),
+    });
+    resetLoginWidget();
     if (forgotBtn instanceof HTMLButtonElement) forgotBtn.disabled = false;
     if (error) {
       setMessage(translateError(error), 'error');
@@ -266,12 +414,18 @@
   signupForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!supabase) return;
+    if (hasTurnstileKey && !signupToken) {
+      setMessage('Espera un momento a que cargue la verificación de seguridad e inténtalo de nuevo.', 'error');
+      return;
+    }
     setMessage('Creando cuenta…');
     const formData = new FormData(signupForm);
     const { data, error } = await supabase.auth.signUp({
       email: String(formData.get('email') || ''),
       password: String(formData.get('password') || ''),
+      options: hasTurnstileKey ? { captchaToken: signupToken } : undefined,
     });
+    resetSignupWidget();
     if (error) {
       setMessage(translateError(error), 'error');
       return;

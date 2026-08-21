@@ -1102,6 +1102,13 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .auth-form input:focus{ outline:none; border-color:var(--accent); background:var(--white); }
 .auth-form input:disabled{ opacity:.6; cursor:not-allowed; }
 
+/* Cloudflare Turnstile (2026-08-21): el iframe que Cloudflare inyecta trae
+   sus propias esquinas rectas por defecto, y no se puede repintar por dentro
+   (viene de otro dominio) — así que se redondea desde fuera, recortando el
+   contenedor. `min-height` evita un salto de layout mientras el widget
+   termina de cargar (tarda un instante en montarse tras el `render()`). */
+.turnstile-wrap{ border-radius:10px; overflow:hidden; min-height:65px; }
+
 .auth-submit{ width:100%; justify-content:center; margin-top:14px; }
 
 .auth-forgot{
