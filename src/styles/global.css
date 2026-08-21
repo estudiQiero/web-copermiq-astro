@@ -522,13 +522,30 @@ section{ padding:96px 0; }
   text-align:left;
   transition:background .3s ease, border-color .3s ease;
 }
-.origin-statement svg{ width:22px; height:22px; margin-top:2px; color:var(--accent-bright); flex-shrink:0; transition:color .3s ease; }
+/* 2026-08-21 (más tarde): Miq pidió sustituir el icono de ubicación por
+   una bandera europea real — "grande, llamativa" en la muestra que aprobó
+   (opción A del mockup), pero con cantos rectos (sin border-radius, a
+   diferencia del resto de iconos redondeados del sitio) y un poco más
+   apaisada que el recorte casi cuadrado de la muestra. La bandera es un
+   SVG propio (12 estrellas + azul, proporción y colores oficiales:
+   Pantone Reflex Blue #003399 / Pantone Yellow #FFCC00) dibujado a mano,
+   no una imagen descargada — se ve nítida a cualquier densidad de
+   pantalla y no depende de ningún recurso externo. El contenedor
+   (44×30px, ratio 1.47:1, cerca del 3:2 real de la bandera) usa
+   `preserveAspectRatio="xMidYMid slice"` en el propio SVG, así que con
+   esa proporción tan parecida apenas recorta nada de la bandera. */
+.origin-flag{
+  width:44px; height:30px; flex-shrink:0; margin-top:2px;
+  overflow:hidden;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.18);
+}
+.origin-flag svg{ display:block; width:100%; height:100%; }
 .origin-statement span{ font-size:14.5px; line-height:1.55; color:rgba(243,245,242,0.78); transition:color .3s ease; }
 .origin-statement strong{ color:#F3F5F2; font-weight:600; transition:color .3s ease; }
 .tinted-section.is-light-bg .origin-statement{
   background:rgba(30,42,34,0.06); border-color:rgba(30,42,34,0.18);
 }
-.tinted-section.is-light-bg .origin-statement svg{ color:var(--accent-deep); }
+.tinted-section.is-light-bg .origin-flag{ box-shadow:0 0 0 1px rgba(30,42,34,0.2); }
 .tinted-section.is-light-bg .origin-statement span{ color:var(--ink-soft); }
 .tinted-section.is-light-bg .origin-statement strong{ color:var(--ink); }
 
