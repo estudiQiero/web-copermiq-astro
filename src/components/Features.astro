@@ -1,42 +1,22 @@
 ---
-const features = [
-  {
-    tone: '',
-    title: 'Borradores y facturas emitidas',
-    desc: 'Toda factura nace como borrador. Al facturar, obtiene su número correlativo definitivo y pasa a contar en el resumen del año — nada se pierde por el camino.',
-    icon: 'M6 3h9l3 3v15H6z M15 3v3h3 M9 12h6 M9 16h6',
-  },
-  {
-    tone: 'red',
-    title: 'Facturas rectificativas',
-    desc: 'Una factura emitida no se puede eliminar, como marca la ley. Crea una rectificativa con numeración propia (R-2026-001) y referencia automática a la original.',
-    icon: 'M4 12a8 8 0 1 1 3 6.2 M4 12v5h5',
-  },
-  {
-    tone: 'amber',
-    title: 'Gastos con IVA e IRPF por línea',
-    desc: 'Cada línea de gasto lleva su propio % de IVA, de IRPF y su deducibilidad. Inicio calcula tu resultado neto real: facturado menos gastos deducibles.',
-    icon: 'M4 6h16v12H4z M4 10h16 M8 14h4',
-  },
-  {
-    tone: '',
-    title: 'Panel con KPIs al día',
-    desc: 'Pendiente de facturar, pendiente de cobro y resultado neto, filtrables por mes, trimestre o año — directo desde la misma fuente que Borradores.',
-    icon: 'M4 19V10 M10 19V5 M16 19v-7 M4 19h16',
-  },
-  {
-    tone: 'amber',
-    title: 'Facturación periódica',
-    desc: 'Marca una factura como recurrente y Copermiq genera automáticamente sus próximas previsiones hasta un año vista, sin ocupar hueco hasta que se emiten.',
-    icon: 'M7 3v3 M17 3v3 M4 8h16 M4 6h16v14H4z M8 12h3v3H8z',
-  },
-  {
-    tone: 'red',
-    title: 'Copia de seguridad propia',
-    desc: 'Descarga negocio, clientes, facturas y gastos en un .json tuyo, y restáuralo cuando quieras: fusiona sin borrar nada que no esté en el archivo.',
-    icon: 'M12 3v12 M7 11l5 5 5-5 M5 20h14',
-  },
-];
+// Sección "Funciones" — la primera después del Hero, la que más pesa para
+// enganchar a quien llega por primera vez. Rediseñada el 2026-08-22 a
+// partir de un PDF de mockups que Miq pasó (con capturas de la app
+// proporcionadas por el equipo de la app): 6 tarjetas, cada una con un
+// mini "recorte" de la pantalla real correspondiente debajo del texto, en
+// vez de solo icono+texto como antes.
+//
+// Importante: solo aparecen aquí funciones del plan GRATIS — antes había
+// una tarjeta de "Facturación periódica" que en realidad es de pago (ver
+// PlanComparison.astro: 'Facturas periódicas / recurrentes' → DASH en
+// Gratis), inconsistencia que este rediseño corrige moviendo esa función
+// a su sitio real: el bloque "Con Pro, además…" (PlanHighlight.astro),
+// justo debajo de esta sección.
+//
+// Los números/nombres de las capturas (Estudio Marín, Cafetería Nou,
+// Ferretería Sol, Movistar, Renfe…) son de ejemplo, tal como los pasó el
+// equipo de la app — mismo criterio que ya se usa en "Inicio, de un
+// vistazo" (ProductPreview.astro).
 ---
 
 <section id="funciones">
@@ -44,20 +24,161 @@ const features = [
     <div class="section-head">
       <span class="eyebrow">Funciones</span>
       <h2>Todo lo que necesitas para llevar tus cuentas, en un solo sitio.</h2>
-      <p>Facturación y contabilidad sencilla para autónomos y pequeñas empresas.</p>
+      <p>
+        Facturación y contabilidad sencillas para autónomos y pequeñas
+        empresas — y el cumplimiento legal, incluido siempre, sin letra
+        pequeña.
+      </p>
     </div>
+
     <div class="features-grid">
-      {features.map((f) => (
-        <div class="feature-card">
-          <div class={`feature-icon ${f.tone}`}>
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d={f.icon} stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <h3>{f.title}</h3>
-          <p>{f.desc}</p>
+      <!-- 1. Borradores y facturas emitidas -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 3h9l3 3v15H6z M15 3v3h3 M9 12h6 M9 16h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
-      ))}
+        <h3>Borradores y facturas emitidas</h3>
+        <p>Toda factura nace como borrador. Al facturar, obtiene su número correlativo definitivo y pasa a contar en el resumen del año — nada se pierde por el camino.</p>
+
+        <div class="fmock">
+          <div class="fmock-toolbar">
+            <span>14 en total</span>
+            <span class="fmock-btn">+ Nueva factura</span>
+          </div>
+          <div class="fmock-table">
+            <div class="fmock-row fmock-row-head fmock-cols-invoice">
+              <span>Número</span><span>Fecha</span><span>Cliente</span><span>Descripción</span><span class="fmock-amount">Total</span>
+            </div>
+            <div class="fmock-row fmock-cols-invoice">
+              <span>F-2026-014</span><span>18/08/2026</span><span>Estudio Marín</span><span>Diseño de logotipo</span>
+              <span class="fmock-amount">640,00 € <i class="fmock-dot"></i></span>
+            </div>
+            <div class="fmock-row fmock-cols-invoice">
+              <span>F-2026-013</span><span>12/08/2026</span><span>Cafetería Nou</span>
+              <span>Mantenimiento web <em class="fmock-tag fmock-tag-info">Periódica</em></span>
+              <span class="fmock-amount">210,00 € <i class="fmock-dot fmock-dot-pending"></i></span>
+            </div>
+            <div class="fmock-row fmock-cols-invoice">
+              <span>F-2026-012</span><span>03/08/2026</span><span>Ferretería Sol</span><span>Consultoría</span>
+              <span class="fmock-amount">385,00 € <i class="fmock-dot"></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Facturas rectificativas -->
+      <div class="feature-card">
+        <div class="feature-icon red">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 12a8 8 0 1 1 3 6.2 M4 12v5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>Facturas rectificativas</h3>
+        <p>Una factura emitida no se puede eliminar, como marca la ley. Crea una rectificativa con numeración propia (R-2026-001) y referencia automática a la original.</p>
+
+        <div class="fmock">
+          <div class="fmock-toolbar">
+            <span>14 en total</span>
+            <span class="fmock-btn">+ Nueva factura</span>
+          </div>
+          <div class="fmock-table">
+            <div class="fmock-row fmock-row-head fmock-cols-invoice">
+              <span>Número</span><span>Fecha</span><span>Cliente</span><span>Descripción</span><span class="fmock-amount">Total</span>
+            </div>
+            <div class="fmock-row fmock-cols-invoice">
+              <span>F-2026-011</span><span>20/07/2026</span><span>Cafetería Nou</span><span>Mantenimiento web</span>
+              <span class="fmock-amount">210,00 € <i class="fmock-dot"></i></span>
+            </div>
+            <div class="fmock-row fmock-cols-invoice">
+              <span>R-2026-001</span><span>25/07/2026</span><span>Cafetería Nou</span>
+              <span>Corrige F-2026-011 <em class="fmock-tag fmock-tag-amber">Rectificativa</em></span>
+              <span class="fmock-amount">-60,00 € <i class="fmock-dot"></i></span>
+            </div>
+          </div>
+          <p class="fmock-caption">Referencia automática a la factura original — nunca se elimina, como marca la ley.</p>
+        </div>
+      </div>
+
+      <!-- 3. Gastos con IVA e IRPF por línea -->
+      <div class="feature-card">
+        <div class="feature-icon amber">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 6h16v12H4z M4 10h16 M8 14h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>Gastos con IVA e IRPF por línea</h3>
+        <p>Cada línea de gasto lleva su propio % de IVA, de IRPF y su deducibilidad. Sabrás tu resultado neto real: facturado menos gastos deducibles.</p>
+
+        <div class="fmock">
+          <div class="fmock-toolbar">
+            <span>9 en este trimestre</span>
+            <span class="fmock-btn">+ Nuevo gasto</span>
+          </div>
+          <div class="fmock-stats fmock-stats-compact">
+            <div class="fmock-stat"><span class="fmock-stat-label">Base</span><span class="fmock-stat-value">1.240,00 €</span></div>
+            <div class="fmock-stat"><span class="fmock-stat-label">IVA soportado</span><span class="fmock-stat-value">184,20 €</span></div>
+            <div class="fmock-stat"><span class="fmock-stat-label">Total gastado</span><span class="fmock-stat-value">1.424,20 €</span></div>
+            <div class="fmock-stat"><span class="fmock-stat-label">Deducible</span><span class="fmock-stat-value fmock-stat-red">1.180,00 €</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Sabe cuánto ganas de verdad -->
+      <div class="feature-card">
+        <div class="feature-icon blue">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 19V10 M10 19V5 M16 19v-7 M4 19h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>Sabe cuánto ganas de verdad, sin sacar la calculadora</h3>
+        <p>Pendiente de facturar, pendiente de cobro y resultado neto, calculados solos y filtrables por mes, trimestre o año.</p>
+
+        <div class="fmock">
+          <div class="fmock-panel-title">Resumen — Este trimestre</div>
+          <div class="fmock-stats">
+            <div class="fmock-stat"><span class="fmock-stat-label">Facturado (base)</span><span class="fmock-stat-value">4.180,00 €</span></div>
+            <div class="fmock-stat"><span class="fmock-stat-label">Gastos (deducible)</span><span class="fmock-stat-value">1.180,00 €</span></div>
+            <div class="fmock-stat"><span class="fmock-stat-label">Resultado neto</span><span class="fmock-stat-value fmock-stat-accent">3.000,00 €</span></div>
+            <div class="fmock-stat"><span class="fmock-stat-label">Pendiente de cobro</span><span class="fmock-stat-value fmock-stat-red">610,00 €</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Copia de seguridad propia -->
+      <div class="feature-card">
+        <div class="feature-icon red">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 3v12 M7 11l5 5 5-5 M5 20h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>Copia de seguridad propia</h3>
+        <p>Descarga tu negocio, tus clientes, facturas y gastos en un .json propio, y restáuralo cuando quieras: fusiona sin borrar nada que no esté en el archivo.</p>
+
+        <div class="fmock">
+          <div class="fmock-panel-title">Copia de seguridad</div>
+          <p class="fmock-panel-text">Descarga una copia de todos tus datos (negocio, clientes, facturas, gastos) en un archivo tuyo, independiente de la app.</p>
+          <div class="fmock-actions">
+            <span class="fmock-action-btn fmock-action-btn-primary">↓ Descargar copia</span>
+            <span class="fmock-action-btn">↺ Restaurar desde archivo</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Cumple con Verifactu -->
+      <div class="feature-card feature-card-pending">
+        <span class="feature-corner" aria-hidden="true"></span>
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z M9 12.2l2 2 4-4.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>Cumple con Verifactu, incluido siempre
+          <span class="feature-pending-badge">Aún no activado</span>
+        </h3>
+        <p>Facturación electrónica antifraude, en los 3 planes — también en el Gratis. Nunca vas a tener que pagar solo para poder facturar de forma legal.</p>
+      </div>
     </div>
   </div>
 </section>

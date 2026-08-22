@@ -19,6 +19,8 @@
   --stamp-red-tint:#F3E1DE;
   --stamp-amber:#B9791E;
   --stamp-amber-tint:#F3E7D3;
+  --stamp-blue:#2563A8;
+  --stamp-blue-tint:#DCE8F5;
   --navy:#142A42;
   --navy-text:#E9F0F7;
   --white:#FFFFFF;
@@ -340,13 +342,16 @@ section{ padding:96px 0; }
 /* ---------- Features grid ---------- */
 .features-grid{
   display:grid; grid-template-columns:repeat(3, 1fr); gap:22px;
+  align-items:stretch;
 }
 .feature-card{
+  display:flex; flex-direction:column;
   background:var(--card);
   border:1px solid var(--paper-line);
   border-radius:var(--radius-lg);
   padding:28px;
   box-shadow:var(--shadow);
+  position:relative;
 }
 .feature-icon{
   width:44px; height:44px; border-radius:12px;
@@ -356,9 +361,153 @@ section{ padding:96px 0; }
 }
 .feature-icon.red{ background:var(--stamp-red-tint); color:var(--stamp-red); }
 .feature-icon.amber{ background:var(--stamp-amber-tint); color:var(--stamp-amber); }
+.feature-icon.blue{ background:var(--stamp-blue-tint); color:var(--stamp-blue); }
 .feature-icon svg{ width:22px; height:22px; }
 .feature-card h3{ font-size:18px; margin-bottom:8px; }
 .feature-card p{ font-size:14.5px; color:var(--ink-soft); }
+
+/* Mini "recorte" de pantalla de la app debajo del texto de cada tarjeta
+   (mockups de la sección Funciones, rediseño 2026-08-22 a partir del PDF
+   de Miq). `margin-top:auto` lo ancla siempre al fondo de la tarjeta —
+   como `.feature-card` es flex column y el grid estira todas las
+   tarjetas de una misma fila a la misma altura (comportamiento por
+   defecto de CSS grid), esto es lo que hace que las 6 tarjetas queden
+   "equilibradas visualmente" aunque el texto de cada una ocupe distinto
+   número de líneas, tal y como pidió Miq. */
+.fmock{ margin-top:auto; padding-top:20px; }
+.fmock-toolbar{
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;
+  font-size:12px; color:var(--ink-faint); margin-bottom:10px;
+}
+.fmock-btn{
+  font-size:11.5px; font-weight:600; color:var(--accent-deep);
+  background:var(--accent-tint); padding:4px 10px; border-radius:999px;
+}
+.fmock-table{
+  border:1px solid var(--paper-line); border-radius:12px; overflow:hidden;
+  font-size:11.5px;
+}
+.fmock-row{ display:grid; gap:8px; padding:9px 12px; align-items:center; }
+.fmock-row.fmock-row-head{
+  color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.03em; font-size:10px;
+  background:var(--paper);
+}
+.fmock-row:not(.fmock-row-head){ border-top:1px solid var(--paper-line); color:var(--ink-soft); }
+/* minmax(0, Nfr) en vez de solo "Nfr": evita el "grid blowout" — sin esto,
+   una palabra larga o una pastilla .fmock-tag (que sí es nowrap a
+   propósito) puede forzar que la columna, la tabla, la tarjeta y hasta la
+   página entera se ensanchen más de lo que cabe en pantalla, sobre todo
+   en móvil. Con minmax(0, Nfr) la columna puede encogerse y el texto
+   envuelve dentro de su celda en vez de desbordar. */
+.fmock-row.fmock-cols-invoice{ grid-template-columns:minmax(0,1fr) minmax(0,0.8fr) minmax(0,1fr) minmax(0,1.3fr) minmax(0,1fr); }
+.fmock-amount{ font-family:'IBM Plex Mono', monospace; text-align:right; display:flex; align-items:center; justify-content:flex-end; gap:5px; }
+.fmock-dot{ width:6px; height:6px; border-radius:50%; background:var(--accent); display:inline-block; flex-shrink:0; }
+.fmock-dot-pending{ background:var(--stamp-amber); }
+.fmock-tag{ font-style:normal; font-size:9.5px; font-weight:600; padding:2px 6px; border-radius:999px; margin-left:4px; white-space:nowrap; }
+.fmock-tag-info{ background:var(--accent-tint); color:var(--accent-deep); }
+.fmock-tag-amber{ background:var(--stamp-amber-tint); color:var(--stamp-amber); }
+.fmock-caption{ font-size:12px; color:var(--ink-faint); margin:10px 2px 0; }
+
+.fmock-stats{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; }
+.fmock-stats-compact .fmock-stat{ padding:10px; }
+.fmock-stat{
+  border:1px solid var(--paper-line); border-radius:10px; padding:12px;
+  background:var(--paper); display:flex; flex-direction:column; gap:4px;
+}
+.fmock-stat-label{ font-size:10.5px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.03em; }
+.fmock-stat-value{ font-family:'IBM Plex Mono', monospace; font-size:14px; font-weight:600; color:var(--ink); }
+.fmock-stat-accent{ color:var(--accent-deep); }
+.fmock-stat-red{ color:var(--stamp-red); }
+
+.fmock-panel-title{ font-size:12px; font-weight:600; color:var(--ink); margin-bottom:10px; }
+.fmock-panel-text{ font-size:12px; color:var(--ink-faint); margin:0 0 12px; }
+.fmock-actions{ display:flex; flex-direction:column; gap:8px; }
+.fmock-action-btn{
+  font-size:12px; font-weight:600; text-align:center; padding:9px 12px; border-radius:10px;
+  border:1px solid var(--paper-line); color:var(--ink-soft); background:var(--paper);
+}
+.fmock-action-btn-primary{ border-color:var(--accent-deep); background:var(--accent-tint); color:var(--accent-deep); }
+
+/* Tarjeta de Verifactu: todavía no tiene captura real de la app (Miq:
+   "Mas adelante te pasare capturas mejores"), así que en vez de un
+   `.fmock` vacío lleva un triángulo sólido en la esquina superior
+   derecha — sustituye a la cinta roja diagonal del PDF, que a este
+   tamaño de tarjeta quedaba ilegible — más una pastilla de texto junto
+   al título ("Aún no activado"), a petición explícita de Miq del
+   2026-08-22. El tamaño del triángulo (84px) es una estimación de hasta
+   dónde llegaba la cinta en el mockup del PDF; fácil de ajustar. */
+.feature-card-pending{ overflow:hidden; }
+.feature-corner{
+  position:absolute; top:0; right:0;
+  width:0; height:0;
+  border-style:solid;
+  border-width:0 84px 84px 0;
+  border-color:transparent var(--stamp-red) transparent transparent;
+  pointer-events:none;
+}
+.feature-pending-badge{
+  display:inline-block; font-size:10.5px; font-weight:700; text-transform:uppercase;
+  letter-spacing:0.02em; padding:3px 9px; border-radius:999px; margin-left:8px;
+  background:var(--stamp-red-tint); color:var(--stamp-red); vertical-align:middle;
+}
+
+/* ---------- Bandas de plan (Pro / Premium) ----------
+   Van seguidas justo después de Funciones (que muestra el plan Gratis),
+   para contar los 3 planes de un tirón: Gratis → Pro → Premium — a
+   petición de Miq del 2026-08-22. Colores NO inventados: son los mismos
+   tokens que ya usa el panel de admin para identificar cada plan
+   (.admin-plan-select--suscripcion/--premium más abajo en este archivo):
+   gris #C7CDD6/#2B3138 para Pro ("el color de la etiqueta del plan Pro,
+   que es gris"), dorado #D9B45C/#463205 para Premium ("a ver como
+   queda", aunque en el PDF se veía verde). Deliberadamente NO reutiliza
+   `.tinted-section` — esa clase la recolorea en bloque el script de
+   Customization.astro (compartido con la página de FAQ), así que
+   reutilizarla aquí habría hecho que estas bandas cambiasen de color
+   solas junto con esa demo. */
+.plan-highlight{ padding:72px 0; }
+.plan-highlight-pro{ background:#C7CDD6; color:#2B3138; }
+.plan-highlight-premium{ background:#D9B45C; color:#463205; }
+.plan-highlight-inner{ display:flex; align-items:center; gap:56px; }
+.plan-highlight-premium .plan-highlight-inner{ flex-direction:row-reverse; }
+.plan-highlight-copy{ flex:1 1 0; min-width:0; }
+.plan-highlight-visual{ flex:1 1 0; min-width:0; display:flex; justify-content:center; }
+.plan-highlight-pill{
+  display:inline-block; font-size:12.5px; font-weight:700; text-transform:uppercase;
+  letter-spacing:0.04em; padding:5px 14px; border-radius:999px; margin-bottom:16px;
+  background:rgba(255,255,255,0.55);
+}
+.plan-highlight-copy h2{ font-size:30px; margin:0 0 14px; }
+.plan-highlight-copy > p{ font-size:15.5px; line-height:1.6; opacity:0.85; margin:0 0 24px; max-width:440px; }
+.plan-highlight-list{ display:flex; flex-direction:column; gap:12px; }
+.plan-highlight-list li{ display:flex; align-items:flex-start; gap:10px; font-size:14.5px; font-weight:500; line-height:1.5; }
+.plan-highlight-list svg{ width:17px; height:17px; margin-top:2px; flex-shrink:0; }
+
+.ph-mock{
+  width:100%; max-width:340px;
+  background:rgba(255,255,255,0.75);
+  border-radius:var(--radius-lg);
+  padding:22px;
+  box-shadow:var(--shadow);
+  color:var(--ink);
+}
+.ph-mock-title{ font-size:13px; font-weight:700; margin-bottom:14px; }
+.ph-mock-row{ display:flex; align-items:center; justify-content:space-between; padding:8px 0; font-size:13px; }
+.ph-toggle{ width:34px; height:19px; border-radius:999px; background:var(--paper-line); position:relative; display:inline-block; flex-shrink:0; }
+.ph-toggle-knob{ position:absolute; top:2px; left:2px; width:15px; height:15px; border-radius:50%; background:#fff; }
+.ph-toggle.is-on{ background:var(--accent); }
+.ph-toggle.is-on .ph-toggle-knob{ left:17px; }
+.ph-mock-field{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 0; border-top:1px solid var(--paper-line); font-size:12.5px;
+}
+.ph-mock-field-label{ color:var(--ink-faint); }
+.ph-mock-field-value{ font-weight:600; color:var(--ink); }
+.ph-mock-note{ font-size:11.5px; color:var(--ink-faint); margin-top:12px; line-height:1.5; }
+.ph-mock-actions{ display:flex; gap:8px; margin-top:14px; }
+.ph-mock-btn{
+  flex:1; text-align:center; font-size:12px; font-weight:600; padding:9px 8px; border-radius:9px;
+  background:var(--paper); border:1px solid var(--paper-line); color:var(--ink-soft);
+}
 
 /* ---------- Precios (/precios) ---------- */
 .pricing-hero{ padding:88px 0 96px; }
@@ -1184,6 +1333,8 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
   .hero-visual img{ width:220px; }
   .hero-copy h1{ font-size:32px; }
   .features-grid{ grid-template-columns:1fr 1fr; }
+  .plan-highlight-inner, .plan-highlight-premium .plan-highlight-inner{ flex-direction:column; gap:36px; }
+  .plan-highlight-copy > p{ max-width:none; }
   .pricing-grid{ grid-template-columns:1fr; max-width:440px; margin-left:auto; margin-right:auto; }
   .how-grid{ grid-template-columns:1fr; }
   .security-band{ padding:56px 0; }
@@ -1392,6 +1543,20 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .plan-comparison-table td{ text-align:center; }
 .plan-comparison-table td.pc-yes{ color:var(--accent-deep); font-weight:600; }
 .plan-comparison-table td.pc-no{ color:var(--ink-faint); }
+
+/* Fila de Verifactu, destacada al final de la tabla — a petición de Miq
+   del 2026-08-22 ("una sola excepción, marcada abajo, que llega muy
+   pronto"). pc-row-soon necesita más especificidad que .pc-highlight-col
+   (columna Pro) para que el ámbar gane también en esa celda. */
+.plan-comparison-table tr.pc-row-soon td,
+.plan-comparison-table tr.pc-row-soon th.pc-feature-col{
+  background:var(--stamp-amber-tint);
+}
+.pc-badge-soon{
+  display:inline-block; font-size:10px; font-weight:700; text-transform:uppercase;
+  letter-spacing:0.03em; padding:2px 8px; border-radius:999px; margin-left:8px;
+  background:var(--stamp-amber); color:#fff; vertical-align:middle; white-space:nowrap;
+}
 
 /* Móvil: antes había que hacer scroll horizontal para llegar a ver
    Pro/Premium (min-width:640px en un móvil de ~360-390px de ancho). Ahora

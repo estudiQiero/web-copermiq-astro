@@ -1,0 +1,112 @@
+---
+// Banda de plan (Pro o Premium), entre Funciones (plan Gratis) y Vista
+// previa — a petición de Miq del 2026-08-22, a partir de las páginas 2 y 3
+// de su PDF de mockups: "Estas 3 secciones deben ir seguidas pues te
+// muestran los 3 planes desde el gratis hasta el premium." Fondos NO
+// inventados: gris #C7CDD6 para Pro y dorado #D9B45C para Premium son los
+// mismos tokens que ya usa .admin-plan-select--suscripcion/--premium en el
+// panel de admin (ver global.css) — Miq pidió "el color de la etiqueta del
+// plan Pro" y un dorado "a ver como queda" en vez del navy/verde del PDF.
+//
+// Las funciones listadas salen de PlanComparison.astro (la fuente
+// verificada de qué trae cada plan), no son una lista nueva inventada:
+// - Pro: las que en esa tabla pasan de DASH (Gratis) a CHECK (Pro).
+// - Premium: las que solo tiene Premium (DASH también en Pro).
+// Precios (1,95 €/mes y 8,95 €/mes) tomados de Pricing.astro.
+
+interface Props {
+  plan: 'pro' | 'premium';
+}
+
+const { plan } = Astro.props;
+
+const CHECK_ICON_PATH = 'M4 10.5L8 14.5L16 6';
+
+const content = {
+  pro: {
+    pill: 'Plan Pro · 1,95 €/mes',
+    heading: 'Con Pro, además…',
+    description:
+      'Cuando tu actividad crece, Pro añade automatizaciones y un punto más profesional a cada factura — sin dejar de ser sencillo.',
+    features: [
+      'Facturas periódicas / recurrentes',
+      'PDF sin pie de marca "generado con Copermiq"',
+      'Categorías de gasto personalizables',
+      'Copia de seguridad automática (por email)',
+    ],
+  },
+  premium: {
+    pill: 'Plan Premium · 8,95 €/mes',
+    heading: 'Con Premium, todo eso y más',
+    description:
+      'Para quien quiere ir un paso más allá: libros registro listos para tu gestor, personalización completa y soporte prioritario.',
+    features: [
+      'Libros registro (facturas emitidas y recibidas)',
+      'Escanear gasto con IA (rellena el gasto solo)',
+      'Colores de marca personalizables',
+      'Soporte prioritario',
+    ],
+  },
+}[plan];
+---
+
+<section class:list={['plan-highlight', plan === 'pro' ? 'plan-highlight-pro' : 'plan-highlight-premium']}>
+  <div class="wrap plan-highlight-inner">
+    <div class="plan-highlight-copy">
+      <span class="plan-highlight-pill">{content.pill}</span>
+      <h2>{content.heading}</h2>
+      <p>{content.description}</p>
+      <ul class="plan-highlight-list">
+        {content.features.map((f) => (
+          <li>
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d={CHECK_ICON_PATH} stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>{f}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="plan-highlight-visual">
+      {plan === 'pro' ? (
+        <div class="ph-mock">
+          <div class="ph-mock-title">Nueva factura — Cafetería Nou</div>
+          <div class="ph-mock-row">
+            <span>Factura periódica</span>
+            <span class="ph-toggle is-on"><span class="ph-toggle-knob"></span></span>
+          </div>
+          <div class="ph-mock-field">
+            <span class="ph-mock-field-label">Frecuencia</span>
+            <span class="ph-mock-field-value">Mensual ▾</span>
+          </div>
+          <div class="ph-mock-field">
+            <span class="ph-mock-field-label">Próxima emisión</span>
+            <span class="ph-mock-field-value">12/09/2026</span>
+          </div>
+          <p class="ph-mock-note">Se genera sola cada mes, con la numeración correcta — no hace falta crearla a mano.</p>
+        </div>
+      ) : (
+        <div class="ph-mock">
+          <div class="ph-mock-title">Libro registro — Facturas emitidas</div>
+          <div class="ph-mock-field">
+            <span class="ph-mock-field-label">Periodo</span>
+            <span class="ph-mock-field-value">3er trimestre 2026</span>
+          </div>
+          <div class="ph-mock-field">
+            <span class="ph-mock-field-label">Facturas incluidas</span>
+            <span class="ph-mock-field-value">14</span>
+          </div>
+          <div class="ph-mock-field">
+            <span class="ph-mock-field-label">Base + IVA</span>
+            <span class="ph-mock-field-value">4.180,00 € + 878,00 €</span>
+          </div>
+          <div class="ph-mock-actions">
+            <span class="ph-mock-btn">⇩ Excel / CSV</span>
+            <span class="ph-mock-btn">⇩ PDF</span>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+</section>

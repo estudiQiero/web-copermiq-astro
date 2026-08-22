@@ -67,6 +67,16 @@ const groups = [
       { label: 'Soporte prioritario', free: DASH, sub: DASH, premium: CHECK },
     ],
   },
+  {
+    // Grupo aparte al final, con una única fila destacada — a petición de
+    // Miq del 2026-08-22: "Cumplimiento Verifactu... con checkmarks para
+    // los 3 planes y una pastilla PRÓXIMAMENTE". Coherente con el
+    // subtítulo de abajo, que pasa a avisar de esta única excepción.
+    title: 'Cumplimiento legal',
+    rows: [
+      { label: 'Cumplimiento Verifactu (facturación electrónica antifraude)', free: CHECK, sub: CHECK, premium: CHECK, soon: true },
+    ],
+  },
 ];
 ---
 
@@ -74,36 +84,41 @@ const groups = [
   <div class="wrap section-head">
     <h2>Compara los planes al detalle</h2>
     <p>
-      Todo lo marcado aquí existe de verdad en la app hoy mismo — nada de esta
-      tabla es una promesa de algo por construir.
+      Todo lo marcado aquí existe ya en la app — con una sola excepción,
+      marcada abajo, que llega muy pronto.
     </p>
   </div>
 
-  <div class="wrap plan-comparison-scroll">
-    <table class="plan-comparison-table">
-      <thead>
-        <tr>
-          <th scope="col" class="pc-feature-col">Funcionalidad</th>
-          <th scope="col">Gratis</th>
-          <th scope="col" class="pc-highlight-col">Pro</th>
-          <th scope="col">Premium</th>
-        </tr>
-      </thead>
-      {groups.map((group) => (
-        <tbody>
-          <tr class="pc-group-row">
-            <th scope="colgroup" colspan="4">{group.title}</th>
+  <div class="wrap">
+    <div class="plan-comparison-scroll">
+      <table class="plan-comparison-table">
+        <thead>
+          <tr>
+            <th scope="col" class="pc-feature-col">Funcionalidad</th>
+            <th scope="col">Gratis</th>
+            <th scope="col" class="pc-highlight-col">Pro</th>
+            <th scope="col">Premium</th>
           </tr>
-          {group.rows.map((row) => (
-            <tr>
-              <th scope="row" class="pc-feature-col">{row.label}</th>
-              <td class:list={{ 'pc-yes': row.free === CHECK, 'pc-no': row.free === DASH }}>{row.free}</td>
-              <td class:list={['pc-highlight-col', { 'pc-yes': row.sub === CHECK, 'pc-no': row.sub === DASH }]}>{row.sub}</td>
-              <td class:list={{ 'pc-yes': row.premium === CHECK, 'pc-no': row.premium === DASH }}>{row.premium}</td>
+        </thead>
+        {groups.map((group) => (
+          <tbody>
+            <tr class="pc-group-row">
+              <th scope="colgroup" colspan="4">{group.title}</th>
             </tr>
-          ))}
-        </tbody>
-      ))}
-    </table>
+            {group.rows.map((row) => (
+              <tr class:list={{ 'pc-row-soon': row.soon }}>
+                <th scope="row" class="pc-feature-col">
+                  {row.label}
+                  {row.soon && <span class="pc-badge-soon">Próximamente</span>}
+                </th>
+                <td class:list={{ 'pc-yes': row.free === CHECK, 'pc-no': row.free === DASH }}>{row.free}</td>
+                <td class:list={['pc-highlight-col', { 'pc-yes': row.sub === CHECK, 'pc-no': row.sub === DASH }]}>{row.sub}</td>
+                <td class:list={{ 'pc-yes': row.premium === CHECK, 'pc-no': row.premium === DASH }}>{row.premium}</td>
+              </tr>
+            ))}
+          </tbody>
+        ))}
+      </table>
+    </div>
   </div>
 </section>
