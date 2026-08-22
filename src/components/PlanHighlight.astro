@@ -34,6 +34,20 @@
 // repercutida / Retenciones IRPF + total en negrita, botones Excel/CSV
 // (contorno) + PDF (navy sólido) — antes tenía campos y cifras
 // inventados ("Periodo", "Facturas incluidas", "Base + IVA" combinados).
+//
+// Corrección 2026-08-22 (misma tarde) — de franja a cápsula: Miq pidió
+// "que las secciones premium y pro no fuesen 100% ancho, que esten dentro
+// de una capsula como la de empieza hoy, pero con sus colores". Antes el
+// fondo de color vivía en el propio `<section>` (franja a todo el ancho
+// del viewport, mismo patrón que tenía `Security.astro` antes del 21/08).
+// Ahora vive en un nuevo `.plan-highlight-card` dentro del `.wrap` de
+// siempre (1140px máx.) — mismo `border-radius`/`box-shadow` que ya usa
+// `.final-cta .card` ("Empieza hoy"), así que visualmente es la misma
+// familia de cápsula. Los colores en sí no cambiaron, solo dónde se
+// pintan: antes `.plan-highlight-pro`/`.plan-highlight-premium` coloreaban
+// el `<section>` entero, ahora colorean `.plan-highlight-card` (ver
+// `global.css`, selectores `.plan-highlight-pro .plan-highlight-card` /
+// `.plan-highlight-premium .plan-highlight-card`).
 
 interface Props {
   plan: 'pro' | 'premium';
@@ -72,7 +86,8 @@ const content = {
 ---
 
 <section class:list={['plan-highlight', plan === 'pro' ? 'plan-highlight-pro' : 'plan-highlight-premium']}>
-  <div class="wrap plan-highlight-inner">
+  <div class="wrap">
+    <div class="plan-highlight-card plan-highlight-inner">
     <div class="plan-highlight-copy">
       <span class="plan-highlight-pill">{content.pill}</span>
       <h2>{content.heading}</h2>
@@ -131,6 +146,7 @@ const content = {
           </div>
         </div>
       )}
+    </div>
     </div>
   </div>
 </section>

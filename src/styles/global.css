@@ -497,8 +497,24 @@ section{ padding:96px 0; }
    reutilizarla aquí habría hecho que estas bandas cambiasen de color
    solas junto con esa demo. */
 .plan-highlight{ padding:72px 0; }
-.plan-highlight-pro{ background:#C7CDD6; color:#2B3138; }
-.plan-highlight-premium{ background:#D9B45C; color:#463205; }
+/* Corrección 2026-08-22 — Miq: "que las secciones premium y pro no fuesen
+   100% ancho, que esten dentro de una capsula como la de empieza hoy, pero
+   con sus colores." Antes el fondo de color vivía directamente en el
+   `<section>` (igual que hacía `Security.astro` antes de pasar a franja
+   completa el 21/08) y ocupaba todo el ancho del viewport. Ahora el color
+   vive en `.plan-highlight-card`, una cápsula redondeada con sombra
+   (mismo `--radius-lg`/`--shadow` que ya usa `.final-cta .card`) contenida
+   dentro del `.wrap` de 1140px — el fondo de la página alrededor queda
+   visible a los lados, igual que en "Empieza hoy". Los colores en sí NO
+   cambian (gris `#C7CDD6` para Pro, dorado `#D9B45C` para Premium, los
+   mismos tokens del panel de admin que ya se documentó de dónde salen). */
+.plan-highlight-card{
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow);
+  padding:56px 48px;
+}
+.plan-highlight-pro .plan-highlight-card{ background:#C7CDD6; color:#2B3138; }
+.plan-highlight-premium .plan-highlight-card{ background:#D9B45C; color:#463205; }
 .plan-highlight-inner{ display:flex; align-items:center; gap:56px; }
 .plan-highlight-premium .plan-highlight-inner{ flex-direction:row-reverse; }
 .plan-highlight-copy{ flex:1 1 0; min-width:0; }
@@ -620,6 +636,28 @@ section{ padding:96px 0; }
   box-shadow:var(--shadow);
   padding:32px;
 }
+/* `.feature-icon` — insignia cuadrada del icono de cada tarjeta. Se
+   perdió sin querer el 22/08 al limpiar el CSS `.fmock-*`/`.feature-*`
+   del rediseño anterior de Funciones (el grep de "confirmar que no se usa
+   en otro sitio" no detectó que `HowItWorks.astro` seguía usando esta
+   misma clase para sus 4 iconos) — sin este bloque el SVG no tenía
+   `width`/`height` propios y se renderizaba a su tamaño intrínseco (24px
+   de `viewBox`, pero sin contenedor que lo recorte, salía enorme:
+   "los iconos se ven grandiosos", 22/08). Restaurado con las mismas
+   medidas que ya usa `.capsula-icono` en Funciones (caja 48px, radio
+   14px, SVG 22px) para mantener consistencia visual entre ambas
+   secciones. Tonos: por defecto turquesa de marca (`--accent-tint`/
+   `--accent-deep`), `.amber` y `.red` reutilizan los tokens `--stamp-*`
+   ya existentes en la paleta (no se inventa ningún color nuevo). */
+.feature-icon{
+  width:48px; height:48px; border-radius:14px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom:18px;
+  background:var(--accent-tint); color:var(--accent-deep);
+}
+.feature-icon svg{ width:22px; height:22px; }
+.feature-icon.amber{ background:var(--stamp-amber-tint); color:var(--stamp-amber); }
+.feature-icon.red{ background:var(--stamp-red-tint); color:var(--stamp-red); }
 .how-card h3{ font-size:19px; margin-bottom:16px; }
 .how-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px; }
 .how-list li{ display:flex; align-items:flex-start; gap:10px; font-size:14.5px; color:var(--ink-soft); line-height:1.55; }
@@ -1427,6 +1465,7 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 @media (max-width: 560px){
   section{ padding:64px 0; }
   .funciones-grid{ grid-template-columns:1fr; }
+  .plan-highlight-card{ padding:32px 24px; }
   .plan-highlight-list{ grid-template-columns:1fr; }
   .ph-fields-row{ grid-template-columns:1fr; }
   .hero-copy h1{ font-size:28px; }
