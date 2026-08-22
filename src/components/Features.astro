@@ -17,6 +17,17 @@
 // Ferretería Sol, Movistar, Renfe…) son de ejemplo, tal como los pasó el
 // equipo de la app — mismo criterio que ya se usa en "Inicio, de un
 // vistazo" (ProductPreview.astro).
+//
+// Corrección 2026-08-22 (mismo día): la primera entrega se apartó del PDF
+// real en 3 sitios — los botones "+ Nueva factura"/"+ Nuevo gasto" y
+// "Descargar copia..." se pintaron en turquesa (color que Miq dijo que no
+// existe en botones de la app, solo en la web) en vez del navy de la
+// captura; a la tarjeta 3 (Gastos) le faltaba la tabla de gastos por
+// línea entera; y a la tarjeta 5 (Copia de seguridad) le faltaban las 2
+// frases de apoyo y el icono/texto correcto del botón secundario. Todo
+// corregido pixel a pixel contra el PDF real (`Copermiqfuncionesparaweb.
+// pdf`), no contra una reinterpretación libre — ver también el mismo
+// aviso aplicado en `PlanHighlight.astro`.
 ---
 
 <section id="funciones">
@@ -122,6 +133,33 @@
             <div class="fmock-stat"><span class="fmock-stat-label">Total gastado</span><span class="fmock-stat-value">1.424,20 €</span></div>
             <div class="fmock-stat"><span class="fmock-stat-label">Deducible</span><span class="fmock-stat-value fmock-stat-red">1.180,00 €</span></div>
           </div>
+          <!-- La captura real trae 5 columnas (Fecha/Proveedor/Categoría/
+               Descripción/Total), pero en el ancho de esta tarjeta no caben
+               legibles — mismo criterio que pidió Miq para las tablas: "si
+               no te caben en 3 columnas pon 2". Se pliega Categoría como
+               etiqueta en línea junto a la Descripción (idéntico patrón al
+               que ya usan las tarjetas 1 y 2 con "Periódica"/"Rectificativa"),
+               sin quitar ningún dato real de la captura. -->
+          <div class="fmock-table" style="margin-top:10px;">
+            <div class="fmock-row fmock-row-head fmock-cols-expense">
+              <span>Fecha</span><span>Proveedor</span><span>Descripción</span><span class="fmock-amount">Total</span>
+            </div>
+            <div class="fmock-row fmock-cols-expense">
+              <span class="fmock-date-cell"><i class="fmock-cat-bar blue"></i>14/08/2026</span><span>Movistar</span>
+              <span>Internet oficina <em class="fmock-cat blue">Suministros</em></span>
+              <span class="fmock-amount">45,50 €</span>
+            </div>
+            <div class="fmock-row fmock-cols-expense">
+              <span class="fmock-date-cell"><i class="fmock-cat-bar tan"></i>09/08/2026</span><span>Ferretería Sol</span>
+              <span>Herramientas <em class="fmock-cat tan">Material</em></span>
+              <span class="fmock-amount">128,90 €</span>
+            </div>
+            <div class="fmock-row fmock-cols-expense">
+              <span class="fmock-date-cell"><i class="fmock-cat-bar lavender"></i>02/08/2026</span><span>Renfe</span>
+              <span>Viaje cliente <em class="fmock-cat lavender">Desplazamiento</em></span>
+              <span class="fmock-amount">62,00 €</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -157,12 +195,12 @@
         <p>Descarga tu negocio, tus clientes, facturas y gastos en un .json propio, y restáuralo cuando quieras: fusiona sin borrar nada que no esté en el archivo.</p>
 
         <div class="fmock">
-          <div class="fmock-panel-title">Copia de seguridad</div>
-          <p class="fmock-panel-text">Descarga una copia de todos tus datos (negocio, clientes, facturas, gastos) en un archivo tuyo, independiente de la app.</p>
+          <p class="fmock-panel-text">Descarga una copia de todos tus datos (negocio, clientes, facturas, gastos) en un archivo tuyo, independiente de la app. Guárdala en un sitio seguro de vez en cuando.</p>
           <div class="fmock-actions">
-            <span class="fmock-action-btn fmock-action-btn-primary">↓ Descargar copia</span>
-            <span class="fmock-action-btn">↺ Restaurar desde archivo</span>
+            <span class="fmock-action-btn fmock-action-btn-primary">↓ Descargar copia de seguridad</span>
+            <span class="fmock-action-btn">↑ Restaurar desde archivo</span>
           </div>
+          <p class="fmock-caption">Restaurar añade o actualiza los registros del archivo; no borra nada que ya tengas y no esté en el archivo.</p>
         </div>
       </div>
 

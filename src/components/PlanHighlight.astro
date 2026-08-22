@@ -13,6 +13,27 @@
 // - Pro: las que en esa tabla pasan de DASH (Gratis) a CHECK (Pro).
 // - Premium: las que solo tiene Premium (DASH también en Pro).
 // Precios (1,95 €/mes y 8,95 €/mes) tomados de Pricing.astro.
+//
+// Corrección 2026-08-22 (mismo día): la primera entrega inventó los
+// mockups de la derecha (un interruptor turquesa + campos que no existen,
+// y cifras/campos distintos en el panel de Premium) en vez de ceñirse a
+// las capturas reales que pasó Miq. Aviso explícito de Miq: "debes
+// ceñirte a la gráfica que te proporciono, si no te lo pido expresamente
+// [...] no puedes inventarte graficas porque estamos intentando vender
+// bien el producto". Reconstruido pixel a pixel sobre el PDF real (ver
+// comentarios en el marcado de abajo) — los botones de acción también
+// pasan a navy sólido, no turquesa ("los botones color turquesa no
+// existen, de momento, en la app"). La rejilla de funciones (features)
+// también pasa de lista vertical a 2 columnas, tal cual la captura.
+//
+// Mockup de Pro (página 2 del PDF): checkbox "Esta factura es periódica"
+// + 2 desplegables (Frecuencia/Cliente) — sin barra de título, sin
+// interruptor y sin campo "Próxima emisión" (ninguno de los 3 estaba en
+// la captura real).
+// Mockup de Premium (página 3): desglose Base imponible / Cuota IVA
+// repercutida / Retenciones IRPF + total en negrita, botones Excel/CSV
+// (contorno) + PDF (navy sólido) — antes tenía campos y cifras
+// inventados ("Periodo", "Facturas incluidas", "Base + IVA" combinados).
 
 interface Props {
   plan: 'pro' | 'premium';
@@ -71,39 +92,42 @@ const content = {
     <div class="plan-highlight-visual">
       {plan === 'pro' ? (
         <div class="ph-mock">
-          <div class="ph-mock-title">Nueva factura — Cafetería Nou</div>
-          <div class="ph-mock-row">
-            <span>Factura periódica</span>
-            <span class="ph-toggle is-on"><span class="ph-toggle-knob"></span></span>
+          <div class="ph-checkbox-row">
+            <span class="ph-checkbox">
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 10.5L8 14.5L16 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="ph-checkbox-label">Esta factura es periódica (recordarme la siguiente)</span>
           </div>
-          <div class="ph-mock-field">
-            <span class="ph-mock-field-label">Frecuencia</span>
-            <span class="ph-mock-field-value">Mensual ▾</span>
+          <div class="ph-fields-row">
+            <div class="ph-field">
+              <span class="ph-field-label">Frecuencia</span>
+              <span class="ph-field-select">
+                <span>Mensual</span>
+                <svg viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+            </div>
+            <div class="ph-field">
+              <span class="ph-field-label">Cliente</span>
+              <span class="ph-field-select">
+                <span>Estudio Marín</span>
+                <svg viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+            </div>
           </div>
-          <div class="ph-mock-field">
-            <span class="ph-mock-field-label">Próxima emisión</span>
-            <span class="ph-mock-field-value">12/09/2026</span>
-          </div>
-          <p class="ph-mock-note">Se genera sola cada mes, con la numeración correcta — no hace falta crearla a mano.</p>
         </div>
       ) : (
         <div class="ph-mock">
           <div class="ph-mock-title">Libro registro — Facturas emitidas</div>
-          <div class="ph-mock-field">
-            <span class="ph-mock-field-label">Periodo</span>
-            <span class="ph-mock-field-value">3er trimestre 2026</span>
-          </div>
-          <div class="ph-mock-field">
-            <span class="ph-mock-field-label">Facturas incluidas</span>
-            <span class="ph-mock-field-value">14</span>
-          </div>
-          <div class="ph-mock-field">
-            <span class="ph-mock-field-label">Base + IVA</span>
-            <span class="ph-mock-field-value">4.180,00 € + 878,00 €</span>
-          </div>
+          <div class="ph-mock-line"><span>Base imponible</span><span>4.180,00 €</span></div>
+          <div class="ph-mock-line"><span>Cuota IVA repercutida</span><span>877,80 €</span></div>
+          <div class="ph-mock-line"><span>Retenciones IRPF</span><span>627,00 €</span></div>
+          <hr class="ph-mock-divider" />
+          <div class="ph-mock-total"><span>Total facturado</span><span>4.430,80 €</span></div>
           <div class="ph-mock-actions">
-            <span class="ph-mock-btn">⇩ Excel / CSV</span>
-            <span class="ph-mock-btn">⇩ PDF</span>
+            <span class="ph-mock-btn">↓ Excel/CSV</span>
+            <span class="ph-mock-btn ph-mock-btn-primary">↓ PDF</span>
           </div>
         </div>
       )}

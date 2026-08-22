@@ -12,13 +12,26 @@ const palette = [
   { key: 'marron', label: 'Marrón', dark: { bg: '#3B2A1E', fg: '#F1E7DC' }, light: { bg: '#EFE0D2', fg: '#4A3323' } },
 ];
 
-const words = [
-  { es: 'Inicio', ca: 'Inici' },
-  { es: 'Facturas', ca: 'Factures' },
-  { es: 'Gastos', ca: 'Despeses' },
-  { es: 'Clientes', ca: 'Clients' },
-  { es: 'Preferencias', ca: 'Preferències' },
-];
+// Cápsula de idioma (tarjeta derecha de "A tu manera") — a petición de Miq
+// del 2026-08-22, reconstruida con el CSS/HTML/JS REAL del desplegable de
+// idioma de la app (style.css líneas 449-486 y app.js líneas 472-473,
+// 4453-4461 — copia literal, incluida la clase `.active` en vez de la
+// convención `.is-active` que usa el resto de esta web, para mantener
+// fidelidad exacta con el componente real). Sustituye al toggle+tabla de
+// traducción anterior (ver historial de commits si hace falta recuperarlo).
+//
+// El desplegable de Castellano/Català es REAL e interactivo (abre/cierra al
+// clicar, la opción elegida actualiza el texto y la bandera del botón) — sin
+// flecha de cursor dibujada, el cursor real del usuario hace ese papel. Por
+// defecto se muestra ya abierto (como en las capturas de Miq) para que se
+// vea de un vistazo sin necesitar clic, pero sigue siendo 100% funcional.
+//
+// El segundo desplegable (5 lenguas) es una ilustración ESTÁTICA, no
+// interactiva y sin idioma marcado como seleccionado — a propósito, porque
+// valenciano/gallego/euskera no existen todavía en la app. Las 3 banderas de
+// esas lenguas son de muestra (no son las reales de la app, que solo tiene
+// bandera de España y de Catalunya) — dibujadas por Miq mismo para este
+// mockup, con su permiso explícito para usarlas así.
 ---
 
 <section id="personalizacion" class="tinted-section">
@@ -104,23 +117,61 @@ const words = [
 
       <div class="custom-card">
         <h3 class="custom-title">Castellano y català</h3>
-        <p class="custom-desc">De momento, Copermiq habla 2 lenguas: castellano y català. Toda la app —menús, formularios, facturas— cambia de idioma cuando quieras, sin perder ni un dato. Próximamente se adaptará también a otros idiomas co-oficiales de España: valenciano, gallego y euskera.</p>
+        <p class="custom-desc">Copermiq habla 2 lenguas: castellano y català. Toda la app —menús, formularios, facturas, etc.— cambia de idioma cuando tú lo selecciones, sin perder ni un dato.</p>
 
-        <div class="lang-toggle" id="langToggle">
-          <button type="button" class="lang-option is-active" data-lang="es">Castellano</button>
-          <button type="button" class="lang-option" data-lang="ca">Català</button>
+        <!-- Desplegable REAL de idioma (Castellano/Català) — interactivo de verdad -->
+        <div class="lang-dropdown is-open" id="langDropdown">
+          <button type="button" class="lang-dropdown-btn" id="langDropdownBtn" aria-haspopup="listbox" aria-expanded="true">
+            <span class="lang-dropdown-current">
+              <span class="lang-flag" data-flag="es">
+                <svg viewBox="0 0 24 16" width="20" height="14" aria-hidden="true"><rect width="24" height="16" fill="#AA151B"/><rect y="4" width="24" height="8" fill="#F1BF00"/></svg>
+              </span>
+              <span class="lang-flag" data-flag="ca" hidden>
+                <svg viewBox="0 0 24 16" width="20" height="14" aria-hidden="true"><rect width="24" height="16" fill="#FCDD09"/><rect y="1.14" width="24" height="1.14" fill="#DA121A"/><rect y="3.43" width="24" height="1.14" fill="#DA121A"/><rect y="5.71" width="24" height="1.14" fill="#DA121A"/><rect y="8" width="24" height="1.14" fill="#DA121A"/><rect y="10.29" width="24" height="1.14" fill="#DA121A"/><rect y="12.57" width="24" height="1.14" fill="#DA121A"/><rect y="14.86" width="24" height="1.14" fill="#DA121A"/></svg>
+              </span>
+              <span id="langDropdownLabel">Castellano</span>
+            </span>
+            <svg class="nav-chevron-lang open" id="langChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="lang-dropdown-panel" id="langDropdownPanel" role="listbox">
+            <div class="lang-dropdown-option active" data-lang="es" data-label="Castellano" role="option" aria-selected="true" tabindex="0">
+              <svg viewBox="0 0 24 16" width="20" height="14" aria-hidden="true"><rect width="24" height="16" fill="#AA151B"/><rect y="4" width="24" height="8" fill="#F1BF00"/></svg>
+              <span>Castellano</span>
+            </div>
+            <div class="lang-dropdown-option" data-lang="ca" data-label="Català" role="option" aria-selected="false" tabindex="0">
+              <svg viewBox="0 0 24 16" width="20" height="14" aria-hidden="true"><rect width="24" height="16" fill="#FCDD09"/><rect y="1.14" width="24" height="1.14" fill="#DA121A"/><rect y="3.43" width="24" height="1.14" fill="#DA121A"/><rect y="5.71" width="24" height="1.14" fill="#DA121A"/><rect y="8" width="24" height="1.14" fill="#DA121A"/><rect y="10.29" width="24" height="1.14" fill="#DA121A"/><rect y="12.57" width="24" height="1.14" fill="#DA121A"/><rect y="14.86" width="24" height="1.14" fill="#DA121A"/></svg>
+              <span>Català</span>
+            </div>
+          </div>
         </div>
 
-        <div class="translate-table" id="translateTable">
-          {words.map((w) => (
-            <div class="translate-row">
-              <span class="mono col-es is-active">{w.es}</span>
-              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <span class="mono col-ca">{w.ca}</span>
+        <p class="custom-desc lang-roadmap-desc">Próximamente se adaptará también a otras lenguas co-oficiales de España: valenciano, gallego y euskera.</p>
+
+        <!-- Ilustración estática (no interactiva, sin idioma seleccionado): banderas de
+             Valencià/Galego/Euskara son de muestra, no existen todavía en la app -->
+        <div class="lang-dropdown lang-dropdown-static" aria-hidden="true">
+          <div class="lang-dropdown-panel lang-dropdown-panel--static">
+            <div class="lang-dropdown-option">
+              <svg viewBox="0 0 24 16" width="20" height="14" aria-hidden="true"><rect width="24" height="16" fill="#AA151B"/><rect y="4" width="24" height="8" fill="#F1BF00"/></svg>
+              <span>Castellano</span>
             </div>
-          ))}
+            <div class="lang-dropdown-option">
+              <svg viewBox="0 0 24 16" width="20" height="14" aria-hidden="true"><rect width="24" height="16" fill="#FCDD09"/><rect y="1.14" width="24" height="1.14" fill="#DA121A"/><rect y="3.43" width="24" height="1.14" fill="#DA121A"/><rect y="5.71" width="24" height="1.14" fill="#DA121A"/><rect y="8" width="24" height="1.14" fill="#DA121A"/><rect y="10.29" width="24" height="1.14" fill="#DA121A"/><rect y="12.57" width="24" height="1.14" fill="#DA121A"/><rect y="14.86" width="24" height="1.14" fill="#DA121A"/></svg>
+              <span>Català</span>
+            </div>
+            <div class="lang-dropdown-option">
+              <svg viewBox="0 0 24 16" width="20" height="14" aria-hidden="true"><rect width="24" height="16" fill="#FCDD09"/><rect y="1.14" width="24" height="1.14" fill="#DA121A"/><rect y="3.43" width="24" height="1.14" fill="#DA121A"/><rect y="5.71" width="24" height="1.14" fill="#DA121A"/><rect y="8" width="24" height="1.14" fill="#DA121A"/><rect y="10.29" width="24" height="1.14" fill="#DA121A"/><rect y="12.57" width="24" height="1.14" fill="#DA121A"/><rect y="14.86" width="24" height="1.14" fill="#DA121A"/><polygon points="0,0 9,8 0,16" fill="#1E4C9A"/></svg>
+              <span>Valencià</span>
+            </div>
+            <div class="lang-dropdown-option">
+              <svg viewBox="0 0 24 16" width="20" height="14" aria-hidden="true"><rect width="24" height="16" fill="#FFFFFF"/><polygon points="0,0 8,0 24,16 16,16" fill="#0090C7"/></svg>
+              <span>Galego</span>
+            </div>
+            <div class="lang-dropdown-option">
+              <svg viewBox="0 0 24 16" width="20" height="14" aria-hidden="true"><rect width="24" height="16" fill="#D52B1E"/><polygon points="0,0 24,16 24,13 3,0" fill="#009B3A"/><polygon points="24,0 0,16 0,13 21,0" fill="#009B3A"/><rect x="10" width="4" height="16" fill="#FFFFFF"/><rect y="6" width="24" height="4" fill="#FFFFFF"/></svg>
+              <span>Euskara</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -135,8 +186,11 @@ const words = [
   const contentToggle = document.getElementById('contentToggle');
   const toneToggle = document.getElementById('toneToggle');
   const demoArea = document.getElementById('demoArea');
-  const langToggle = document.getElementById('langToggle');
-  const translateTable = document.getElementById('translateTable');
+  const langDropdown = document.getElementById('langDropdown');
+  const langDropdownBtn = document.getElementById('langDropdownBtn');
+  const langDropdownPanel = document.getElementById('langDropdownPanel');
+  const langChevron = document.getElementById('langChevron');
+  const langDropdownLabel = document.getElementById('langDropdownLabel');
   // La sección de FAQ (más abajo en la página) comparte el mismo color de
   // fondo que este demo — están ligadas a propósito.
   const tintedSections = [
@@ -216,14 +270,50 @@ const words = [
     });
   });
 
-  langToggle?.querySelectorAll('.lang-option').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      langToggle.querySelectorAll('.lang-option').forEach((b) => b.classList.remove('is-active'));
-      btn.classList.add('is-active');
-      const lang = btn.getAttribute('data-lang');
-      translateTable?.querySelectorAll('.col-es').forEach((el) => el.classList.toggle('is-active', lang === 'es'));
-      translateTable?.querySelectorAll('.col-ca').forEach((el) => el.classList.toggle('is-active', lang === 'ca'));
+  // Desplegable real de idioma (Castellano/Català) — abre/cierra de verdad y
+  // la opción elegida actualiza el texto y la bandera del botón. Por defecto
+  // arranca abierto (igual que en las capturas que pasó Miq), pero es 100%
+  // funcional: clicar el botón lo cierra/abre, clicar una opción la
+  // selecciona, clicar fuera o pulsar Escape lo cierra.
+  function setLangOpen(open) {
+    if (!langDropdownPanel || !langChevron || !langDropdownBtn || !langDropdown) return;
+    langDropdownPanel.hidden = !open;
+    langChevron.classList.toggle('open', open);
+    langDropdownBtn.setAttribute('aria-expanded', String(open));
+    langDropdown.classList.toggle('is-open', open);
+  }
+
+  langDropdownBtn?.addEventListener('click', () => {
+    const isOpen = langDropdownBtn.getAttribute('aria-expanded') === 'true';
+    setLangOpen(!isOpen);
+  });
+
+  langDropdown?.querySelectorAll('.lang-dropdown-option').forEach((opt) => {
+    opt.addEventListener('click', () => {
+      langDropdown.querySelectorAll('.lang-dropdown-option').forEach((o) => {
+        o.classList.remove('active');
+        o.setAttribute('aria-selected', 'false');
+      });
+      opt.classList.add('active');
+      opt.setAttribute('aria-selected', 'true');
+      const lang = opt.getAttribute('data-lang');
+      const label = opt.getAttribute('data-label');
+      if (langDropdownLabel && label) langDropdownLabel.textContent = label;
+      langDropdown.querySelectorAll('.lang-flag').forEach((flag) => {
+        flag.hidden = flag.getAttribute('data-flag') !== lang;
+      });
+      setLangOpen(false);
     });
+  });
+
+  // Ojo: a propósito NO se cierra al clicar fuera. El desplegable arranca
+  // abierto (igual que en las capturas que pasó Miq, para que se vea de un
+  // vistazo sin necesitar clic) y un listener de "clic fuera" lo cerraría de
+  // inmediato con el primer clic en cualquier parte de la página (p. ej. al
+  // aceptar el banner de cookies), anulando ese efecto. Sigue siendo 100%
+  // interactivo: el botón lo abre/cierra, y Escape también lo cierra.
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') setLangOpen(false);
   });
 
   applySidebar();

@@ -19,6 +19,14 @@
 const CHECK = '✓';
 const DASH = '—';
 
+// Fila destacada, sin grupo propio, justo debajo de la cabecera — así
+// viene en la página 4 del PDF real que pasó Miq el 2026-08-22 (no al
+// final de la tabla, como se entendió en un primer momento).
+const verifactuRow = {
+  label: 'Cumplimiento Verifactu (facturación electrónica antifraude)',
+  free: CHECK, sub: CHECK, premium: CHECK, soon: true,
+};
+
 const groups = [
   {
     title: 'Facturación y presupuestos',
@@ -67,16 +75,6 @@ const groups = [
       { label: 'Soporte prioritario', free: DASH, sub: DASH, premium: CHECK },
     ],
   },
-  {
-    // Grupo aparte al final, con una única fila destacada — a petición de
-    // Miq del 2026-08-22: "Cumplimiento Verifactu... con checkmarks para
-    // los 3 planes y una pastilla PRÓXIMAMENTE". Coherente con el
-    // subtítulo de abajo, que pasa a avisar de esta única excepción.
-    title: 'Cumplimiento legal',
-    rows: [
-      { label: 'Cumplimiento Verifactu (facturación electrónica antifraude)', free: CHECK, sub: CHECK, premium: CHECK, soon: true },
-    ],
-  },
 ];
 ---
 
@@ -100,17 +98,25 @@ const groups = [
             <th scope="col">Premium</th>
           </tr>
         </thead>
+        <tbody>
+          <tr class="pc-row-soon">
+            <th scope="row" class="pc-feature-col">
+              {verifactuRow.label}
+              <span class="pc-badge-soon">Próximamente</span>
+            </th>
+            <td class:list={{ 'pc-yes': verifactuRow.free === CHECK }}>{verifactuRow.free}</td>
+            <td class:list={['pc-highlight-col', { 'pc-yes': verifactuRow.sub === CHECK }]}>{verifactuRow.sub}</td>
+            <td class:list={{ 'pc-yes': verifactuRow.premium === CHECK }}>{verifactuRow.premium}</td>
+          </tr>
+        </tbody>
         {groups.map((group) => (
           <tbody>
             <tr class="pc-group-row">
               <th scope="colgroup" colspan="4">{group.title}</th>
             </tr>
             {group.rows.map((row) => (
-              <tr class:list={{ 'pc-row-soon': row.soon }}>
-                <th scope="row" class="pc-feature-col">
-                  {row.label}
-                  {row.soon && <span class="pc-badge-soon">Próximamente</span>}
-                </th>
+              <tr>
+                <th scope="row" class="pc-feature-col">{row.label}</th>
                 <td class:list={{ 'pc-yes': row.free === CHECK, 'pc-no': row.free === DASH }}>{row.free}</td>
                 <td class:list={['pc-highlight-col', { 'pc-yes': row.sub === CHECK, 'pc-no': row.sub === DASH }]}>{row.sub}</td>
                 <td class:list={{ 'pc-yes': row.premium === CHECK, 'pc-no': row.premium === DASH }}>{row.premium}</td>
