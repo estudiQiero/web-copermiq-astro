@@ -920,36 +920,75 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .footer-copy{ font-size:13px; color:rgba(233,240,247,0.6); }
 
 /* ---------- Página de cuenta (/cuenta) ---------- */
-/* Un saludo mínimo con el email y, si el usuario es admin, el panel de
-   administración debajo (píldora "Admin" + tabla). Antes había aquí una
-   tarjeta con el plan actual y "Cerrar sesión" — el plan se ha quitado
-   (pendiente de decidir dónde recolocarlo) y cerrar sesión ahora vive en
-   el icono de cuenta de la cabecera (ver AuthModal.astro). */
+/* 2026-08-21 (Miq): rediseñada como columna lateral fija + contenido, en
+   vez del saludo centrado que había antes — ver el comentario largo al
+   principio de cuenta.astro para el contexto completo (por qué, y qué
+   cambió en el icono de cuenta de la cabecera). */
 .account-page{
   flex:1 0 auto;
-  display:flex;
-  align-items:center;
-  padding:64px 24px;
+  padding:40px 24px 64px;
 }
-.account-page .wrap{ display:flex; flex-direction:column; align-items:center; gap:36px; }
-.account-welcome{ text-align:center; }
-.account-welcome-label{ font-size:12.5px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-faint); margin-bottom:6px; }
-.account-welcome-email{ font-family:'Zilla Slab', serif; font-weight:700; font-size:22px; color:var(--ink); }
+.account-shell{ display:flex; align-items:flex-start; gap:28px; }
 
-/* ---------- Panel de administración ---------- */
-.admin-panel{ width:100%; max-width:1100px; display:flex; flex-direction:column; align-items:center; gap:22px; }
-.account-tabs{
-  display:inline-flex; align-items:center; gap:2px;
-  background:var(--card); border:1px solid var(--paper-line);
-  border-radius:999px; padding:4px;
+.account-sidebar{
+  flex:0 0 240px; width:240px;
+  display:flex; flex-direction:column; gap:28px;
+  background:var(--navy); color:var(--navy-text);
+  border-radius:var(--radius-lg);
+  padding:24px 18px;
+  position:sticky; top:96px;
+  /* Deja la columna tan alta como el viewport lo permita (menos la
+     cabecera/margen de arriba y algo de aire abajo), para que el botón de
+     "Cerrar sesión" quede pegado a la base de la columna —igual que en la
+     app— sin depender de que el contenido de al lado sea largo. */
+  min-height:calc(100vh - 220px);
 }
-.account-tab{
-  font-family:inherit; font-size:13.5px; font-weight:600; padding:9px 20px; border-radius:999px;
-  color:var(--ink-faint); background:transparent; border:none; cursor:pointer;
+.account-sidebar-user{ display:flex; flex-direction:column; gap:4px; }
+.account-sidebar-label{ font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; color:rgba(233,240,247,0.6); }
+.account-sidebar-email{ font-family:'Zilla Slab', serif; font-weight:700; font-size:16px; line-height:1.3; word-break:break-word; }
+
+.account-nav{ display:flex; flex-direction:column; gap:4px; flex:1; }
+.account-nav-item{
+  display:flex; align-items:center; gap:10px;
+  font-family:inherit; font-size:14px; font-weight:600; text-align:left;
+  padding:10px 12px; border-radius:10px; border:none; cursor:pointer;
+  background:transparent; color:rgba(233,240,247,0.75);
   transition:background .15s ease, color .15s ease;
 }
-.account-tab.is-active{ background:var(--navy); color:var(--navy-text); }
-.admin-panel-body{
+.account-nav-item svg{ width:19px; height:19px; flex-shrink:0; }
+.account-nav-item.is-active{ background:rgba(233,240,247,0.12); color:var(--navy-text); }
+
+/* Rojo granate a petición explícita de Miq, "como en la app" —
+   var(--stamp-red) ya es ese tono en la paleta del sitio (se usa en
+   borrado de cuentas, badges de error, etc.), así que no hace falta un
+   rojo nuevo. */
+.account-logout-btn{
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  font-family:inherit; font-size:13.5px; font-weight:700;
+  padding:11px 14px; border-radius:10px; border:none; cursor:pointer;
+  background:var(--stamp-red); color:#fff;
+  margin-top:auto;
+  transition:background .15s ease;
+}
+.account-logout-btn svg{ width:17px; height:17px; flex-shrink:0; }
+.account-logout-btn:hover{ background:#7E2A21; }
+
+.account-content{ flex:1; min-width:0; }
+.account-empty-state{ color:var(--ink-faint); font-size:14.5px; padding:10px 2px; }
+
+@media (max-width:900px){
+  .account-shell{ flex-direction:column; }
+  .account-sidebar{
+    width:100%; flex-direction:row; align-items:center; flex-wrap:wrap;
+    position:static; min-height:0; gap:14px;
+  }
+  .account-sidebar-user{ flex:1 1 auto; }
+  .account-nav{ flex-direction:row; flex:0 0 auto; }
+  .account-logout-btn{ margin-top:0; flex:0 0 auto; }
+}
+
+/* ---------- Panel de administración ---------- */
+.admin-panel{
   width:100%;
   background:var(--card); border:1px solid var(--paper-line); border-radius:var(--radius-lg);
   box-shadow:var(--shadow); padding:28px;

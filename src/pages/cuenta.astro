@@ -2,13 +2,11 @@
 // Perfil del usuario en la propia web. Página protegida en el cliente: si
 // no hay sesión de Supabase, se redirige a la home.
 //
-// De momento solo hay un saludo con el email y, si el usuario es admin
-// (profiles.is_admin = true — columna compartida con la app desde el
-// 2026-08-08), el panel de administración: una píldora "Admin" (igual
-// que las de la app Copermiq) y debajo una tabla con TODOS los usuarios
-// (ampliado el 2026-08-08), con buscador por email o nota, filtro por
-// tipo de plan, cambio de plan a mano, aprobar cuentas pendientes y
-// eliminar.
+// Si el usuario es admin (profiles.is_admin = true — columna compartida
+// con la app desde el 2026-08-08), tiene el panel de administración: una
+// tabla con TODOS los usuarios (ampliado el 2026-08-08), con buscador por
+// email o nota, filtro por tipo de plan, cambio de plan a mano, aprobar
+// cuentas pendientes y eliminar.
 //
 // Importante: estas acciones NO llaman a funciones nuevas de la web —
 // llaman a admin-list-users / admin-set-plan / admin-activate-user /
@@ -17,6 +15,19 @@
 // repetir el incidente de reinventar algo que ya estaba hecho). Todavía
 // no existe "desactivar" una cuenta ya aprobada — solo activar, o
 // eliminarla del todo — así que ese botón no está aquí.
+//
+// 2026-08-21 (Miq) — layout de columna lateral fija: hasta ahora esta
+// página era solo un saludo centrado, y no había ninguna forma rápida de
+// llegar aquí (el icono de cuenta de la cabecera, con sesión iniciada,
+// abría directamente la confirmación de "cerrar sesión"). Miq pidió, con
+// una captura de la app como referencia: que el icono de cuenta lleve
+// DIRECTAMENTE aquí (cambio en AuthModal.astro), y que esta página tenga
+// una columna lateral siempre visible a la izquierda —con un botón de
+// "Cerrar sesión" fijo abajo, en rojo granate (reutiliza var(--stamp-red),
+// el mismo tono que ya usa el sitio para acciones destructivas — no es un
+// rojo nuevo)— pensada para alojar más secciones en el futuro (compras,
+// perfil…). De momento la columna solo tiene una entrada: "Administración
+// de usuarios", exclusiva del admin.
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -26,18 +37,36 @@ import Footer from '../components/Footer.astro';
   <Header />
 
   <main id="account-main" class="account-page" hidden>
-    <div class="wrap">
-      <div class="account-welcome">
-        <p class="account-welcome-label">Tu cuenta</p>
-        <p class="account-welcome-email" id="account-email">—</p>
-      </div>
-
-      <div id="admin-panel" class="admin-panel" hidden>
-        <div class="account-tabs" role="tablist" aria-label="Secciones de administración">
-          <button type="button" class="account-tab is-active" data-admin-tab="admin" role="tab" aria-selected="true">Admin</button>
+    <div class="wrap account-shell">
+      <aside class="account-sidebar">
+        <div class="account-sidebar-user">
+          <span class="account-sidebar-label">Tu cuenta</span>
+          <span class="account-sidebar-email" id="account-email">—</span>
         </div>
 
-        <div class="admin-panel-body">
+        <nav class="account-nav" aria-label="Panel de cuenta">
+          <button type="button" class="account-nav-item is-active" id="account-nav-admin" hidden>
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.7"/>
+              <path d="M3.5 18c1.2-3 3.4-4.6 5.5-4.6s4.3 1.6 5.5 4.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+              <circle cx="17" cy="7.5" r="2.2" stroke="currentColor" stroke-width="1.7"/>
+              <path d="M14.8 13.2c1.9.4 3.5 1.9 4.4 4.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            </svg>
+            <span>Administración</span>
+          </button>
+        </nav>
+
+        <button type="button" id="account-logout-btn" class="account-logout-btn">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M9 4H6a2 2 0 00-2 2v12a2 2 0 002 2h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16 15l4-3-4-3M20 12H9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Cerrar sesión</span>
+        </button>
+      </aside>
+
+      <div class="account-content">
+        <div id="admin-panel" class="admin-panel" hidden>
           <h2 class="admin-panel-title">Usuarios</h2>
           <p class="admin-panel-note">
             Todos los usuarios de Copermiq. Cambiar el plan o aprobar una cuenta aquí hace exactamente lo mismo que en el panel de la app (llama a las mismas funciones). Falta "desactivar" una cuenta ya aprobada — todavía no existe ese mecanismo en ningún lado.
@@ -81,6 +110,13 @@ import Footer from '../components/Footer.astro';
             </table>
           </div>
         </div>
+
+        <!-- Sin panel de admin (usuario normal): de momento no hay nada
+             más que ver aquí — la columna ya deja sitio para lo que
+             venga (compras, perfil…). -->
+        <div id="account-empty-state" class="account-empty-state">
+          <p>De momento no hay nada más que configurar aquí.</p>
+        </div>
       </div>
     </div>
   </main>
@@ -119,6 +155,9 @@ import Footer from '../components/Footer.astro';
   const main = document.getElementById('account-main');
   const emailEl = document.getElementById('account-email');
   const adminPanel = document.getElementById('admin-panel');
+  const adminNavItem = document.getElementById('account-nav-admin');
+  const emptyState = document.getElementById('account-empty-state');
+  const logoutBtn = document.getElementById('account-logout-btn');
   const tableBody = document.getElementById('admin-table-body');
   const searchInput = document.getElementById('admin-search');
   const filterChips = Array.from(document.querySelectorAll('.admin-filter-chip'));
@@ -508,9 +547,19 @@ import Footer from '../components/Footer.astro';
     if (profile?.is_admin) {
       currentUserIsAdmin = true;
       if (adminPanel instanceof HTMLElement) adminPanel.hidden = false;
+      if (adminNavItem instanceof HTMLElement) adminNavItem.hidden = false;
+      if (emptyState instanceof HTMLElement) emptyState.hidden = true;
       loadAdminTable();
     }
   }
+
+  // 2026-08-21: botón de cerrar sesión, fijo abajo en la columna lateral —
+  // el modal de confirmación en sí (mismo de siempre) vive en
+  // AuthModal.astro, incluido en TODAS las páginas vía Layout.astro; aquí
+  // solo se dispara el evento para abrirlo, en vez de duplicar su lógica.
+  logoutBtn?.addEventListener('click', () => {
+    document.dispatchEvent(new CustomEvent('copermiq:open-logout-confirm'));
+  });
 
   async function guard() {
     if (!supabase) {

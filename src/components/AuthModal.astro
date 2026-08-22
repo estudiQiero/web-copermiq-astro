@@ -202,13 +202,16 @@ const hasTurnstileKey = Boolean(turnstileSiteKey);
     document.body.style.overflow = '';
   }
 
-  // Con sesión iniciada, el icono de cuenta ya no lleva directamente a
-  // /cuenta (ese enlace ahora vive en el menú, como "Mi cuenta") — pregunta
-  // primero si quieres cerrar sesión, que es la acción que antes era un
-  // botón suelto dentro de /cuenta.
+  // 2026-08-21 (Miq): con sesión iniciada, el icono de cuenta debe llevar
+  // DIRECTAMENTE a /cuenta — antes abría aquí mismo la confirmación de
+  // cerrar sesión, y Miq no tenía ninguna forma rápida de llegar al panel.
+  // Cerrar sesión se ha movido a un botón fijo abajo del todo en la
+  // columna lateral de /cuenta (ver ese archivo) — el modal de
+  // confirmación (openLogoutConfirm, más abajo) sigue existiendo tal cual,
+  // solo cambia desde dónde se dispara.
   accountBtn?.addEventListener('click', () => {
     if (accountBtn.classList.contains('is-connected')) {
-      openLogoutConfirm();
+      window.location.href = '/cuenta';
       return;
     }
     openModal();
@@ -233,6 +236,14 @@ const hasTurnstileKey = Boolean(turnstileSiteKey);
     if (overlay && !overlay.hidden) closeModal();
     if (logoutOverlay && !logoutOverlay.hidden) closeLogoutConfirm();
   });
+
+  // 2026-08-21: el botón de "Cerrar sesión" ahora vive en la columna
+  // lateral de /cuenta (cuenta.astro), no aquí — pero el modal de
+  // confirmación (#logout-overlay) sigue viviendo en este componente,
+  // porque <AuthModal /> se incluye en TODAS las páginas vía Layout.astro
+  // y así el modal solo existe una vez. cuenta.astro dispara este evento
+  // en vez de duplicar la lógica del modal.
+  document.addEventListener('copermiq:open-logout-confirm', openLogoutConfirm);
 
   tabs.forEach((tab) => {
     tab.addEventListener('click', () => {
