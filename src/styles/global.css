@@ -421,10 +421,33 @@ section{ padding:96px 0; }
    número de líneas — mismo criterio que ya pidió Miq en el rediseño
    anterior, conservado aquí. */
 .capsula-captura{
-  margin-top:auto; padding-top:4px;
+  margin-top:auto;
   border-radius:10px; overflow:hidden;
   border:1px solid #eceae5;
 }
+/* Cabecera de ventana Mac (22/08, corrección posterior): reutiliza
+   literalmente `.preview-topbar`/`.preview-dot`/`.preview-title`, las
+   mismas clases que ya usa `ProductPreview.astro` para toda captura real
+   de la app — Miq pidió que TODAS las capturas lleven esta cabecera, así
+   que se reutiliza en vez de crear una nueva solo para esta sección. Al
+   quedar dentro de `.capsula-captura` (que ya tiene `overflow:hidden` y su
+   propio `border-radius`), la cabecera se recorta sola a la esquina
+   redondeada sin necesitar ningún fondo/lienzo gris adicional alrededor —
+   justo el efecto "más fino" que pidió Miq, sin el `padding-top:4px`
+   que llevaba antes esta clase (dejaba un hueco blanco encima de la
+   cabecera en vez de que la barra navy llegue justo hasta la esquina).
+   `.preview-title` no lleva ruta fija: cada tarjeta pone la suya (ver
+   Features.astro) — nombres puestos a ojo, pendientes de confirmar.
+   Ajuste de tamaño propio de esta sección: `.capsula-captura` es mucho
+   más estrecha (una de 3 columnas) que el `.preview-frame` de 900px de
+   "Inicio, de un vistazo" — con el padding/tamaño de fuente originales,
+   una ruta de 26+ caracteres partía la cabecera en 2 líneas de alto
+   distinto según la tarjeta. Reducidos aquí (padding, tamaño de puntos y
+   de texto) para que quepa en una sola línea sin tocar el aspecto de
+   `ProductPreview.astro`, que no se toca. */
+.capsula-captura .preview-topbar{ padding:9px 12px; gap:6px; }
+.capsula-captura .preview-dot{ width:8px; height:8px; }
+.capsula-captura .preview-title{ font-size:11px; margin-left:6px; }
 .capsula-captura img{ display:block; width:100%; height:auto; }
 
 /* Cinta "¡AÚN NO ACTIVADO!" de la tarjeta Verifactu — técnica documentada

@@ -46,6 +46,26 @@
 //
 // Los textos de las 6 cápsulas no cambian respecto a la versión anterior
 // (ya coincidían literalmente con los que dio la sesión app).
+//
+// Corrección 2026-08-22 (cuarta entrega del día) — cabecera de ventana Mac
+// en las 5 capturas, y recorte más ajustado: Miq recordó que "cada ventana
+// debe tener su cabecera estilo Mac con el nombre correspondiente" (regla
+// ya establecida el 21/08 para toda captura de la app, ver
+// `ProductPreview.astro`) y señaló que las 5 imágenes entregadas antes no
+// la llevaban, además de mostrar un doble borde gris (la propia maqueta
+// del PDF envolvía cada captura en un contorno redondeado que quedó
+// incluido sin querer en el recorte). Arreglado en dos frentes:
+// 1) Recortes rehechos, más ajustados, sin ese contorno de la maqueta.
+// 2) Se añade la cabecera reutilizando literalmente `.preview-topbar`/
+//    `.preview-dot`/`.preview-title` (las mismas clases que ya usa
+//    `ProductPreview.astro`, en vez de crear una cabecera nueva solo para
+//    esta sección) dentro del propio `.capsula-captura` — como este ya
+//    tiene `overflow:hidden` y `border-radius:10px`, la cabecera queda
+//    recortada a la misma esquina sin necesitar ningún fondo gris extra
+//    alrededor (Miq: "no hace falta que hagas el fondo gris", pidiendo la
+//    versión más "fina" de sus 3 ejemplos, sin margen de lienzo).
+//    Nombres de ruta puestos a ojo (facturas/gastos/inicio/preferencias) —
+//    pendiente de que Miq confirme si coinciden con las rutas reales.
 ---
 
 <section id="funciones">
@@ -71,7 +91,13 @@
         <h3 class="capsula-titulo">Borradores y facturas emitidas</h3>
         <p class="capsula-texto">Toda factura nace como borrador. Al facturar, obtiene su número correlativo definitivo y pasa a contar en el resumen del año — nada se pierde por el camino.</p>
         <div class="capsula-captura">
-          <img src="/images/features/facturas.webp" width="1387" height="465" loading="lazy" alt="Listado de facturas emitidas en Copermiq, con número, fecha, cliente y total" />
+          <div class="preview-topbar">
+            <span class="preview-dot preview-dot-red"></span>
+            <span class="preview-dot preview-dot-amber"></span>
+            <span class="preview-dot preview-dot-green"></span>
+            <span class="preview-title">app.copermiq.com / facturas</span>
+          </div>
+          <img src="/images/features/facturas.webp" width="1431" height="456" loading="lazy" alt="Listado de facturas emitidas en Copermiq, con número, fecha, cliente y total" />
         </div>
       </div>
 
@@ -85,7 +111,13 @@
         <h3 class="capsula-titulo">Facturas rectificativas</h3>
         <p class="capsula-texto">Una factura emitida no se puede eliminar, como marca la ley. Crea una rectificativa con numeración propia (R-2026-001) y referencia automática a la original.</p>
         <div class="capsula-captura">
-          <img src="/images/features/rectificativas.webp" width="1430" height="469" loading="lazy" alt="Factura rectificativa R-2026-001 referenciando automáticamente a la factura original en Copermiq" />
+          <div class="preview-topbar">
+            <span class="preview-dot preview-dot-red"></span>
+            <span class="preview-dot preview-dot-amber"></span>
+            <span class="preview-dot preview-dot-green"></span>
+            <span class="preview-title">app.copermiq.com / facturas</span>
+          </div>
+          <img src="/images/features/rectificativas.webp" width="1435" height="445" loading="lazy" alt="Factura rectificativa R-2026-001 referenciando automáticamente a la factura original en Copermiq" />
         </div>
       </div>
 
@@ -99,7 +131,13 @@
         <h3 class="capsula-titulo">Gastos con IVA e IRPF por línea</h3>
         <p class="capsula-texto">Cada línea de gasto lleva su propio % de IVA, de IRPF y su deducibilidad. Sabrás tu resultado neto real: facturado menos gastos deducibles.</p>
         <div class="capsula-captura">
-          <img src="/images/features/gastos.webp" width="1570" height="1030" loading="lazy" alt="Resumen de gastos con base, IVA soportado, total gastado y deducible, y tabla de gastos por línea en Copermiq" />
+          <div class="preview-topbar">
+            <span class="preview-dot preview-dot-red"></span>
+            <span class="preview-dot preview-dot-amber"></span>
+            <span class="preview-dot preview-dot-green"></span>
+            <span class="preview-title">app.copermiq.com / gastos</span>
+          </div>
+          <img src="/images/features/gastos.webp" width="1515" height="830" loading="lazy" alt="Resumen de gastos con base, IVA soportado, total gastado y deducible, y tabla de gastos por línea en Copermiq" />
         </div>
       </div>
 
@@ -113,7 +151,13 @@
         <h3 class="capsula-titulo">Sabe cuánto ganas de verdad, sin sacar la calculadora</h3>
         <p class="capsula-texto">Pendiente de facturar, pendiente de cobro y resultado neto, calculados solos y filtrables por mes, trimestre o año.</p>
         <div class="capsula-captura">
-          <img src="/images/features/resumen.webp" width="1477" height="670" loading="lazy" alt="Resumen del trimestre en Copermiq: facturado, gastos, resultado neto y pendiente de cobro" />
+          <div class="preview-topbar">
+            <span class="preview-dot preview-dot-red"></span>
+            <span class="preview-dot preview-dot-amber"></span>
+            <span class="preview-dot preview-dot-green"></span>
+            <span class="preview-title">app.copermiq.com / inicio</span>
+          </div>
+          <img src="/images/features/resumen.webp" width="1332" height="453" loading="lazy" alt="Resumen del trimestre en Copermiq: facturado, gastos, resultado neto y pendiente de cobro" />
         </div>
       </div>
 
@@ -127,7 +171,13 @@
         <h3 class="capsula-titulo">Copia de seguridad propia</h3>
         <p class="capsula-texto">Descarga tu negocio, tus clientes, facturas y gastos en un .json propio, y restáuralo cuando quieras: fusiona sin borrar nada que no esté en el archivo.</p>
         <div class="capsula-captura">
-          <img src="/images/features/backup.webp" width="1477" height="420" loading="lazy" alt="Panel de copia de seguridad en Copermiq, con botones para descargar y restaurar" />
+          <div class="preview-topbar">
+            <span class="preview-dot preview-dot-red"></span>
+            <span class="preview-dot preview-dot-amber"></span>
+            <span class="preview-dot preview-dot-green"></span>
+            <span class="preview-title">app.copermiq.com / preferencias</span>
+          </div>
+          <img src="/images/features/backup.webp" width="1367" height="340" loading="lazy" alt="Panel de copia de seguridad en Copermiq, con botones para descargar y restaurar" />
         </div>
       </div>
 
