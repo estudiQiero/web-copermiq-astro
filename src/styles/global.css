@@ -339,147 +339,111 @@ section{ padding:96px 0; }
 .section-head h2{ font-size:34px; margin:16px 0 14px; }
 .section-head p{ color:var(--ink-soft); font-size:17px; }
 
-/* ---------- Features grid ---------- */
-.features-grid{
-  display:grid; grid-template-columns:repeat(3, 1fr); gap:22px;
+/* ---------- Funciones (home) ----------
+   Reconstrucción 2026-08-22 (segunda vez el mismo día) a partir del CSS
+   literal que dio la sesión app en `funcioneshomeparaweb.md` — Miq: "esto
+   esta fatal... que quede tal y como ella lo ha hecho". Sustituye por
+   completo el bloque anterior (`.features-grid`/`.feature-card`/
+   `.fmock-*`), que usaba mini-mockups construidos en CSS en vez de
+   capturas reales y la paleta/tipografía genérica del sitio en vez de la
+   propia de esta sección.
+
+   Tokens y tipografía (Lora) scoped bajo `#funciones` a propósito: es una
+   excepción deliberada a la norma de reutilizar los tokens globales del
+   sitio, porque aquí Miq pidió fidelidad exacta a un sistema visual ya
+   diseñado aparte por la sesión app, no una adaptación con los tokens de
+   este repo. Los nombres de variable son los mismos que dio la sesión app,
+   literales. */
+#funciones{
+  --page-bg:#f5f4f1;
+  --text-main:#1c2b3a;
+  --text-title:#16283e;
+  --text-body:#5a6472;
+  --link:#1a7a6e;
+  --link-hover:#145e55;
+  --card-bg:#ffffff;
+  --card-shadow:rgba(20,30,45,0.06);
+  --eyebrow-bg:#e3f2ee;
+  --eyebrow-text:#1a7a6e;
+  --icon-bg-borradores:#dcefe9; --icon-fg-borradores:#1a7a6e;
+  --icon-bg-rectificativas:#fbe4e4; --icon-fg-rectificativas:#c2564f;
+  --icon-bg-gastos:#faf1dc; --icon-fg-gastos:#b8863a;
+  --icon-bg-resumen:#dce8f5; --icon-fg-resumen:#3b6ea5;
+  --icon-bg-backup:#f3ded9; --icon-fg-backup:#b06a4f;
+  --icon-bg-verifactu:#1a7a6e; --icon-fg-verifactu:#ffffff;
+  --verifactu-border:#cbe6de;
+  --ribbon-bg:#af3820;
+  --ribbon-text:#ffffff;
+  background:var(--page-bg);
+  color:var(--text-main);
+}
+#funciones .eyebrow{ background:var(--eyebrow-bg); color:var(--eyebrow-text); }
+#funciones .section-head{ max-width:760px; }
+#funciones .section-head h2{
+  font-family:'Lora', Georgia, 'Times New Roman', serif;
+  font-weight:700;
+  color:var(--text-title);
+}
+#funciones .section-head p{
+  max-width:600px; margin:0 auto; color:var(--text-body);
+}
+
+.funciones-grid{
+  display:grid; grid-template-columns:repeat(3, 1fr); gap:24px;
   align-items:stretch;
 }
-.feature-card{
-  display:flex; flex-direction:column;
-  background:var(--card);
-  border:1px solid var(--paper-line);
-  border-radius:var(--radius-lg);
-  padding:28px;
-  box-shadow:var(--shadow);
+.capsula{
   position:relative;
+  display:flex; flex-direction:column; gap:14px;
+  background:var(--card-bg);
+  border-radius:18px;
+  padding:28px;
+  box-shadow:0 2px 10px var(--card-shadow);
 }
-.feature-icon{
-  width:44px; height:44px; border-radius:12px;
+.capsula-icono{
+  width:48px; height:48px; border-radius:14px; flex-shrink:0;
   display:flex; align-items:center; justify-content:center;
-  background:var(--accent-tint); color:var(--accent-deep);
-  margin-bottom:18px;
 }
-.feature-icon.red{ background:var(--stamp-red-tint); color:var(--stamp-red); }
-.feature-icon.amber{ background:var(--stamp-amber-tint); color:var(--stamp-amber); }
-.feature-icon.blue{ background:var(--stamp-blue-tint); color:var(--stamp-blue); }
-.feature-icon svg{ width:22px; height:22px; }
-.feature-card h3{ font-size:18px; margin-bottom:8px; }
-.feature-card p{ font-size:14.5px; color:var(--ink-soft); }
+.capsula-icono svg{ width:22px; height:22px; }
+.capsula-icono.ic-borradores{ background:var(--icon-bg-borradores); color:var(--icon-fg-borradores); }
+.capsula-icono.ic-rectificativas{ background:var(--icon-bg-rectificativas); color:var(--icon-fg-rectificativas); }
+.capsula-icono.ic-gastos{ background:var(--icon-bg-gastos); color:var(--icon-fg-gastos); }
+.capsula-icono.ic-resumen{ background:var(--icon-bg-resumen); color:var(--icon-fg-resumen); }
+.capsula-icono.ic-backup{ background:var(--icon-bg-backup); color:var(--icon-fg-backup); }
+.capsula-icono.ic-verifactu{ background:var(--icon-bg-verifactu); color:var(--icon-fg-verifactu); }
+.capsula-titulo{ font-size:17px; font-weight:700; color:var(--text-title); }
+.capsula-texto{ font-size:14.5px; line-height:1.55; color:var(--text-body); }
+/* `margin-top:auto` (añadido sobre el CSS literal de la sesión app, que
+   solo trae `margin-top:4px`): como `.capsula` es flex column y el grid
+   estira todas las tarjetas de una misma fila a la misma altura, esto
+   ancla la captura siempre al fondo de la tarjeta para que las 6 queden
+   equilibradas visualmente aunque el texto de cada una ocupe distinto
+   número de líneas — mismo criterio que ya pidió Miq en el rediseño
+   anterior, conservado aquí. */
+.capsula-captura{
+  margin-top:auto; padding-top:4px;
+  border-radius:10px; overflow:hidden;
+  border:1px solid #eceae5;
+}
+.capsula-captura img{ display:block; width:100%; height:auto; }
 
-/* Mini "recorte" de pantalla de la app debajo del texto de cada tarjeta
-   (mockups de la sección Funciones, rediseño 2026-08-22 a partir del PDF
-   de Miq). `margin-top:auto` lo ancla siempre al fondo de la tarjeta —
-   como `.feature-card` es flex column y el grid estira todas las
-   tarjetas de una misma fila a la misma altura (comportamiento por
-   defecto de CSS grid), esto es lo que hace que las 6 tarjetas queden
-   "equilibradas visualmente" aunque el texto de cada una ocupe distinto
-   número de líneas, tal y como pidió Miq. */
-.fmock{ margin-top:auto; padding-top:20px; }
-.fmock-toolbar{
-  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;
-  font-size:12px; color:var(--ink-faint); margin-bottom:10px;
+/* Cinta "¡AÚN NO ACTIVADO!" de la tarjeta Verifactu — técnica documentada
+   por la sesión app: el `overflow:hidden` que recorta la cinta NO va en
+   la tarjeta entera, sino en un contenedor cuadrado propio pegado a la
+   esquina con el mismo radio que la tarjeta; si se pone solo en la
+   tarjeta, la caja sin rotar de la cinta cae fuera del padding-box y el
+   navegador no la recorta bien. */
+.capsula-verifactu{ border:1px solid var(--verifactu-border); }
+.capsula-ribbon-wrap{
+  position:absolute; top:0; right:0; width:100px; height:100px;
+  overflow:hidden; border-top-right-radius:18px; pointer-events:none;
 }
-/* Corregido 2026-08-22: en las capturas reales que pasó Miq, este botón es
-   navy sólido (mismo `--navy` que ya usa el resto del sitio para botones),
-   NO turquesa — "los botones color turquesa no existen, de momento, en la
-   app. Son exclusivos de la web." Verificado con cuentagotas de color sobre
-   el PDF real (#142A42 exacto, el mismo hex que `--navy`). */
-.fmock-btn{
-  font-size:11.5px; font-weight:600; color:var(--navy-text);
-  background:var(--navy); padding:5px 12px; border-radius:var(--radius);
-}
-.fmock-table{
-  border:1px solid var(--paper-line); border-radius:12px; overflow:hidden;
-  font-size:11.5px;
-}
-.fmock-row{ display:grid; gap:8px; padding:9px 12px; align-items:center; }
-.fmock-row.fmock-row-head{
-  color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.01em; font-size:9.5px;
-  background:var(--paper);
-}
-.fmock-row:not(.fmock-row-head){ border-top:1px solid var(--paper-line); color:var(--ink-soft); }
-/* minmax(0, Nfr) en vez de solo "Nfr": evita el "grid blowout" — sin esto,
-   una palabra larga o una pastilla .fmock-tag (que sí es nowrap a
-   propósito) puede forzar que la columna, la tabla, la tarjeta y hasta la
-   página entera se ensanchen más de lo que cabe en pantalla, sobre todo
-   en móvil. Con minmax(0, Nfr) la columna puede encogerse y el texto
-   envuelve dentro de su celda en vez de desbordar. */
-.fmock-row.fmock-cols-invoice{ grid-template-columns:minmax(0,1fr) minmax(0,0.8fr) minmax(0,1fr) minmax(0,1.3fr) minmax(0,1fr); }
-/* Tabla de gastos (tarjeta 3, "Gastos con IVA e IRPF por línea") — la
-   captura real trae Fecha/Proveedor/Categoría/Descripción/Total (5
-   columnas), pero no caben legibles en el ancho de esta tarjeta, así que
-   Categoría se pliega como etiqueta en línea junto a Descripción (ver
-   Features.astro) y quedan 4 columnas de grid. Esta tabla faltaba por
-   completo en la primera entrega. */
-.fmock-row.fmock-cols-expense{ grid-template-columns:minmax(0,1.05fr) minmax(0,0.75fr) minmax(0,1.5fr) minmax(0,0.6fr); gap:6px; font-size:10.5px; }
-.fmock-row-head.fmock-cols-expense{ font-size:8.5px; letter-spacing:0.005em; gap:8px; grid-template-columns:minmax(0,0.95fr) minmax(0,0.85fr) minmax(0,1.5fr) minmax(0,0.6fr); }
-.fmock-amount{ font-family:'IBM Plex Mono', monospace; text-align:right; display:flex; align-items:center; justify-content:flex-end; gap:5px; }
-.fmock-dot{ width:6px; height:6px; border-radius:50%; background:var(--accent); display:inline-block; flex-shrink:0; }
-.fmock-dot-pending{ background:var(--stamp-amber); }
-.fmock-tag{ font-style:normal; font-size:9.5px; font-weight:600; padding:2px 6px; border-radius:999px; margin-left:4px; white-space:nowrap; }
-.fmock-tag-info{ background:var(--accent-tint); color:var(--accent-deep); }
-.fmock-tag-amber{ background:var(--stamp-amber-tint); color:var(--stamp-amber); }
-.fmock-caption{ font-size:12px; color:var(--ink-faint); margin:10px 2px 0; }
-
-/* Barrita de color + pastilla de categoría del gasto — 3 tonos sacados por
-   cuentagotas del PDF real de Miq (Suministros/Material/Desplazamiento),
-   no inventados. */
-.fmock-cat-bar{ width:4px; height:14px; border-radius:2px; display:inline-block; flex-shrink:0; }
-.fmock-cat-bar.blue{ background:#5B8AA6; }
-.fmock-cat-bar.tan{ background:#B98A4E; }
-.fmock-cat-bar.lavender{ background:#8087A8; }
-.fmock-cat{
-  display:inline-block; font-size:9.5px; font-weight:600; padding:2px 8px;
-  border-radius:999px; white-space:nowrap; border:1px solid transparent;
-}
-.fmock-cat.blue{ background:#E8EDF0; color:#4F6672; border-color:#D6DEE2; }
-.fmock-cat.tan{ background:#F6EEE0; color:#8A6A3D; border-color:#EADFC9; }
-.fmock-cat.lavender{ background:#EDEFF4; color:#5B6478; border-color:#DFE2EA; }
-.fmock-date-cell{ display:flex; align-items:center; gap:5px; white-space:nowrap; }
-
-.fmock-stats{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; }
-.fmock-stats-compact .fmock-stat{ padding:10px; }
-.fmock-stat{
-  border:1px solid var(--paper-line); border-radius:10px; padding:12px;
-  background:var(--paper); display:flex; flex-direction:column; gap:4px;
-}
-.fmock-stat-label{ font-size:10.5px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.03em; }
-.fmock-stat-value{ font-family:'IBM Plex Mono', monospace; font-size:14px; font-weight:600; color:var(--ink); }
-.fmock-stat-accent{ color:var(--accent-deep); }
-.fmock-stat-red{ color:var(--stamp-red); }
-
-.fmock-panel-title{ font-size:12px; font-weight:600; color:var(--ink); margin-bottom:10px; }
-.fmock-panel-text{ font-size:12px; color:var(--ink-faint); margin:0 0 12px; }
-.fmock-actions{ display:flex; gap:10px; flex-wrap:wrap; }
-.fmock-action-btn{
-  font-size:12px; font-weight:600; text-align:center; padding:9px 14px; border-radius:var(--radius);
-  border:1px solid var(--paper-line); color:var(--navy); background:var(--card);
-}
-/* Corregido 2026-08-22: navy sólido en la captura real (no turquesa) —
-   mismo motivo que `.fmock-btn` más arriba. */
-.fmock-action-btn-primary{ border-color:var(--navy); background:var(--navy); color:var(--navy-text); }
-
-/* Tarjeta de Verifactu: todavía no tiene captura real de la app (Miq:
-   "Mas adelante te pasare capturas mejores"), así que en vez de un
-   `.fmock` vacío lleva un triángulo sólido en la esquina superior
-   derecha — sustituye a la cinta roja diagonal del PDF, que a este
-   tamaño de tarjeta quedaba ilegible — más una pastilla de texto junto
-   al título ("Aún no activado"), a petición explícita de Miq del
-   2026-08-22. El tamaño del triángulo (84px) es una estimación de hasta
-   dónde llegaba la cinta en el mockup del PDF; fácil de ajustar. */
-.feature-card-pending{ overflow:hidden; }
-.feature-corner{
-  position:absolute; top:0; right:0;
-  width:0; height:0;
-  border-style:solid;
-  border-width:0 84px 84px 0;
-  border-color:transparent var(--stamp-red) transparent transparent;
-  pointer-events:none;
-}
-.feature-pending-badge{
-  display:inline-block; font-size:10.5px; font-weight:700; text-transform:uppercase;
-  letter-spacing:0.02em; padding:3px 9px; border-radius:999px; margin-left:8px;
-  background:var(--stamp-red-tint); color:var(--stamp-red); vertical-align:middle;
+.capsula-ribbon{
+  position:absolute; top:22px; right:-28px; width:150px;
+  transform:rotate(35deg);
+  background:var(--ribbon-bg); color:var(--ribbon-text);
+  text-align:center; font-size:10px; font-weight:800; letter-spacing:0.02em;
+  padding:5px 0; box-shadow:0 2px 6px rgba(0,0,0,0.18);
 }
 
 /* ---------- Bandas de plan (Pro / Premium) ----------
@@ -1411,7 +1375,7 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
   .hero-visual{ order:2; padding:8px 0; }
   .hero-visual img{ width:220px; }
   .hero-copy h1{ font-size:32px; }
-  .features-grid{ grid-template-columns:1fr 1fr; }
+  .funciones-grid{ grid-template-columns:1fr 1fr; }
   .plan-highlight-inner, .plan-highlight-premium .plan-highlight-inner{ flex-direction:column; gap:36px; }
   .plan-highlight-copy > p{ max-width:none; }
   .pricing-grid{ grid-template-columns:1fr; max-width:440px; margin-left:auto; margin-right:auto; }
@@ -1425,7 +1389,7 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 }
 @media (max-width: 560px){
   section{ padding:64px 0; }
-  .features-grid{ grid-template-columns:1fr; }
+  .funciones-grid{ grid-template-columns:1fr; }
   .plan-highlight-list{ grid-template-columns:1fr; }
   .ph-fields-row{ grid-template-columns:1fr; }
   .hero-copy h1{ font-size:28px; }

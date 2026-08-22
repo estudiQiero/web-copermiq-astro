@@ -1,33 +1,51 @@
 ---
-// Sección "Funciones" — la primera después del Hero, la que más pesa para
-// enganchar a quien llega por primera vez. Rediseñada el 2026-08-22 a
-// partir de un PDF de mockups que Miq pasó (con capturas de la app
-// proporcionadas por el equipo de la app): 6 tarjetas, cada una con un
-// mini "recorte" de la pantalla real correspondiente debajo del texto, en
-// vez de solo icono+texto como antes.
+// Sección "Funciones" — la primera después del Hero. Reconstruida el
+// 2026-08-22 (segunda vez el mismo día) a partir del CSS/estructura que
+// pasó la sesión "app" en `funcioneshomeparaweb.md` — Miq: "Esto esta
+// fatal (la primera captura)... que quede tal y como ella lo ha hecho".
+// Sustituye por completo el rediseño anterior (mockups CSS `.fmock-*`
+// dentro de `.feature-card`), que Miq consideró "fatal" al verlo
+// desplegado. Cambios de fondo respecto a esa versión:
 //
-// Importante: solo aparecen aquí funciones del plan GRATIS — antes había
-// una tarjeta de "Facturación periódica" que en realidad es de pago (ver
-// PlanComparison.astro: 'Facturas periódicas / recurrentes' → DASH en
-// Gratis), inconsistencia que este rediseño corrige moviendo esa función
-// a su sitio real: el bloque "Con Pro, además…" (PlanHighlight.astro),
-// justo debajo de esta sección.
+// 1) Nomenclatura: se adoptan literalmente las clases de la maqueta de la
+//    sesión app (`.capsula`, `.capsula-icono`, `.capsula-titulo`,
+//    `.capsula-texto`, `.capsula-captura`) en vez de las propias del sitio
+//    (`.feature-card`, `.feature-icon`...), a propósito — Miq pidió
+//    fidelidad exacta a lo que hizo la otra sesión, no una reinterpretación
+//    con la convención de nombres de este repo.
+// 2) Paleta y tipografía propias de esta sección: los tokens de color
+//    (`--page-bg`, `--text-title`, `--icon-bg-*`...) y la tipografía Lora
+//    para titulares se definen como variables CSS locales, scoped bajo el
+//    propio `#funciones`, en vez de reutilizar los tokens globales del
+//    sitio (`--accent`, `--ink`, Zilla Slab...) — excepción deliberada a la
+//    norma habitual de "reutilizar tokens existentes", justificada porque
+//    Miq pidió replicar tal cual un sistema visual ya diseñado por la
+//    sesión app para esta sección en concreto.
+// 3) Las 5 tarjetas que antes llevaban un mini-mockup construido en CSS
+//    (`.fmock-*`) ahora llevan una imagen real (`.capsula-captura img`)
+//    recortada pixel a pixel del PDF de mockups que ya nos pasó Miq
+//    (`Copermiq-funciones-para-web.pdf`, página 1 — coincide con la
+//    captura-objetivo que envió en este mismo mensaje). Ver
+//    `public/images/features/*.webp`. Ningún dato ni gráfico inventado:
+//    son recortes reales de ese PDF, igual que exige Miq para todo el
+//    sitio ("no puedes inventarte graficas").
+// 4) La tarjeta de Verifactu usa ahora la técnica de cinta que documentó
+//    la sesión app (contenedor cuadrado propio con su `overflow:hidden` y
+//    el mismo radio que la tarjeta, en vez de fiarse del `overflow:hidden`
+//    de la tarjeta entera) — la cinta anterior (triángulo sólido +
+//    pastilla junto al título) se sustituye por la cinta roja diagonal
+//    "¡AÚN NO ACTIVADO!" tal como la dio la sesión app.
+// 5) Barra de marca: la maqueta de la sesión app incluye su propia barra
+//    "logo + Copermiq" porque es una captura de canvas aislada. Aquí NO se
+//    duplica: el `Header.astro` del sitio ya renderiza exactamente eso de
+//    forma persistente justo encima de esta sección.
+// 6) Ancho del contenedor: se mantiene el `.wrap` (24px de margen
+//    horizontal) que ya usa el resto del sitio, en vez del padding lateral
+//    de 72px del mockup aislado, para no romper la consistencia con el
+//    resto de secciones ni la responsividad ya probada en móvil.
 //
-// Los números/nombres de las capturas (Estudio Marín, Cafetería Nou,
-// Ferretería Sol, Movistar, Renfe…) son de ejemplo, tal como los pasó el
-// equipo de la app — mismo criterio que ya se usa en "Inicio, de un
-// vistazo" (ProductPreview.astro).
-//
-// Corrección 2026-08-22 (mismo día): la primera entrega se apartó del PDF
-// real en 3 sitios — los botones "+ Nueva factura"/"+ Nuevo gasto" y
-// "Descargar copia..." se pintaron en turquesa (color que Miq dijo que no
-// existe en botones de la app, solo en la web) en vez del navy de la
-// captura; a la tarjeta 3 (Gastos) le faltaba la tabla de gastos por
-// línea entera; y a la tarjeta 5 (Copia de seguridad) le faltaban las 2
-// frases de apoyo y el icono/texto correcto del botón secundario. Todo
-// corregido pixel a pixel contra el PDF real (`Copermiqfuncionesparaweb.
-// pdf`), no contra una reinterpretación libre — ver también el mismo
-// aviso aplicado en `PlanHighlight.astro`.
+// Los textos de las 6 cápsulas no cambian respecto a la versión anterior
+// (ya coincidían literalmente con los que dio la sesión app).
 ---
 
 <section id="funciones">
@@ -42,180 +60,89 @@
       </p>
     </div>
 
-    <div class="features-grid">
+    <div class="funciones-grid">
       <!-- 1. Borradores y facturas emitidas -->
-      <div class="feature-card">
-        <div class="feature-icon">
+      <div class="capsula">
+        <div class="capsula-icono ic-borradores">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M6 3h9l3 3v15H6z M15 3v3h3 M9 12h6 M9 16h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h3>Borradores y facturas emitidas</h3>
-        <p>Toda factura nace como borrador. Al facturar, obtiene su número correlativo definitivo y pasa a contar en el resumen del año — nada se pierde por el camino.</p>
-
-        <div class="fmock">
-          <div class="fmock-toolbar">
-            <span>14 en total</span>
-            <span class="fmock-btn">+ Nueva factura</span>
-          </div>
-          <div class="fmock-table">
-            <div class="fmock-row fmock-row-head fmock-cols-invoice">
-              <span>Número</span><span>Fecha</span><span>Cliente</span><span>Descripción</span><span class="fmock-amount">Total</span>
-            </div>
-            <div class="fmock-row fmock-cols-invoice">
-              <span>F-2026-014</span><span>18/08/2026</span><span>Estudio Marín</span><span>Diseño de logotipo</span>
-              <span class="fmock-amount">640,00 € <i class="fmock-dot"></i></span>
-            </div>
-            <div class="fmock-row fmock-cols-invoice">
-              <span>F-2026-013</span><span>12/08/2026</span><span>Cafetería Nou</span>
-              <span>Mantenimiento web <em class="fmock-tag fmock-tag-info">Periódica</em></span>
-              <span class="fmock-amount">210,00 € <i class="fmock-dot fmock-dot-pending"></i></span>
-            </div>
-            <div class="fmock-row fmock-cols-invoice">
-              <span>F-2026-012</span><span>03/08/2026</span><span>Ferretería Sol</span><span>Consultoría</span>
-              <span class="fmock-amount">385,00 € <i class="fmock-dot"></i></span>
-            </div>
-          </div>
+        <h3 class="capsula-titulo">Borradores y facturas emitidas</h3>
+        <p class="capsula-texto">Toda factura nace como borrador. Al facturar, obtiene su número correlativo definitivo y pasa a contar en el resumen del año — nada se pierde por el camino.</p>
+        <div class="capsula-captura">
+          <img src="/images/features/facturas.webp" width="1387" height="465" loading="lazy" alt="Listado de facturas emitidas en Copermiq, con número, fecha, cliente y total" />
         </div>
       </div>
 
       <!-- 2. Facturas rectificativas -->
-      <div class="feature-card">
-        <div class="feature-icon red">
+      <div class="capsula">
+        <div class="capsula-icono ic-rectificativas">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M4 12a8 8 0 1 1 3 6.2 M4 12v5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h3>Facturas rectificativas</h3>
-        <p>Una factura emitida no se puede eliminar, como marca la ley. Crea una rectificativa con numeración propia (R-2026-001) y referencia automática a la original.</p>
-
-        <div class="fmock">
-          <div class="fmock-toolbar">
-            <span>14 en total</span>
-            <span class="fmock-btn">+ Nueva factura</span>
-          </div>
-          <div class="fmock-table">
-            <div class="fmock-row fmock-row-head fmock-cols-invoice">
-              <span>Número</span><span>Fecha</span><span>Cliente</span><span>Descripción</span><span class="fmock-amount">Total</span>
-            </div>
-            <div class="fmock-row fmock-cols-invoice">
-              <span>F-2026-011</span><span>20/07/2026</span><span>Cafetería Nou</span><span>Mantenimiento web</span>
-              <span class="fmock-amount">210,00 € <i class="fmock-dot"></i></span>
-            </div>
-            <div class="fmock-row fmock-cols-invoice">
-              <span>R-2026-001</span><span>25/07/2026</span><span>Cafetería Nou</span>
-              <span>Corrige F-2026-011 <em class="fmock-tag fmock-tag-amber">Rectificativa</em></span>
-              <span class="fmock-amount">-60,00 € <i class="fmock-dot"></i></span>
-            </div>
-          </div>
-          <p class="fmock-caption">Referencia automática a la factura original — nunca se elimina, como marca la ley.</p>
+        <h3 class="capsula-titulo">Facturas rectificativas</h3>
+        <p class="capsula-texto">Una factura emitida no se puede eliminar, como marca la ley. Crea una rectificativa con numeración propia (R-2026-001) y referencia automática a la original.</p>
+        <div class="capsula-captura">
+          <img src="/images/features/rectificativas.webp" width="1430" height="469" loading="lazy" alt="Factura rectificativa R-2026-001 referenciando automáticamente a la factura original en Copermiq" />
         </div>
       </div>
 
       <!-- 3. Gastos con IVA e IRPF por línea -->
-      <div class="feature-card">
-        <div class="feature-icon amber">
+      <div class="capsula">
+        <div class="capsula-icono ic-gastos">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M4 6h16v12H4z M4 10h16 M8 14h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h3>Gastos con IVA e IRPF por línea</h3>
-        <p>Cada línea de gasto lleva su propio % de IVA, de IRPF y su deducibilidad. Sabrás tu resultado neto real: facturado menos gastos deducibles.</p>
-
-        <div class="fmock">
-          <div class="fmock-toolbar">
-            <span>9 en este trimestre</span>
-            <span class="fmock-btn">+ Nuevo gasto</span>
-          </div>
-          <div class="fmock-stats fmock-stats-compact">
-            <div class="fmock-stat"><span class="fmock-stat-label">Base</span><span class="fmock-stat-value">1.240,00 €</span></div>
-            <div class="fmock-stat"><span class="fmock-stat-label">IVA soportado</span><span class="fmock-stat-value">184,20 €</span></div>
-            <div class="fmock-stat"><span class="fmock-stat-label">Total gastado</span><span class="fmock-stat-value">1.424,20 €</span></div>
-            <div class="fmock-stat"><span class="fmock-stat-label">Deducible</span><span class="fmock-stat-value fmock-stat-red">1.180,00 €</span></div>
-          </div>
-          <!-- La captura real trae 5 columnas (Fecha/Proveedor/Categoría/
-               Descripción/Total), pero en el ancho de esta tarjeta no caben
-               legibles — mismo criterio que pidió Miq para las tablas: "si
-               no te caben en 3 columnas pon 2". Se pliega Categoría como
-               etiqueta en línea junto a la Descripción (idéntico patrón al
-               que ya usan las tarjetas 1 y 2 con "Periódica"/"Rectificativa"),
-               sin quitar ningún dato real de la captura. -->
-          <div class="fmock-table" style="margin-top:10px;">
-            <div class="fmock-row fmock-row-head fmock-cols-expense">
-              <span>Fecha</span><span>Proveedor</span><span>Descripción</span><span class="fmock-amount">Total</span>
-            </div>
-            <div class="fmock-row fmock-cols-expense">
-              <span class="fmock-date-cell"><i class="fmock-cat-bar blue"></i>14/08/2026</span><span>Movistar</span>
-              <span>Internet oficina <em class="fmock-cat blue">Suministros</em></span>
-              <span class="fmock-amount">45,50 €</span>
-            </div>
-            <div class="fmock-row fmock-cols-expense">
-              <span class="fmock-date-cell"><i class="fmock-cat-bar tan"></i>09/08/2026</span><span>Ferretería Sol</span>
-              <span>Herramientas <em class="fmock-cat tan">Material</em></span>
-              <span class="fmock-amount">128,90 €</span>
-            </div>
-            <div class="fmock-row fmock-cols-expense">
-              <span class="fmock-date-cell"><i class="fmock-cat-bar lavender"></i>02/08/2026</span><span>Renfe</span>
-              <span>Viaje cliente <em class="fmock-cat lavender">Desplazamiento</em></span>
-              <span class="fmock-amount">62,00 €</span>
-            </div>
-          </div>
+        <h3 class="capsula-titulo">Gastos con IVA e IRPF por línea</h3>
+        <p class="capsula-texto">Cada línea de gasto lleva su propio % de IVA, de IRPF y su deducibilidad. Sabrás tu resultado neto real: facturado menos gastos deducibles.</p>
+        <div class="capsula-captura">
+          <img src="/images/features/gastos.webp" width="1570" height="1030" loading="lazy" alt="Resumen de gastos con base, IVA soportado, total gastado y deducible, y tabla de gastos por línea en Copermiq" />
         </div>
       </div>
 
       <!-- 4. Sabe cuánto ganas de verdad -->
-      <div class="feature-card">
-        <div class="feature-icon blue">
+      <div class="capsula">
+        <div class="capsula-icono ic-resumen">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M4 19V10 M10 19V5 M16 19v-7 M4 19h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h3>Sabe cuánto ganas de verdad, sin sacar la calculadora</h3>
-        <p>Pendiente de facturar, pendiente de cobro y resultado neto, calculados solos y filtrables por mes, trimestre o año.</p>
-
-        <div class="fmock">
-          <div class="fmock-panel-title">Resumen — Este trimestre</div>
-          <div class="fmock-stats">
-            <div class="fmock-stat"><span class="fmock-stat-label">Facturado (base)</span><span class="fmock-stat-value">4.180,00 €</span></div>
-            <div class="fmock-stat"><span class="fmock-stat-label">Gastos (deducible)</span><span class="fmock-stat-value">1.180,00 €</span></div>
-            <div class="fmock-stat"><span class="fmock-stat-label">Resultado neto</span><span class="fmock-stat-value fmock-stat-accent">3.000,00 €</span></div>
-            <div class="fmock-stat"><span class="fmock-stat-label">Pendiente de cobro</span><span class="fmock-stat-value fmock-stat-red">610,00 €</span></div>
-          </div>
+        <h3 class="capsula-titulo">Sabe cuánto ganas de verdad, sin sacar la calculadora</h3>
+        <p class="capsula-texto">Pendiente de facturar, pendiente de cobro y resultado neto, calculados solos y filtrables por mes, trimestre o año.</p>
+        <div class="capsula-captura">
+          <img src="/images/features/resumen.webp" width="1477" height="670" loading="lazy" alt="Resumen del trimestre en Copermiq: facturado, gastos, resultado neto y pendiente de cobro" />
         </div>
       </div>
 
       <!-- 5. Copia de seguridad propia -->
-      <div class="feature-card">
-        <div class="feature-icon red">
+      <div class="capsula">
+        <div class="capsula-icono ic-backup">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 3v12 M7 11l5 5 5-5 M5 20h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h3>Copia de seguridad propia</h3>
-        <p>Descarga tu negocio, tus clientes, facturas y gastos en un .json propio, y restáuralo cuando quieras: fusiona sin borrar nada que no esté en el archivo.</p>
-
-        <div class="fmock">
-          <p class="fmock-panel-text">Descarga una copia de todos tus datos (negocio, clientes, facturas, gastos) en un archivo tuyo, independiente de la app. Guárdala en un sitio seguro de vez en cuando.</p>
-          <div class="fmock-actions">
-            <span class="fmock-action-btn fmock-action-btn-primary">↓ Descargar copia de seguridad</span>
-            <span class="fmock-action-btn">↑ Restaurar desde archivo</span>
-          </div>
-          <p class="fmock-caption">Restaurar añade o actualiza los registros del archivo; no borra nada que ya tengas y no esté en el archivo.</p>
+        <h3 class="capsula-titulo">Copia de seguridad propia</h3>
+        <p class="capsula-texto">Descarga tu negocio, tus clientes, facturas y gastos en un .json propio, y restáuralo cuando quieras: fusiona sin borrar nada que no esté en el archivo.</p>
+        <div class="capsula-captura">
+          <img src="/images/features/backup.webp" width="1477" height="420" loading="lazy" alt="Panel de copia de seguridad en Copermiq, con botones para descargar y restaurar" />
         </div>
       </div>
 
       <!-- 6. Cumple con Verifactu -->
-      <div class="feature-card feature-card-pending">
-        <span class="feature-corner" aria-hidden="true"></span>
-        <div class="feature-icon">
+      <div class="capsula capsula-verifactu">
+        <div class="capsula-ribbon-wrap" aria-hidden="true">
+          <div class="capsula-ribbon">¡AÚN NO ACTIVADO!</div>
+        </div>
+        <div class="capsula-icono ic-verifactu">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z M9 12.2l2 2 4-4.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h3>Cumple con Verifactu, incluido siempre
-          <span class="feature-pending-badge">Aún no activado</span>
-        </h3>
-        <p>Facturación electrónica antifraude, en los 3 planes — también en el Gratis. Nunca vas a tener que pagar solo para poder facturar de forma legal.</p>
+        <h3 class="capsula-titulo">Cumple con Verifactu, incluido siempre</h3>
+        <p class="capsula-texto">Facturación electrónica antifraude, en los 3 planes — también en el Gratis. Nunca vas a tener que pagar solo para poder facturar de forma legal.</p>
       </div>
     </div>
   </div>
