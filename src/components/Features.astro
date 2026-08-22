@@ -66,6 +66,40 @@
 //    versión más "fina" de sus 3 ejemplos, sin margen de lienzo).
 //    Nombres de ruta puestos a ojo (facturas/gastos/inicio/preferencias) —
 //    pendiente de que Miq confirme si coinciden con las rutas reales.
+//
+// Corrección 2026-08-22 (quinta entrega) — Miq dio marcha atrás en la
+// cabecera Mac: "Me he equivocado. Perdona." A partir de ahora va a
+// mandar él mismo, una a una, las imágenes finales ya hechas por la
+// sesión app — PNG con fondo TRANSPARENTE (esquinas redondeadas y sombra
+// ya recortadas en el propio canal alfa, no dibujadas sobre blanco) — y
+// hay que colocarlas tal cual, sin cabecera Mac ni marco propio, dejando
+// que la sombra/transparencia del PNG haga el trabajo visual. Primera
+// entregada: la de la tarjeta "Sabe cuánto ganas de verdad" (`ic-resumen`,
+// contenido "Resumen — Este trimestre") — su `.capsula-captura` usa ahora
+// el modificador `.is-transparent` (quita borde/overflow-hidden/fondo,
+// ver `global.css`) en vez de la cabecera `.preview-topbar` que llevaba
+// hasta la entrega anterior.
+//
+// Segunda imagen entregada con este mismo patrón (mismo día): la de
+// "Copia de seguridad propia" (`ic-backup`) — la captura nueva muestra
+// más detalle que la anterior (subtítulo "Copia JSON: <fecha>" + pestañas
+// JSON/mail/Google Drive antes de los botones de descargar/restaurar).
+// El párrafo `capsula-texto` de esta tarjeta NO se ha tocado — Miq solo
+// mandó la imagen, no pidió cambiar el texto, así que se deja el mismo
+// que ya había (igual que se hizo con los textos en el resto de tarjetas).
+//
+// Tercera, cuarta y quinta imagen entregadas el mismo día, mismo patrón:
+// "Gastos con IVA e IRPF por línea" (`ic-gastos`), "Facturas rectificativas"
+// (`ic-rectificativas`) y "Borradores y facturas emitidas" (`ic-borradores`)
+// — con esto las 5 tarjetas de captura quedan convertidas a
+// `.capsula-captura.is-transparent` con las imágenes finales que mandó Miq
+// directamente (ya producidas por la sesión app), y NINGUNA lleva ya la
+// cabecera `.preview-topbar` estilo Mac de la entrega anterior. Los
+// párrafos `capsula-texto` de estas 3 tampoco se han tocado. Las clases
+// `.preview-topbar`/`.preview-dot`/`.preview-title` y su override de
+// tamaño en `global.css` se dejan en el fichero por si `ProductPreview.astro`
+// (que sí las sigue usando) las necesita, pero ya no las usa ninguna
+// tarjeta de esta sección.
 ---
 
 <section id="funciones">
@@ -90,14 +124,8 @@
         </div>
         <h3 class="capsula-titulo">Borradores y facturas emitidas</h3>
         <p class="capsula-texto">Toda factura nace como borrador. Al facturar, obtiene su número correlativo definitivo y pasa a contar en el resumen del año — nada se pierde por el camino.</p>
-        <div class="capsula-captura">
-          <div class="preview-topbar">
-            <span class="preview-dot preview-dot-red"></span>
-            <span class="preview-dot preview-dot-amber"></span>
-            <span class="preview-dot preview-dot-green"></span>
-            <span class="preview-title">app.copermiq.com / facturas</span>
-          </div>
-          <img src="/images/features/facturas.webp" width="1431" height="456" loading="lazy" alt="Listado de facturas emitidas en Copermiq, con número, fecha, cliente y total" />
+        <div class="capsula-captura is-transparent">
+          <img src="/images/features/facturas.webp" width="1312" height="412" loading="lazy" alt="Listado de facturas emitidas en Copermiq, con número, fecha, cliente y total" />
         </div>
       </div>
 
@@ -110,14 +138,8 @@
         </div>
         <h3 class="capsula-titulo">Facturas rectificativas</h3>
         <p class="capsula-texto">Una factura emitida no se puede eliminar, como marca la ley. Crea una rectificativa con numeración propia (R-2026-001) y referencia automática a la original.</p>
-        <div class="capsula-captura">
-          <div class="preview-topbar">
-            <span class="preview-dot preview-dot-red"></span>
-            <span class="preview-dot preview-dot-amber"></span>
-            <span class="preview-dot preview-dot-green"></span>
-            <span class="preview-title">app.copermiq.com / facturas</span>
-          </div>
-          <img src="/images/features/rectificativas.webp" width="1435" height="445" loading="lazy" alt="Factura rectificativa R-2026-001 referenciando automáticamente a la factura original en Copermiq" />
+        <div class="capsula-captura is-transparent">
+          <img src="/images/features/rectificativas.webp" width="1312" height="375" loading="lazy" alt="Factura rectificativa R-2026-001 referenciando automáticamente a la factura original en Copermiq" />
         </div>
       </div>
 
@@ -130,14 +152,8 @@
         </div>
         <h3 class="capsula-titulo">Gastos con IVA e IRPF por línea</h3>
         <p class="capsula-texto">Cada línea de gasto lleva su propio % de IVA, de IRPF y su deducibilidad. Sabrás tu resultado neto real: facturado menos gastos deducibles.</p>
-        <div class="capsula-captura">
-          <div class="preview-topbar">
-            <span class="preview-dot preview-dot-red"></span>
-            <span class="preview-dot preview-dot-amber"></span>
-            <span class="preview-dot preview-dot-green"></span>
-            <span class="preview-title">app.copermiq.com / gastos</span>
-          </div>
-          <img src="/images/features/gastos.webp" width="1515" height="830" loading="lazy" alt="Resumen de gastos con base, IVA soportado, total gastado y deducible, y tabla de gastos por línea en Copermiq" />
+        <div class="capsula-captura is-transparent">
+          <img src="/images/features/gastos.webp" width="1312" height="742" loading="lazy" alt="Resumen de gastos con base, IVA soportado, total gastado y deducible, y tabla de gastos por línea en Copermiq" />
         </div>
       </div>
 
@@ -150,14 +166,8 @@
         </div>
         <h3 class="capsula-titulo">Sabe cuánto ganas de verdad, sin sacar la calculadora</h3>
         <p class="capsula-texto">Pendiente de facturar, pendiente de cobro y resultado neto, calculados solos y filtrables por mes, trimestre o año.</p>
-        <div class="capsula-captura">
-          <div class="preview-topbar">
-            <span class="preview-dot preview-dot-red"></span>
-            <span class="preview-dot preview-dot-amber"></span>
-            <span class="preview-dot preview-dot-green"></span>
-            <span class="preview-title">app.copermiq.com / inicio</span>
-          </div>
-          <img src="/images/features/resumen.webp" width="1332" height="453" loading="lazy" alt="Resumen del trimestre en Copermiq: facturado, gastos, resultado neto y pendiente de cobro" />
+        <div class="capsula-captura is-transparent">
+          <img src="/images/features/resumen.webp" width="1232" height="448" loading="lazy" alt="Resumen del trimestre en Copermiq: facturado, gastos, resultado neto y pendiente de cobro" />
         </div>
       </div>
 
@@ -170,14 +180,8 @@
         </div>
         <h3 class="capsula-titulo">Copia de seguridad propia</h3>
         <p class="capsula-texto">Descarga tu negocio, tus clientes, facturas y gastos en un .json propio, y restáuralo cuando quieras: fusiona sin borrar nada que no esté en el archivo.</p>
-        <div class="capsula-captura">
-          <div class="preview-topbar">
-            <span class="preview-dot preview-dot-red"></span>
-            <span class="preview-dot preview-dot-amber"></span>
-            <span class="preview-dot preview-dot-green"></span>
-            <span class="preview-title">app.copermiq.com / preferencias</span>
-          </div>
-          <img src="/images/features/backup.webp" width="1367" height="340" loading="lazy" alt="Panel de copia de seguridad en Copermiq, con botones para descargar y restaurar" />
+        <div class="capsula-captura is-transparent">
+          <img src="/images/features/backup.webp" width="509" height="385" loading="lazy" alt="Panel de copia de seguridad en Copermiq, con opciones de copia JSON, por email y a Google Drive, y botones para descargar y restaurar" />
         </div>
       </div>
 

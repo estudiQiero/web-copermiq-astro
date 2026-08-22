@@ -450,6 +450,20 @@ section{ padding:96px 0; }
 .capsula-captura .preview-title{ font-size:11px; margin-left:6px; }
 .capsula-captura img{ display:block; width:100%; height:auto; }
 
+/* Corrección 2026-08-22 (quinta entrega, mismo día) — Miq dio marcha
+   atrás en la cabecera Mac ("Me he equivocado. Perdona.") y en su lugar
+   va a mandar imágenes finales ya hechas por la sesión app, en PNG con
+   fondo TRANSPARENTE — esquinas redondeadas y sombra ya resueltas en el
+   propio canal alfa de la imagen, no dibujadas sobre un fondo blanco.
+   Para esas tarjetas, `.capsula-captura` no debe pintar su propio
+   borde/fondo/recorte (todo eso lo trae ya la imagen) — solo hacer de
+   contenedor. Modificador `.is-transparent`, añadido a la tarjeta que ya
+   tiene su imagen nueva (`ic-resumen`/"Sabe cuánto ganas de verdad");
+   añadir a las demás según Miq vaya mandando sus imágenes. */
+.capsula-captura.is-transparent{
+  border:none; border-radius:0; overflow:visible;
+}
+
 /* Cinta "¡AÚN NO ACTIVADO!" de la tarjeta Verifactu — técnica documentada
    por la sesión app: el `overflow:hidden` que recorta la cinta NO va en
    la tarjeta entera, sino en un contenedor cuadrado propio pegado a la
