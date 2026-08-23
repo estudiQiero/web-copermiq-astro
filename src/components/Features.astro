@@ -100,17 +100,94 @@
 // tamaño en `global.css` se dejan en el fichero por si `ProductPreview.astro`
 // (que sí las sigue usando) las necesita, pero ya no las usa ninguna
 // tarjeta de esta sección.
+//
+// Reescritura de contenido 2026-08-22/23 (a partir del listado cápsula a
+// cápsula que dio Miq, "Capsulas de FUNCIONES: ..."):
+// 1) Cápsulas 1, 3 y 5: solo cambia `capsula-texto` (títulos "Ok", o en el
+//    caso de la 5 también el título — ver más abajo). Imágenes sin tocar.
+// 2) Cápsula 2 (`ic-rectificativas`): título nuevo "Cumpliendo las normas"
+//    + texto nuevo sobre facturas rectificativas. Imagen sin tocar.
+// 3) Cápsula 5 (`ic-backup`): solo título nuevo "Controla tus copias de
+//    seguridad" (texto = "Ok", se deja igual). Imagen sin tocar.
+// 4) Cápsula 4 (`ic-resumen`), la más profunda: Miq la reorienta por
+//    completo, de "Sabe cuánto ganas de verdad" a "Resúmenes fiscales"
+//    (consulta/descarga de los modelos 303 IVA, 130 IRPF y 390 resumen
+//    anual). Adjuntó 2 capturas reales ("te paso 2 capturas de pantalla
+//    con estos paneles"): "Documentos fiscales" y "Libros registro".
+//    Primer encaje (revertido el mismo día): el texto nuevo solo habla de
+//    los 3 modelos, que según `PlanComparison.astro` están disponibles en
+//    los 3 planes (Gratis incluido) — pero "Libros registro" es CHECK
+//    solo en Premium ahí mismo, así que en un primer pase se mostraron
+//    las 2 capturas apiladas con una pastilla "Plan Premium" delante de
+//    la exclusiva de ese plan, para no dar a entender que también es
+//    Gratis. **Miq pidió quitarlo**: "elimina la imagen de los libros
+//    fiscales y la etiqueta del plan premium que le acompaña y deja solo
+//    la de los modelos trimestrales y anuales" — se vuelve a una sola
+//    captura, `documentos-fiscales.webp` (la que sí coincide 1:1 con el
+//    texto de la cápsula). `libros-registro.webp` y la pastilla
+//    `.capsula-plan-tag`/`.capsula-captura-secundaria` (`global.css`) se
+//    eliminan del repo, ya no se usan. Reemplaza a `resumen.webp` (ya no
+//    se usa en esta sección).
+// 5) Cápsula 6 (Verifactu): título nuevo "Copermiq cumple con Verifactu" +
+//    texto nuevo (conexión con la agencia tributaria a partir de 2027,
+//    Verifactu incluido de serie). Miq pidió quitar la cinta roja
+//    "¡AÚN NO ACTIVADO!" y sustituirla por un triángulo sólido en la
+//    esquina superior derecha con la etiqueta "En producción" en diagonal
+//    (`.capsula-corner-wrap`/`-triangle`/`-label`, ver `global.css` —
+//    mismo patrón de triángulo con `border`-trick que ya existía en una
+//    versión anterior de esta tarjeta, reconstruido). Debajo del texto se
+//    añade el logotipo oficial de la Agencia Tributaria
+//    (`capsula-aeat-logo`, `aeat-logo.webp`) que mandó Miq — procesado
+//    para reconstruir su transparencia real (el PNG que pasó tenía la
+//    cuadrícula de "fondo transparente" de una vista previa quemada como
+//    píxeles opacos, no transparencia de verdad) y reescalado con
+//    Lanczos a un tamaño ~2x el de pantalla (evita el efecto moiré que
+//    daba al dejar que el navegador reescalase en CSS una imagen mucho
+//    más grande que su tamaño final).
+//
+// Corrección 2026-08-23 (mismo día, tras ver el resultado desplegado):
+// - Cápsula 4: revertida a una sola captura — ver punto 4) más arriba.
+// - Triángulo de Verifactu: Miq reportó "el texto de dentro no se ve" —
+//   agrandado (`global.css`, `.capsula-corner-wrap`/`-triangle`/`-label`,
+//   de 84/100px a 94/110px, letra de 9px a 8px sin letter-spacing) para
+//   dejar más margen; el entorno de esta sesión no tiene salida de red a
+//   Google Fonts, así que la verificación con Playwright se hizo con la
+//   fuente de respaldo del sistema, no con `Inter` (la real, heredada de
+//   `body`) — el margen extra cubre esa incertidumbre de métrica.
+// - Logo de la Agencia Tributaria: Miq reportó que se ve "chafado" (mal
+//   proporcionado). Verificado que el `.webp` actual conserva fielmente
+//   la proporción de la captura original que mandó Miq (900×473, sin
+//   distorsión añadida en el procesado) — si la proporción real del
+//   logotipo oficial es distinta, la captura original que mandó Miq ya
+//   la traía así. Fuentes externas consultadas para contrastar dieron
+//   proporciones muy distintas entre sí (1,71:1, 1,90:1, 2,20:1 según el
+//   sitio), así que no se ha forzado ningún ratio "corregido" sin
+//   verificar — pendiente que Miq confirme o mande una versión con la
+//   proporción correcta (ver "Gaps y pendientes abiertos" en memoria del
+//   proyecto).
+// - Cabecera de la sección: título y párrafo de intro sustituidos por el
+//   texto nuevo que dio Miq (ver `<h2>`/`<p>` dentro de `.section-head`
+//   más abajo) — mensaje centrado en el plan Gratis (libre de costes, de
+//   por vida) en vez del genérico anterior.
+// - Nuevo párrafo `.funciones-outro` justo debajo de las 6 cápsulas,
+//   fuera de `.funciones-grid` pero dentro del mismo `.wrap` — transición
+//   hacia las bandas de Pro/Premium que vienen justo después en la
+//   página ("Y si quieres más prestaciones...").
 ---
 
 <section id="funciones">
   <div class="wrap">
     <div class="section-head">
       <span class="eyebrow">Funciones</span>
-      <h2>Todo lo que necesitas para llevar tus cuentas, en un solo sitio.</h2>
+      <h2>Tu app de facturación profesional libre de costes, escalable.</h2>
       <p>
-        Facturación y contabilidad sencillas para autónomos y pequeñas
-        empresas — y el cumplimiento legal, incluido siempre, sin letra
-        pequeña.
+        Entra a Copermiq de forma libre, sin cargos, de por vida. Trabaja con
+        el plan Gratis con total libertad. Crea tu base de datos de clientes
+        y proveedores, genera presupuestos, mandalos con tu logo, conviértelos
+        en borradores, factúralos y almacénalos en tus libros. Copermiq te
+        actualiza y muestra, en tiempo real, los números de tu fiscalidad
+        para tenerlo todo siempre controlado, sin sustos. Exporta tus modelos
+        y entrégaselos a tu gestor para su verificación.
       </p>
     </div>
 
@@ -123,7 +200,7 @@
           </svg>
         </div>
         <h3 class="capsula-titulo">Borradores y facturas emitidas</h3>
-        <p class="capsula-texto">Toda factura nace como borrador. Al facturar, obtiene su número correlativo definitivo y pasa a contar en el resumen del año — nada se pierde por el camino.</p>
+        <p class="capsula-texto">Toda factura nace desde Presupuesto o como Borrador. Al facturar se convierte en Emitida, obtiene su número correlativo definitivo y pasa a contar en el resumen del año — nada se pierde. 3 pasos simples y fáciles.</p>
         <div class="capsula-captura is-transparent">
           <img src="/images/features/facturas.webp" width="1312" height="412" loading="lazy" alt="Listado de facturas emitidas en Copermiq, con número, fecha, cliente y total" />
         </div>
@@ -136,8 +213,8 @@
             <path d="M4 12a8 8 0 1 1 3 6.2 M4 12v5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h3 class="capsula-titulo">Facturas rectificativas</h3>
-        <p class="capsula-texto">Una factura emitida no se puede eliminar, como marca la ley. Crea una rectificativa con numeración propia (R-2026-001) y referencia automática a la original.</p>
+        <h3 class="capsula-titulo">Cumpliendo las normas</h3>
+        <p class="capsula-texto">Facturas rectificativas. Una factura emitida no se puede eliminar, como marca la ley. Crea una rectificativa con numeración propia (R-2026-001) y referencia automática a la original.</p>
         <div class="capsula-captura is-transparent">
           <img src="/images/features/rectificativas.webp" width="1312" height="375" loading="lazy" alt="Factura rectificativa R-2026-001 referenciando automáticamente a la factura original en Copermiq" />
         </div>
@@ -151,7 +228,7 @@
           </svg>
         </div>
         <h3 class="capsula-titulo">Gastos con IVA e IRPF por línea</h3>
-        <p class="capsula-texto">Cada línea de gasto lleva su propio % de IVA, de IRPF y su deducibilidad. Sabrás tu resultado neto real: facturado menos gastos deducibles.</p>
+        <p class="capsula-texto">Cada línea de gasto lleva su propio % de IVA, de IRPF, y su deducibilidad. Controla tu resultado neto real por mes, trimestre, o año.</p>
         <div class="capsula-captura is-transparent">
           <img src="/images/features/gastos.webp" width="1312" height="742" loading="lazy" alt="Resumen de gastos con base, IVA soportado, total gastado y deducible, y tabla de gastos por línea en Copermiq" />
         </div>
@@ -164,10 +241,10 @@
             <path d="M4 19V10 M10 19V5 M16 19v-7 M4 19h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h3 class="capsula-titulo">Sabe cuánto ganas de verdad, sin sacar la calculadora</h3>
-        <p class="capsula-texto">Pendiente de facturar, pendiente de cobro y resultado neto, calculados solos y filtrables por mes, trimestre o año.</p>
+        <h3 class="capsula-titulo">Resúmenes fiscales</h3>
+        <p class="capsula-texto">Consulta, en cualquier momento, el estado de tus obligaciones fiscales. Descarga y envía a tu gestor, en un clic, el resumen del IVA —modelo 303—, el IRPF —modelo 130— y el resumen anual —modelo 390—.</p>
         <div class="capsula-captura is-transparent">
-          <img src="/images/features/resumen.webp" width="1232" height="448" loading="lazy" alt="Resumen del trimestre en Copermiq: facturado, gastos, resultado neto y pendiente de cobro" />
+          <img src="/images/features/documentos-fiscales.webp" width="1232" height="334" loading="lazy" alt="Documentos fiscales en Copermiq: descarga de modelo 303 (IVA), modelo 130 (IRPF) y modelo 390 (resumen anual)" />
         </div>
       </div>
 
@@ -178,7 +255,7 @@
             <path d="M12 3v12 M7 11l5 5 5-5 M5 20h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h3 class="capsula-titulo">Copia de seguridad propia</h3>
+        <h3 class="capsula-titulo">Controla tus copias de seguridad</h3>
         <p class="capsula-texto">Descarga tu negocio, tus clientes, facturas y gastos en un .json propio, y restáuralo cuando quieras: fusiona sin borrar nada que no esté en el archivo.</p>
         <div class="capsula-captura is-transparent">
           <img src="/images/features/backup.webp" width="509" height="385" loading="lazy" alt="Panel de copia de seguridad en Copermiq, con opciones de copia JSON, por email y a Google Drive, y botones para descargar y restaurar" />
@@ -187,17 +264,21 @@
 
       <!-- 6. Cumple con Verifactu -->
       <div class="capsula capsula-verifactu">
-        <div class="capsula-ribbon-wrap" aria-hidden="true">
-          <div class="capsula-ribbon">¡AÚN NO ACTIVADO!</div>
+        <div class="capsula-corner-wrap" aria-hidden="true">
+          <div class="capsula-corner-triangle"></div>
+          <span class="capsula-corner-label">En producción</span>
         </div>
         <div class="capsula-icono ic-verifactu">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z M9 12.2l2 2 4-4.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h3 class="capsula-titulo">Cumple con Verifactu, incluido siempre</h3>
-        <p class="capsula-texto">Facturación electrónica antifraude, en los 3 planes — también en el Gratis. Nunca vas a tener que pagar solo para poder facturar de forma legal.</p>
+        <h3 class="capsula-titulo">Copermiq cumple con Verifactu</h3>
+        <p class="capsula-texto">Copermiq te conecta con la agencia tributaria, tal y como marca la norma a partir de 2027, e integra Verifactu, la facturación electrónica antifraude. Verifactu está incluido de serie para todos lo planes de usuario.</p>
+        <img class="capsula-aeat-logo" src="/images/features/aeat-logo.webp" width="129" height="68" loading="lazy" alt="Logotipo de la Agencia Tributaria" />
       </div>
     </div>
+
+    <p class="funciones-outro">Y si quieres más prestaciones, Copermiq te ofrece 2 planes de pago muy económicos y adaptados al bolsillo del trabajador autónomo. Mira si alguno te interesa.</p>
   </div>
 </section>

@@ -392,6 +392,15 @@ section{ padding:96px 0; }
   display:grid; grid-template-columns:repeat(3, 1fr); gap:24px;
   align-items:stretch;
 }
+/* Texto de cierre bajo las 6 cápsulas, 2026-08-23 — Miq: "debajo de las 6
+   capsulas pondremos un nuevo texto", de transición hacia las bandas de
+   Pro/Premium que vienen justo después en la página. Mismo tratamiento que
+   `#funciones .section-head p` (centrado, ancho limitado, tono apagado)
+   para que se lea como parte del mismo bloque tipográfico de la sección. */
+.funciones-outro{
+  max-width:600px; margin:40px auto 0; text-align:center;
+  color:var(--text-body); font-size:16px; line-height:1.6;
+}
 .capsula{
   position:relative;
   display:flex; flex-direction:column; gap:14px;
@@ -464,23 +473,71 @@ section{ padding:96px 0; }
   border:none; border-radius:0; overflow:visible;
 }
 
-/* Cinta "¡AÚN NO ACTIVADO!" de la tarjeta Verifactu — técnica documentada
-   por la sesión app: el `overflow:hidden` que recorta la cinta NO va en
-   la tarjeta entera, sino en un contenedor cuadrado propio pegado a la
-   esquina con el mismo radio que la tarjeta; si se pone solo en la
-   tarjeta, la caja sin rotar de la cinta cae fuera del padding-box y el
-   navegador no la recorta bien. */
+/* Corrección 2026-08-22 (décima entrega del día) — Miq: "vamos a quitar
+   el ribbon y poner un triángulo rojo en la esquina superior derecha. Y
+   ahi pondremos 'En produccion'." Verifactu pasa de "próximamente" a "ya
+   integrado, en marcha" — la cinta diagonal "¡AÚN NO ACTIVADO!" (que
+   documentó la sesión app, ver más abajo el porqué de su contenedor
+   cuadrado propio) ya no encaja con ese mensaje, así que se sustituye por
+   un triángulo sólido en la esquina — mismo patrón (`border`-trick, sin
+   `clip-path`) que ya usaba la versión de esta tarjeta anterior al
+   rediseño del CSS de la sesión app (ver `Rediseño de Funciones...` más
+   arriba en el historial), reconstruido aquí porque se había eliminado
+   por completo en aquella limpieza. Reutiliza el mismo contenedor
+   cuadrado con `overflow:hidden` + mismo radio que la tarjeta (18px) que
+   ya usaba la cinta, por el mismo motivo: sin ese contenedor, la caja del
+   triángulo (0×0 con bordes) cae fuera del padding-box de la tarjeta y no
+   queda recortada a la esquina redondeada. */
 .capsula-verifactu{ border:1px solid var(--verifactu-border); }
-.capsula-ribbon-wrap{
-  position:absolute; top:0; right:0; width:100px; height:100px;
+.capsula-corner-wrap{
+  position:absolute; top:0; right:0; width:110px; height:110px;
   overflow:hidden; border-top-right-radius:18px; pointer-events:none;
 }
-.capsula-ribbon{
-  position:absolute; top:22px; right:-28px; width:150px;
-  transform:rotate(35deg);
-  background:var(--ribbon-bg); color:var(--ribbon-text);
-  text-align:center; font-size:10px; font-weight:800; letter-spacing:0.02em;
-  padding:5px 0; box-shadow:0 2px 6px rgba(0,0,0,0.18);
+.capsula-corner-triangle{
+  position:absolute; top:0; right:0; width:0; height:0;
+  border-style:solid; border-width:0 94px 94px 0;
+  border-color:transparent var(--ribbon-bg) transparent transparent;
+}
+.capsula-corner-label{
+  /* Centrado sobre el punto medio de la hipotenusa del triángulo (47,47
+     en coordenadas locales de la caja 94×94, que a su vez cuelga del
+     borde derecho del wrap de 110×110 → x=63 desde la izquierda) y
+     rotado 45° sobre su propio centro — así el texto queda centrado y
+     paralelo a la hipotenusa sin salirse del triángulo, sea cual sea su
+     longitud exacta (a diferencia de la cinta diagonal anterior, que sí
+     podía sobresalir del wrap porque quedaba recortada por su
+     `overflow:hidden`).
+     Corrección 2026-08-23 (Miq: "el texto de dentro no se ve"): el
+     triángulo/wrap se agrandó de 84/100 a 94/110 y el tamaño de letra bajó
+     de 9px a 8px, sin letter-spacing, para dejar más margen de sobra — el
+     cálculo anterior encajaba el texto por poco (∼1px de sobra en las
+     esquinas) asumiendo las métricas de una fuente de respaldo, pero este
+     entorno de verificación no tiene salida de red hacia Google Fonts, así
+     que no pudo comprobarse con la fuente real (`Inter`, heredada de
+     `body`) — este margen extra hace que el resultado sea robusto aunque
+     la fuente real sea algo más ancha que la de respaldo usada aquí. */
+  position:absolute; top:47px; left:63px; width:120px;
+  transform:translate(-50%,-50%) rotate(45deg);
+  text-align:center;
+  color:var(--ribbon-text); font-size:8px; font-weight:800;
+  letter-spacing:0; text-transform:uppercase; white-space:nowrap;
+}
+/* Logo de la Agencia Tributaria, debajo del texto de esta cápsula — Miq
+   pidió que no fuera muy grande, proporcional, con algo de espacio
+   respecto al texto de arriba ("como la mayoria de las pantallas").
+   Origen de la imagen: Miq mandó una captura de un PNG de terceros con
+   la cuadrícula de "fondo transparente" de la vista previa ya "quemada"
+   como píxeles reales (no era transparencia de verdad), así que se
+   reconstruyó la transparencia real detectando esa cuadrícula regular de
+   15px (blanco/`#E6E6E6` alternos) con Python/PIL y poniéndola a alfa 0 —
+   confirmado visualmente que el logo (aspa azul/roja/amarilla + texto
+   "Agencia Tributaria" en gris) queda intacto. */
+.capsula-aeat-logo{
+  display:block; height:34px; width:auto;
+  /* Sin margin-top propio: `.capsula` ya es flex-column con `gap:14px`
+     entre todos sus hijos directos, así que el espacio respecto al
+     párrafo de arriba sale gratis de ese gap — añadir margin aquí lo
+     duplicaría. */
 }
 
 /* ---------- Bandas de plan (Pro / Premium) ----------
