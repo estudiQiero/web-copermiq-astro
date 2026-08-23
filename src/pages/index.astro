@@ -19,10 +19,18 @@ import Footer from '../components/Footer.astro';
 // recuperar algo puntual; Miq puede borrarlo cuando quiera.
 ---
 
+<!-- Orden 2026-08-23 (tercera ronda): Miq pidió que "Empieza hoy" (FinalCta)
+     vaya "justo después del hero". HeroCta comparte fondo navy con Hero sin
+     separación visual entre ambas (ver comentario de HeroCta.astro) — se
+     interpreta como un único bloque "hero", así que FinalCta se coloca justo
+     después de ese bloque completo (Hero + HeroCta), antes de Features. Si
+     Miq quería decir literalmente entre Hero y HeroCta, avisar para
+     moverlo. -->
 <Layout>
   <Header />
   <Hero />
   <HeroCta />
+  <FinalCta />
   <Features />
   <PlanHighlight plan="pro" />
   <PlanHighlight plan="premium" />
@@ -30,7 +38,6 @@ import Footer from '../components/Footer.astro';
   <HowItWorks />
   <Security />
   <Customization />
-  <FinalCta />
   <Pricing />
   <WhyCopermiq />
   <Footer />

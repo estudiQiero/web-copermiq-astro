@@ -1228,9 +1228,26 @@ section{ padding:96px 0; }
 .security-card h4{ font-size:16.5px; font-weight:600; color:var(--navy-text); margin-bottom:10px; line-height:1.35; }
 .security-card p{ font-size:14px; line-height:1.65; color:rgba(233,240,247,0.7); flex:1; }
 
-/* ---------- Final CTA ---------- */
+/* ---------- Final CTA ----------
+   2026-08-23 (tercera ronda) — Miq: "cambia el fondo de la seccion al
+   turquesa nuestro y manten el blanco del fondo del contenido. El boton de
+   accede a copermiq estar en azul copermiq." Fondo turquesa en el
+   `<section>` (`--accent`, el turquesa vivo de marca — mismo token que ya
+   describe el propio `:root` como "más presencia real en la web", no el
+   `--accent-deep` más oscuro que usan los botones/pastillas) — se añade
+   `padding` propio porque antes esta sección no llevaba ninguno (no hacía
+   falta con fondo transparente; con fondo de color sí, para que respire
+   como banda). `.card` sigue blanco (`var(--card)`, sin tocar) tal y como
+   pidió Miq — su texto interior no necesita ningún ajuste de contraste.
+   El botón "Accede a Copermiq" pasa a azul Copermiq (`--navy`) en vez del
+   turquesa oscuro de `.btn-primary` — override con más especificidad SOLO
+   para este botón (`.final-cta .btn-primary`), sin tocar la clase
+   `.btn-primary` global (la comparten AuthModal, CookieConsent y los
+   botones de checkout de Pricing, que no se han tocado). */
 .final-cta{
   text-align:center;
+  background:var(--accent);
+  padding:72px 0;
 }
 .final-cta .card{
   background:var(--card);
@@ -1241,6 +1258,8 @@ section{ padding:96px 0; }
 }
 .final-cta h2{ font-size:32px; margin-bottom:14px; }
 .final-cta p{ color:var(--ink-soft); font-size:17px; max-width:480px; margin:0 auto 30px; }
+.final-cta .btn-primary{ background:var(--navy); color:var(--navy-text); }
+.final-cta .btn-primary:hover{ background:var(--navy); opacity:0.9; color:var(--navy-text); }
 
 /* ---------- Footer ---------- */
 footer{
@@ -1683,8 +1702,21 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
    /preguntas-frecuentes (sección "Precios y suscripción") — aquí solo queda
    un botón que lleva directamente a esa sección. Las clases .pf-* de más
    abajo (acordeón sobre fondo claro) las sigue usando esa página nueva. */
-.pricing-faq-cta{ padding:8px 0 88px; text-align:center; }
-.pricing-faq-cta p{ color:var(--ink-soft); font-size:15px; margin-bottom:16px; }
+/* 2026-08-23 (tercera ronda, mismo día) — Miq: ".pricing-faq-cta tambien
+   debe tener fondo gris oscuro" — mismo `--dark-gray` que `.pricing-hero`/
+   `.plan-comparison` justo encima, para que las 3 secciones se lean como
+   un único bloque continuo sin costuras (el `padding-top` de 8px de esta
+   sección ya estaba pensado para quedar pegada a la de arriba). El botón
+   `.btn-ghost` (fondo transparente, texto tinta oscura, borde clarito) es
+   invisible sobre fondo oscuro tal cual — variante scoped aquí con la
+   misma familia "casi blanco" (`#F3F5F2`/`rgba(243,245,242,*)`) que ya usan
+   las otras 2 secciones oscuras de este bloque, mismo patrón que el
+   `.btn-ghost-on-navy` ya existente en el sitio (ahí con `--navy-text` en
+   vez de esta familia, por ser un fondo navy en vez de gris neutro). */
+.pricing-faq-cta{ padding:8px 0 88px; text-align:center; background:var(--dark-gray); }
+.pricing-faq-cta p{ color:rgba(243,245,242,0.7); font-size:15px; margin-bottom:16px; }
+.pricing-faq-cta .btn-ghost{ color:#F3F5F2; border-color:rgba(243,245,242,0.3); }
+.pricing-faq-cta .btn-ghost:hover{ border-color:rgba(243,245,242,0.7); }
 
 /* Acordeón .pf-* — con nombres de clase a propósito distintos de .faq-* (que
    está pensado para fondo oscuro): este vive sobre fondo claro, tanto en la
