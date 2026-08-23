@@ -173,6 +173,19 @@
 //   fuera de `.funciones-grid` pero dentro del mismo `.wrap` — transición
 //   hacia las bandas de Pro/Premium que vienen justo después en la
 //   página ("Y si quieres más prestaciones...").
+//
+// Corrección 2026-08-23 (segunda ronda, mismo día) — Miq dio valores
+// exactos tras verlo en su pantalla, en vez de dejarlo al cálculo/margen
+// defensivo de la ronda anterior:
+// - `.capsula-corner-label`: coordenadas fijas `top:36px; left:74px`
+//   (antes 47/63, calculado geométricamente).
+// - `.capsula-aeat-logo`: tamaño fijo 129×68 (el nativo del archivo, sin
+//   escalar por `height`), centrado horizontalmente en la cápsula
+//   (`align-self:center`) y centrado verticalmente en el hueco en blanco
+//   entre el final del texto y la base de la cápsula — no pegado abajo
+//   como antes (`margin-top:auto` en los dos, técnica de flexbox: al ser
+//   el único hijo con márgenes `auto` arriba y abajo, el espacio libre
+//   restante de la columna se reparte a partes iguales entre ambos).
 ---
 
 <section id="funciones">

@@ -14,6 +14,12 @@
 // que se muestra. Sigue pendiente la lista definitiva de características
 // de cada plan (ver el documento de arquitectura de facturación en el
 // proyecto de Claude).
+// Fondo gris oscuro (2026-08-23, a petición de Miq): `.pricing-hero` y
+// `.plan-comparison` (en PlanComparison.astro) comparten el mismo fondo
+// (token `--dark-gray`, ver global.css) para leerse como un único bloque
+// "Planes". Las cápsulas de precio y la tabla comparativa ya llevan su
+// propio fondo blanco opaco, así que solo se aclaró a blanco lo que queda
+// directamente sobre el gris (eyebrow/título/intro y la nota final).
 import PlanComparison from './PlanComparison.astro';
 
 const APP_URL = 'https://app.copermiq.com';

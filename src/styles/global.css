@@ -24,6 +24,16 @@
   --navy:#142A42;
   --navy-text:#E9F0F7;
   --white:#FFFFFF;
+  /* Gris oscuro neutro para "Planes" + tabla comparativa (2026-08-23, a
+     petición de Miq: "el fondo de toda la seccion de planes y la tabla
+     comprativa, me lo pones en gris oscuro"). Deliberadamente un tono
+     distinto del `#1B211D` de `.tinted-section` (que tiene un matiz verde
+     de marca y ya está atado al selector de color de "A tu manera"/FAQ) —
+     este es gris neutro puro, sin verde, para no confundir visualmente
+     "Planes" con esa otra sección oscura. Texto sobre este fondo reutiliza
+     la misma familia de "casi blanco" que ya usa el resto del sitio para
+     texto sobre fondo oscuro (`#F3F5F2` / `rgba(243,245,242,*)`). */
+  --dark-gray:#23262B;
   --radius:10px;
   --radius-lg:18px;
   --shadow: 0 1px 2px rgba(30,42,34,0.06), 0 10px 30px rgba(20,42,66,0.10);
@@ -515,8 +525,11 @@ section{ padding:96px 0; }
      entorno de verificación no tiene salida de red hacia Google Fonts, así
      que no pudo comprobarse con la fuente real (`Inter`, heredada de
      `body`) — este margen extra hace que el resultado sea robusto aunque
-     la fuente real sea algo más ancha que la de respaldo usada aquí. */
-  position:absolute; top:47px; left:63px; width:120px;
+     la fuente real sea algo más ancha que la de respaldo usada aquí.
+     Corrección 2026-08-23 (segunda ronda, mismo día) — Miq dio las
+     coordenadas exactas tras verlo en su pantalla: `top:36px; left:74px`
+     en vez del cálculo geométrico anterior (47/63). */
+  position:absolute; top:36px; left:74px; width:120px;
   transform:translate(-50%,-50%) rotate(45deg);
   text-align:center;
   color:var(--ribbon-text); font-size:8px; font-weight:800;
@@ -531,13 +544,25 @@ section{ padding:96px 0; }
    reconstruyó la transparencia real detectando esa cuadrícula regular de
    15px (blanco/`#E6E6E6` alternos) con Python/PIL y poniéndola a alfa 0 —
    confirmado visualmente que el logo (aspa azul/roja/amarilla + texto
-   "Agencia Tributaria" en gris) queda intacto. */
+   "Agencia Tributaria" en gris) queda intacto.
+   Corrección 2026-08-23 (segunda ronda, mismo día) — Miq pidió tamaño fijo
+   129×68 (el nativo del archivo, sin escalar) y que el logo quede
+   centrado horizontalmente en la cápsula y centrado verticalmente en el
+   hueco en blanco que queda entre el final del texto y la base de la
+   cápsula (no pegado abajo como antes con `margin-top:auto`).
+   `align-self:center` centra en el eje transversal (horizontal, ya que
+   `.capsula` es flex-column). Para el centrado vertical en el hueco:
+   como el logo es el único hijo con márgenes `auto` arriba y abajo, el
+   espacio libre restante del flex container (alto de la tarjeta menos lo
+   que ocupan icono+título+texto+gaps+logo) se reparte a partes iguales
+   entre `margin-top` y `margin-bottom` — eso es exactamente "centrado en
+   el espacio en blanco desde el final del texto hasta la base", sin
+   necesitar un contenedor envolvente aparte. */
 .capsula-aeat-logo{
-  display:block; height:34px; width:auto;
-  /* Sin margin-top propio: `.capsula` ya es flex-column con `gap:14px`
-     entre todos sus hijos directos, así que el espacio respecto al
-     párrafo de arriba sale gratis de ese gap — añadir margin aquí lo
-     duplicaría. */
+  display:block;
+  width:129px; height:68px;
+  align-self:center;
+  margin-top:auto; margin-bottom:auto;
 }
 
 /* ---------- Bandas de plan (Pro / Premium) ----------
@@ -633,8 +658,20 @@ section{ padding:96px 0; }
    (no turquesa) — mismo motivo que `.fmock-btn`/`.fmock-action-btn-primary`. */
 .ph-mock-btn-primary{ border-color:var(--navy); background:var(--navy); color:var(--navy-text); }
 
-/* ---------- Precios (/precios) ---------- */
-.pricing-hero{ padding:88px 0 96px; }
+/* ---------- Precios (/precios) ----------
+   Fondo gris oscuro a todo el ancho del viewport (2026-08-23, ver token
+   `--dark-gray` más arriba) — el `<section>` ya ocupa el 100% del ancho
+   por sí solo (no hay ningún contenedor con max-width por encima en
+   `Layout.astro`), igual que ya hace `.hero{ background:var(--navy) }`.
+   Las cápsulas de precio (`.pricing-card`) y el pill del toggle mensual/
+   anual llevan su propio fondo blanco opaco (`var(--card)`), así que su
+   texto interior ya tiene el contraste correcto sin tocar nada — solo
+   hace falta aclarar lo que queda directamente sobre el gris oscuro: el
+   eyebrow/título/intro de la cabecera y la nota final bajo las tarjetas. */
+.pricing-hero{ padding:88px 0 96px; background:var(--dark-gray); }
+.pricing-hero .section-head h2{ color:#F3F5F2; }
+.pricing-hero .section-head p{ color:rgba(243,245,242,0.7); }
+.pricing-hero .pricing-note{ color:rgba(243,245,242,0.45); }
 .billing-toggle-wrap{ display:flex; justify-content:center; margin:0 0 40px; }
 .billing-toggle{
   display:inline-flex; align-items:center; gap:2px;
@@ -1668,10 +1705,18 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .pf-item.is-open .pf-answer{ max-height:300px; }
 .pf-answer p{ margin:0; padding:0 2px 18px; font-size:14.5px; line-height:1.6; color:var(--ink-soft); }
 
-/* ---------- Tabla comparativa de planes (/precios) ---------- */
-.plan-comparison{ padding:64px 0 80px; }
+/* ---------- Tabla comparativa de planes (/precios) ----------
+   Mismo fondo gris oscuro que `.pricing-hero` justo encima (ambas
+   secciones forman un único bloque visual "Planes" a petición de Miq) —
+   ver el comentario de `.pricing-hero` para el porqué del token
+   `--dark-gray`. La tabla en sí (`.plan-comparison-scroll`) ya lleva su
+   propio fondo blanco opaco (`var(--card)`), así que solo hace falta
+   aclarar la cabecera de la sección, que queda directamente sobre el gris
+   oscuro. */
+.plan-comparison{ padding:64px 0 80px; background:var(--dark-gray); }
 .plan-comparison .section-head{ text-align:center; max-width:640px; margin:0 auto 40px; }
-.plan-comparison .section-head p{ color:var(--ink-soft); margin-top:10px; font-size:15px; }
+.plan-comparison .section-head h2{ color:#F3F5F2; }
+.plan-comparison .section-head p{ color:rgba(243,245,242,0.7); margin-top:10px; font-size:15px; }
 
 .plan-comparison-scroll{
   overflow-x:auto;
