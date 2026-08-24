@@ -358,12 +358,20 @@ section{ padding:96px 0; }
    capturas reales y la paleta/tipografía genérica del sitio en vez de la
    propia de esta sección.
 
-   Tokens y tipografía (Lora) scoped bajo `#funciones` a propósito: es una
-   excepción deliberada a la norma de reutilizar los tokens globales del
-   sitio, porque aquí Miq pidió fidelidad exacta a un sistema visual ya
-   diseñado aparte por la sesión app, no una adaptación con los tokens de
-   este repo. Los nombres de variable son los mismos que dio la sesión app,
-   literales. */
+   Tokens de color scoped bajo `#funciones` a propósito: es una excepción
+   deliberada a la norma de reutilizar los tokens globales del sitio,
+   porque aquí Miq pidió fidelidad exacta a un sistema visual ya diseñado
+   aparte por la sesión app, no una adaptación con los tokens de este
+   repo. Los nombres de variable son los mismos que dio la sesión app,
+   literales.
+   Corrección 2026-08-23: la tipografía sí se mantiene fuera de esa
+   excepción — el `<h2>` de la cabecera llevaba `Lora` (de la sesión app)
+   en vez de `Zilla Slab` (la que usa el resto del sitio para títulos).
+   Miq pidió explícitamente que use "la misma tipografía que el resto", así
+   que se quita el override y el `<h2>` hereda `Zilla Slab` de la regla
+   global `h1,h2,h3,.slab{font-family:'Zilla Slab',...}` — igual que ya
+   hacían, sin override propio, los `<h3>` de las 6 cápsulas
+   (`.capsula-titulo`). */
 #funciones{
   --page-bg:#f5f4f1;
   --text-main:#1c2b3a;
@@ -390,7 +398,6 @@ section{ padding:96px 0; }
 #funciones .eyebrow{ background:var(--eyebrow-bg); color:var(--eyebrow-text); }
 #funciones .section-head{ max-width:760px; }
 #funciones .section-head h2{
-  font-family:'Lora', Georgia, 'Times New Roman', serif;
   font-weight:700;
   color:var(--text-title);
 }
