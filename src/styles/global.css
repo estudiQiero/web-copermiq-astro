@@ -1263,8 +1263,13 @@ section{ padding:96px 0; }
   box-shadow:var(--shadow);
   padding:64px 40px;
 }
-.final-cta h2{ font-size:32px; margin-bottom:14px; }
-.final-cta p{ color:var(--ink-soft); font-size:17px; max-width:480px; margin:0 auto 30px; }
+.final-cta h2{ font-size:32px; margin:16px 0 14px; }
+/* Ancho de párrafo subido de 480px a 700px (2026-08-25, petición de Miq: se
+   veía "muy comprimido" dentro de la tarjeta, que tiene mucho más ancho
+   disponible). max-width + margin:auto ya se estrecha solo en móvil, sin
+   media query aparte, porque el ancho real lo acaba marcando el padding de
+   `.card` dentro del `.wrap` cuando la pantalla es más pequeña que 700px. */
+.final-cta p{ color:var(--ink-soft); font-size:17px; max-width:700px; margin:0 auto 30px; }
 .final-cta .btn-primary{ background:var(--navy); color:var(--navy-text); }
 .final-cta .btn-primary:hover{ background:var(--navy); opacity:0.9; color:var(--navy-text); }
 
