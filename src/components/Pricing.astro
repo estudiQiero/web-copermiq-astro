@@ -4,10 +4,9 @@
 // página independiente y este bloque pasa a formar parte del scroll de la
 // home, enlazado desde el menú como ancla (#precios). Precios definitivos
 // (confirmados por Miq el 2026-08-20, ya no son provisionales):
-// Pro 1,95€/mes o 9,95€/año (corregido 2026-08-26, antes decía 19,95€/año),
-// Premium 8,95€/mes o 95€/año (precios anuales comerciales, no un cálculo
-// estricto de "X meses gratis" — por eso el toggle no lleva ninguna
-// etiqueta de ahorro). El plan intermedio, que
+// Pro 1,95€/mes o 19,95€/año, Premium 8,95€/mes o 95€/año (precios anuales
+// comerciales, no un cálculo estricto de "X meses gratis" — por eso el
+// toggle no lleva ninguna etiqueta de ahorro). El plan intermedio, que
 // vivía como "Suscripción · nombre por definir", se llama ya de forma
 // definitiva "Pro" (decidido por Miq el 2026-08-19). El identificador
 // interno (key/plan de Stripe y Supabase) sigue siendo 'subscription' /
@@ -45,7 +44,7 @@ const plans = [
     name: 'Pro',
     billing: {
       monthly: { amount: '1,95 €', period: 'al mes' },
-      annual: { amount: '9,95 €', period: 'al año' },
+      annual: { amount: '19,95 €', period: 'al año' },
     },
     description: 'Funciones avanzadas para cuando tu actividad crece. (Lista final de características aún por definir.)',
     features: [
