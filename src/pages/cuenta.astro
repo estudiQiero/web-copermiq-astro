@@ -74,9 +74,9 @@ import Footer from '../components/Footer.astro';
                   <th class="admin-col-center" title="Se marca sola cuando el usuario confirma su alta por email; el admin puede forzarla a mano si el correo no le llegó.">2F Ok</th>
                   <th>Nota</th>
                   <th data-sort="plan">Plan <span class="admin-sort-indicator"></span></th>
-                  <th data-sort="amount">Importe <span class="admin-sort-indicator"></span></th>
+                  <th class="admin-col-center" data-sort="amount">Importe <span class="admin-sort-indicator"></span></th>
                   <th data-sort="since">Desde <span class="admin-sort-indicator"></span></th>
-                  <th data-sort="renews">Renueva <span class="admin-sort-indicator"></span></th>
+                  <th class="admin-col-center" data-sort="renews">Renueva <span class="admin-sort-indicator"></span></th>
                   <th class="admin-col-center"><span class="sr-only">Acciones</span></th>
                   <th class="admin-col-lock"><span class="sr-only">Bloqueo</span></th>
                 </tr>
@@ -345,17 +345,18 @@ import Footer from '../components/Footer.astro';
     }
 
     tableBody.innerHTML = rows.map((row) => {
-      // Importe y Renueva: cuando no hay un dato real que mostrar, el
-      // guion "—" queda centrado en su columna en vez de pegado a la
-      // izquierda (a petición de Miq, 2026-08-28) — solo en esos dos
-      // huecos, no en el resto de columnas que también pueden mostrar "—"
-      // (Desde no se toca).
+      // Importe y Renueva: centradas siempre, tengan o no dato real —
+      // centrar solo el guion "—" cuando faltaba el dato (primer intento)
+      // quedaba descolgado, porque el ancho de la columna lo marca la fila
+      // con el valor real más largo y ese valor seguía a la izquierda: dos
+      // alineaciones distintas en la misma columna. Centrando también la
+      // cabecera (ver el <th> y .admin-table th.admin-col-center en
+      // global.css) todo queda en la misma línea vertical. 2026-08-28,
+      // a petición de Miq. (Desde no se toca — sigue a la izquierda.)
       const amountLabel = row.amount != null
         ? `${row.amount.toFixed(2)} ${(row.currency ?? '').toUpperCase()} / ${row.interval === 'year' ? 'año' : 'mes'}`
         : '—';
-      const amountClass = row.amount != null ? '' : 'admin-col-center';
       const renewsLabel = formatDate(row.currentPeriodEnd);
-      const renewsClass = row.currentPeriodEnd ? '' : 'admin-col-center';
       // "Desde": la fecha desde la que tiene el plan actual si la
       // tenemos (viene de admin-billing-overview, solo para planes de
       // pago/regalo); si no, la fecha de alta de la cuenta.
@@ -414,9 +415,9 @@ import Footer from '../components/Footer.astro';
               ${planOptions}
             </select>
           </td>
-          <td class="${amountClass}">${escapeHtml(amountLabel)}</td>
+          <td class="admin-col-center">${escapeHtml(amountLabel)}</td>
           <td>${sinceLabel}</td>
-          <td class="${renewsClass}">${renewsLabel}</td>
+          <td class="admin-col-center">${renewsLabel}</td>
           <td>
             <div class="admin-table-actions">
               ${row.approved === false

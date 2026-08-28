@@ -1377,11 +1377,22 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .admin-table th[data-sort]{ cursor:pointer; user-select:none; transition:color .15s ease; }
 .admin-table th[data-sort]:hover{ color:var(--ink); }
 .admin-col-center{ text-align:center; }
+/* `.admin-table th` de arriba ya fija text-align:left con más especificidad
+   (clase + elemento) que `.admin-col-center` sola (una clase) — sin este
+   selector más específico, un <th class="admin-col-center"> con texto
+   visible (como "2F Ok") se quedaba alineado a la izquierda pese a llevar
+   la clase; en "Acciones"/"Bloqueo" no se notaba por no tener texto
+   visible. 2026-08-28, a petición de Miq. */
+.admin-table th.admin-col-center{ text-align:center; }
 .admin-sort-indicator{ display:inline-block; width:9px; font-size:9px; color:var(--ink); }
 .admin-table td{
-  padding:12px 10px; border-top:1px solid var(--paper-line); color:var(--ink-soft); white-space:nowrap;
+  padding:12px 10px; color:var(--ink-soft); white-space:nowrap;
 }
-.admin-table tr:first-child td{ border-top:none; }
+/* 2026-08-28 (Miq): fuera las líneas divisorias entre filas — en su lugar,
+   franjas alternas muy suaves (blanco/var(--paper), el mismo gris clarito
+   que ya usa el sitio en buscadores y demás) para separar visualmente las
+   filas sin necesidad de bordes. */
+.admin-table tbody tr:nth-child(even){ background:var(--paper); }
 .admin-table-empty{ text-align:center; color:var(--ink-faint); padding:24px 14px; white-space:normal; }
 
 .admin-controls{
