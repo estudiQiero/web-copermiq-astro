@@ -1486,6 +1486,40 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .admin-delete-btn:disabled{ opacity:.4; cursor:not-allowed; }
 .admin-delete-btn:disabled:hover{ background:transparent; border-color:var(--stamp-red-tint); color:var(--stamp-red); }
 
+/* Utilidad genérica de accesibilidad: oculta visualmente pero deja
+   disponible para lectores de pantalla (para la cabecera vacía de la
+   columna del candado). */
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+
+/* Candado por fila (panel de Usuarios) — 2026-08-28, a petición de Miq:
+   cada fila se puede bloquear/desbloquear por separado, con el candado
+   como última columna de la tabla. El desbloqueo pide el email de esa
+   cuenta como confirmación (ver el modal #row-unlock-overlay en
+   cuenta.astro) — no es reautenticación del admin, solo "confirma que es
+   esta cuenta". */
+.admin-col-lock{ width:1%; white-space:nowrap; text-align:center; }
+.lock-btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:30px; height:30px; padding:0; border-radius:8px; border:none; cursor:pointer;
+  background:var(--paper); color:var(--ink-soft);
+}
+.lock-btn:hover{ background:var(--paper-line); color:var(--ink); }
+.lock-btn svg{ width:16px; height:16px; }
+
+/* Fila bloqueada: atenuada y sin poder tocar nada salvo el propio
+   candado (que vive en su columna aparte, excluida del pointer-events:
+   none de abajo) — así siempre se puede volver a desbloquear. */
+.admin-row.is-locked{ opacity:.55; transition:opacity .15s ease; }
+.admin-row.is-locked > td:not(.admin-col-lock){ pointer-events:none; }
+
+.admin-confirmed-checkbox{ width:17px; height:17px; cursor:pointer; accent-color:var(--accent-deep); }
+.admin-confirmed-checkbox:disabled{ cursor:not-allowed; opacity:.6; }
+
+.row-unlock-error{ color:var(--stamp-red); font-size:13.5px; margin:-6px 0 4px; }
+
 .admin-status-dot{
   display:inline-block; width:9px; height:9px; border-radius:50%;
   background:var(--accent); vertical-align:middle;

@@ -70,7 +70,7 @@ import Footer from '../components/Footer.astro';
         <div id="admin-panel" class="admin-panel" hidden>
           <h2 class="admin-panel-title">Usuarios</h2>
           <p class="admin-panel-note">
-            Todos los usuarios de Copermiq. Cambiar el plan o aprobar una cuenta aquí hace exactamente lo mismo que en el panel de la app (llama a las mismas funciones). Falta "desactivar" una cuenta ya aprobada — todavía no existe ese mecanismo en ningún lado.
+            Todos los usuarios de Copermiq. Cambiar el plan o aprobar una cuenta aquí hace exactamente lo mismo que en el panel de la app (llama a las mismas funciones). Falta "desactivar" una cuenta ya aprobada — todavía no existe ese mecanismo en ningún lado. Cada fila empieza bloqueada: usa el candado de la derecha y escribe el email de esa cuenta para poder editarla. La columna "Confirmado" está pendiente de que la app exponga el dato real de confirmación de email.
           </p>
 
           <div class="admin-controls">
@@ -96,6 +96,7 @@ import Footer from '../components/Footer.astro';
               <thead>
                 <tr>
                   <th data-sort="email">Usuario <span class="admin-sort-indicator"></span></th>
+                  <th class="admin-col-center" title="Se marca sola cuando el usuario confirma su alta por email; el admin puede forzarla a mano si el correo no le llegó.">Confirmado</th>
                   <th>Nota</th>
                   <th data-sort="plan">Plan <span class="admin-sort-indicator"></span></th>
                   <th data-sort="status">Estado <span class="admin-sort-indicator"></span></th>
@@ -103,10 +104,11 @@ import Footer from '../components/Footer.astro';
                   <th data-sort="since">Desde <span class="admin-sort-indicator"></span></th>
                   <th data-sort="renews">Renueva <span class="admin-sort-indicator"></span></th>
                   <th class="admin-col-center">Acciones</th>
+                  <th class="admin-col-lock"><span class="sr-only">Bloqueo</span></th>
                 </tr>
               </thead>
               <tbody id="admin-table-body">
-                <tr><td colspan="8" class="admin-table-empty">Cargando…</td></tr>
+                <tr><td colspan="10" class="admin-table-empty">Cargando…</td></tr>
               </tbody>
             </table>
           </div>
@@ -136,6 +138,31 @@ import Footer from '../components/Footer.astro';
       <div class="logout-actions">
         <button type="button" id="delete-user-cancel" class="btn btn-ghost">Cancelar</button>
         <button type="button" id="delete-user-confirm" class="btn btn-primary">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Desbloqueo de una fila de usuario (candado): pide el email de ESA
+       cuenta como confirmación de que es la correcta antes de dejar tocar
+       nota/plan/confirmado/acciones de la fila. Un único modal compartido
+       para todas las filas (como el de eliminar), en vez de uno por fila. -->
+  <div id="row-unlock-overlay" class="auth-overlay" hidden>
+    <div class="auth-modal logout-modal" role="dialog" aria-modal="true" aria-labelledby="row-unlock-title">
+      <button type="button" id="row-unlock-close" class="auth-close" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+      <h3 id="row-unlock-title" class="auth-heading">Desbloquear cuenta</h3>
+      <p class="logout-text" id="row-unlock-text">Escribe el email de esta cuenta para confirmar que es la que quieres editar.</p>
+      <form class="auth-form" id="row-unlock-form">
+        <label>
+          Email de la cuenta
+          <input type="email" id="row-unlock-input" autocomplete="off" placeholder="nombre@ejemplo.com" />
+        </label>
+      </form>
+      <p class="row-unlock-error" id="row-unlock-error" hidden>El email no coincide con esta cuenta.</p>
+      <div class="logout-actions">
+        <button type="button" id="row-unlock-cancel" class="btn btn-ghost">Cancelar</button>
+        <button type="button" id="row-unlock-confirm" class="btn btn-primary">Desbloquear</button>
       </div>
     </div>
   </div>
@@ -171,6 +198,21 @@ import Footer from '../components/Footer.astro';
   const deleteCancelBtn = document.getElementById('delete-user-cancel');
   const deleteConfirmBtn = document.getElementById('delete-user-confirm');
 
+  // Candado por fila: pide el email de la cuenta como confirmación antes
+  // de dejar tocar nota/plan/confirmado/acciones de esa fila. Un único
+  // modal compartido para todas las filas (como el de eliminar) — no es
+  // reautenticación del admin, solo "confirma que es esta cuenta" (ver
+  // conversación 2026-08-28 con Miq: pidió explícitamente esto, no el
+  // patrón de contraseña de admin + captcha que usa la app para sus
+  // propios candados de sección).
+  const unlockOverlay = document.getElementById('row-unlock-overlay');
+  const unlockText = document.getElementById('row-unlock-text');
+  const unlockInput = document.getElementById('row-unlock-input');
+  const unlockError = document.getElementById('row-unlock-error');
+  const unlockCloseBtn = document.getElementById('row-unlock-close');
+  const unlockCancelBtn = document.getElementById('row-unlock-cancel');
+  const unlockConfirmBtn = document.getElementById('row-unlock-confirm');
+
   // Valores reales de profiles.plan (verificado en Supabase, confirmado
   // por el lado de la app): español, no inglés — 'gratis' es el valor
   // por defecto. 'regalo' da el mismo acceso que 'suscripcion' pero sin
@@ -195,8 +237,18 @@ import Footer from '../components/Footer.astro';
   // mismo criterio que ya se usa para el icono de cerrar del modal.
   const TRASH_ICON_SVG = '<svg viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64L32 128zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z"/></svg>';
 
+  // Candado cerrado/abierto (mismo trazo que el resto de iconos en línea
+  // fina del sitio).
+  const ICON_LOCK_CLOSED = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2.2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+  const ICON_LOCK_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2.2"/><path d="M8 11V7a4 4 0 0 1 7.5-2.2"/></svg>';
+
   let allRows = [];
   let currentUserId = null;
+  // Solo una fila puede estar desbloqueada a la vez ("la cuenta activa
+  // tendrá su color natural", singular — Miq, 2026-08-28): desbloquear
+  // otra fila vuelve a bloquear la anterior automáticamente.
+  let unlockedUserId = null;
+  let pendingUnlock = null; // { userId, email } mientras el modal de desbloqueo está abierto
   let currentUserIsAdmin = false;
   let pendingDelete = null; // { userId, email } mientras el modal de borrado está abierto
   let sortState = { key: null, dir: 'asc' }; // ordenación al hacer clic en un título de columna
@@ -312,7 +364,7 @@ import Footer from '../components/Footer.astro';
     }
 
     if (!rows.length) {
-      tableBody.innerHTML = '<tr><td colspan="8" class="admin-table-empty">No hay usuarios que coincidan con la búsqueda/filtro.</td></tr>';
+      tableBody.innerHTML = '<tr><td colspan="10" class="admin-table-empty">No hay usuarios que coincidan con la búsqueda/filtro.</td></tr>';
       return;
     }
 
@@ -352,9 +404,34 @@ import Footer from '../components/Footer.astro';
       // propio admin logueado; el resto se colorea por su plan real.
       const planClass = (isSelf && currentUserIsAdmin) ? 'admin-plan-select--admin' : `admin-plan-select--${row.plan}`;
 
+      // Candado: todas las filas empiezan bloqueadas: solo la fila
+      // desbloqueada (unlockedUserId) queda con su color normal e
+      // interactiva — el resto se atenúa y queda inerte (ver .is-locked
+      // en global.css). El propio botón de candado NUNCA se desactiva,
+      // para poder volver a desbloquear.
+      const locked = row.userId !== unlockedUserId;
+      const disabledAttr = locked ? 'disabled' : '';
+      // "Confirmado por mail": todavía no hay dato real al que engancharlo
+      // (pendiente de que la sesión de la app exponga el estado real de
+      // auth.users.email_confirmed_at — ver addenda enviada el 2026-08-28).
+      // De momento el checkbox se deja siempre desmarcado y deshabilitado,
+      // con un tooltip que lo explica, para no fingir una función que
+      // todavía no guarda nada de verdad.
+      const confirmedChecked = row.emailConfirmed ? 'checked' : '';
+
       return `
-        <tr>
+        <tr class="admin-row ${locked ? 'is-locked' : ''}">
           <td>${escapeHtml(row.email ?? '—')}${row.approved === false ? ' <span class="admin-badge admin-badge-pending">Pendiente</span>' : ''}</td>
+          <td class="admin-col-center">
+            <input
+              type="checkbox"
+              class="admin-confirmed-checkbox"
+              data-user-id="${escapeHtml(row.userId ?? '')}"
+              ${confirmedChecked}
+              disabled
+              title="Cuenta confirmada por mail — pendiente de que la app exponga este dato para activarlo de verdad"
+            />
+          </td>
           <td>
             <input
               type="text"
@@ -363,10 +440,11 @@ import Footer from '../components/Footer.astro';
               value="${escapeHtml(row.note ?? '')}"
               title="${escapeHtml(row.note ?? '')}"
               placeholder="Nota…"
+              ${disabledAttr}
             />
           </td>
           <td>
-            <select class="admin-plan-select ${planClass}" data-user-id="${escapeHtml(row.userId ?? '')}" ${isSelf ? 'disabled' : ''}>
+            <select class="admin-plan-select ${planClass}" data-user-id="${escapeHtml(row.userId ?? '')}" ${isSelf ? 'disabled' : disabledAttr}>
               ${planOptions}
             </select>
           </td>
@@ -377,7 +455,7 @@ import Footer from '../components/Footer.astro';
           <td>
             <div class="admin-table-actions">
               ${row.approved === false
-                ? `<button type="button" class="admin-approve-btn" data-user-id="${escapeHtml(row.userId ?? '')}">Aprobar</button>`
+                ? `<button type="button" class="admin-approve-btn" data-user-id="${escapeHtml(row.userId ?? '')}" ${disabledAttr}>Aprobar</button>`
                 : ''}
               <button
                 type="button"
@@ -385,9 +463,19 @@ import Footer from '../components/Footer.astro';
                 data-user-id="${escapeHtml(row.userId ?? '')}"
                 data-email="${escapeHtml(row.email ?? '')}"
                 aria-label="Eliminar cuenta"
-                ${isSelf ? 'disabled title="No puedes eliminarte a ti mismo desde aquí"' : 'title="Eliminar cuenta"'}
+                ${isSelf ? 'disabled title="No puedes eliminarte a ti mismo desde aquí"' : `${disabledAttr} title="Eliminar cuenta"`}
               >${TRASH_ICON_SVG}</button>
             </div>
+          </td>
+          <td class="admin-col-lock">
+            <button
+              type="button"
+              class="lock-btn"
+              data-user-id="${escapeHtml(row.userId ?? '')}"
+              data-email="${escapeHtml(row.email ?? '')}"
+              aria-label="${locked ? 'Bloqueado — pulsa para desbloquear' : 'Desbloqueado — pulsa para bloquear'}"
+              title="${locked ? 'Bloqueado — pulsa para desbloquear' : 'Desbloqueado — pulsa para bloquear'}"
+            >${locked ? ICON_LOCK_CLOSED : ICON_LOCK_OPEN}</button>
           </td>
         </tr>
       `;
@@ -396,7 +484,7 @@ import Footer from '../components/Footer.astro';
 
   async function loadAdminTable() {
     if (!tableBody) return;
-    tableBody.innerHTML = '<tr><td colspan="8" class="admin-table-empty">Cargando…</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="10" class="admin-table-empty">Cargando…</td></tr>';
     try {
       // Tres llamadas: la lista completa de usuarios (admin-list-users,
       // de la app), el detalle de Stripe para los de pago/regalo
@@ -421,7 +509,7 @@ import Footer from '../components/Footer.astro';
       renderTable();
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error cargando los datos.';
-      tableBody.innerHTML = `<tr><td colspan="8" class="admin-table-empty">${escapeHtml(msg)}</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="10" class="admin-table-empty">${escapeHtml(msg)}</td></tr>`;
     }
   }
 
@@ -498,6 +586,29 @@ import Footer from '../components/Footer.astro';
       pendingDelete = { userId, email: email ?? '' };
       if (deleteText) deleteText.textContent = `¿Seguro que quieres eliminar la cuenta de ${email}? Se borran sus datos y su acceso, y no se puede deshacer.`;
       if (deleteOverlay instanceof HTMLElement) deleteOverlay.hidden = false;
+      return;
+    }
+
+    // Candado de la fila: `target` puede ser el propio <svg>/<path> del
+    // icono (el click "atraviesa" hasta el SVG interior del botón), así
+    // que se busca el botón con closest() en vez de mirar target directo.
+    const lockBtn = target.closest('.lock-btn');
+    if (lockBtn instanceof HTMLElement) {
+      const userId = lockBtn.dataset.userId;
+      if (!userId) return;
+      if (userId === unlockedUserId) {
+        // Ya estaba desbloqueada esta fila: el propio candado la vuelve a
+        // bloquear directamente, sin pedir nada de nuevo.
+        unlockedUserId = null;
+        renderTable();
+        return;
+      }
+      pendingUnlock = { userId, email: lockBtn.dataset.email ?? '' };
+      if (unlockText) unlockText.textContent = `Escribe el email de "${lockBtn.dataset.email ?? ''}" para confirmar que es la cuenta que quieres editar.`;
+      if (unlockInput instanceof HTMLInputElement) unlockInput.value = '';
+      if (unlockError instanceof HTMLElement) unlockError.hidden = true;
+      if (unlockOverlay instanceof HTMLElement) unlockOverlay.hidden = false;
+      unlockInput?.focus();
     }
   });
 
@@ -527,6 +638,39 @@ import Footer from '../components/Footer.astro';
     } finally {
       if (deleteConfirmBtn instanceof HTMLButtonElement) deleteConfirmBtn.disabled = false;
     }
+  });
+
+  function closeUnlockModal() {
+    pendingUnlock = null;
+    if (unlockOverlay instanceof HTMLElement) unlockOverlay.hidden = true;
+  }
+  unlockCloseBtn?.addEventListener('click', closeUnlockModal);
+  unlockCancelBtn?.addEventListener('click', closeUnlockModal);
+  unlockOverlay?.addEventListener('click', (event) => {
+    if (event.target === unlockOverlay) closeUnlockModal();
+  });
+
+  function confirmUnlock() {
+    if (!pendingUnlock || !(unlockInput instanceof HTMLInputElement)) return;
+    const typed = unlockInput.value.trim().toLowerCase();
+    const real = (pendingUnlock.email ?? '').trim().toLowerCase();
+    if (!typed || typed !== real) {
+      if (unlockError instanceof HTMLElement) unlockError.hidden = false;
+      return;
+    }
+    unlockedUserId = pendingUnlock.userId;
+    closeUnlockModal();
+    renderTable();
+  }
+  unlockConfirmBtn?.addEventListener('click', confirmUnlock);
+  unlockInput?.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      confirmUnlock();
+    }
+  });
+  unlockInput?.addEventListener('input', () => {
+    if (unlockError instanceof HTMLElement) unlockError.hidden = true;
   });
 
   searchInput?.addEventListener('input', renderTable);
