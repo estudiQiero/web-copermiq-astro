@@ -74,7 +74,6 @@ import Footer from '../components/Footer.astro';
                   <th class="admin-col-center" title="Se marca sola cuando el usuario confirma su alta por email; el admin puede forzarla a mano si el correo no le llegó.">2F Ok</th>
                   <th>Nota</th>
                   <th data-sort="plan">Plan <span class="admin-sort-indicator"></span></th>
-                  <th data-sort="status">Estado <span class="admin-sort-indicator"></span></th>
                   <th data-sort="amount">Importe <span class="admin-sort-indicator"></span></th>
                   <th data-sort="since">Desde <span class="admin-sort-indicator"></span></th>
                   <th data-sort="renews">Renueva <span class="admin-sort-indicator"></span></th>
@@ -83,7 +82,7 @@ import Footer from '../components/Footer.astro';
                 </tr>
               </thead>
               <tbody id="admin-table-body">
-                <tr><td colspan="10" class="admin-table-empty">Cargando…</td></tr>
+                <tr><td colspan="9" class="admin-table-empty">Cargando…</td></tr>
               </tbody>
             </table>
           </div>
@@ -212,16 +211,6 @@ import Footer from '../components/Footer.astro';
   // es solo la etiqueta que se muestra, para que coincida con el nombre
   // público del plan (renombrado el 2026-08-19).
   const PLAN_LABELS = { gratis: 'Gratis', suscripcion: 'Pro', regalo: 'Regalo', premium: 'Premium' };
-  const STRIPE_STATUS_LABELS = {
-    active: 'Activa',
-    trialing: 'En prueba',
-    past_due: 'Pago fallido',
-    canceled: 'Cancelada',
-    incomplete: 'Incompleta',
-    incomplete_expired: 'Incompleta (caducada)',
-    unpaid: 'Impagada',
-    paused: 'Pausada',
-  };
 
   // Icono "trash-can" de Font Awesome Free (solid), incrustado como SVG
   // en vez de cargar la fuente de iconos entera solo para este botón —
@@ -264,19 +253,15 @@ import Footer from '../components/Footer.astro';
     actionMessage.classList.toggle('error', Boolean(isError));
   }
 
-  // Valor "ordenable" de una fila para cada columna con data-sort. Estado
-  // y Plan se ordenan por su etiqueta visible (no por el valor interno),
-  // para que el orden alfabético coincida con lo que se ve en pantalla.
+  // Valor "ordenable" de una fila para cada columna con data-sort. Plan se
+  // ordena por su etiqueta visible (no por el valor interno), para que el
+  // orden alfabético coincida con lo que se ve en pantalla.
   function sortValue(row, key) {
     switch (key) {
       case 'email':
         return (row.email ?? '').toLowerCase();
       case 'plan':
         return (PLAN_LABELS[row.plan] ?? row.plan ?? '').toLowerCase();
-      case 'status': {
-        if (row.stripeStatus) return (STRIPE_STATUS_LABELS[row.stripeStatus] ?? row.stripeStatus).toLowerCase();
-        return row.plan === 'gratis' ? null : 'activo (sin stripe)';
-      }
       case 'amount':
         return row.amount ?? null;
       case 'since':
@@ -355,32 +340,22 @@ import Footer from '../components/Footer.astro';
     }
 
     if (!rows.length) {
-      tableBody.innerHTML = '<tr><td colspan="10" class="admin-table-empty">No hay usuarios que coincidan con la búsqueda/filtro.</td></tr>';
+      tableBody.innerHTML = '<tr><td colspan="9" class="admin-table-empty">No hay usuarios que coincidan con la búsqueda/filtro.</td></tr>';
       return;
     }
 
     tableBody.innerHTML = rows.map((row) => {
-      // Estado: "activa" (con o sin Stripe detrás) no aporta nada como
-      // texto — o el usuario está, o no está — así que se reduce a un
-      // punto de color (verde normal, ámbar si la suscripción ya está
-      // marcada para cancelar al final del periodo). Solo los estados
-      // que SÍ necesitan explicación (pago fallido, cancelada, en
-      // prueba…) se quedan como texto.
-      const statusCell = (() => {
-        if (row.stripeStatus === 'active') {
-          return row.cancelAtPeriodEnd
-            ? '<span class="admin-status-dot admin-status-dot-warn" title="Activa (cancela al final del periodo)"></span>'
-            : '<span class="admin-status-dot" title="Activa"></span>';
-        }
-        if (row.stripeStatus) {
-          return escapeHtml(STRIPE_STATUS_LABELS[row.stripeStatus] ?? row.stripeStatus);
-        }
-        if (row.plan === 'gratis') return '—';
-        return '<span class="admin-status-dot" title="Activo (sin Stripe)"></span>';
-      })();
+      // Importe y Renueva: cuando no hay un dato real que mostrar, el
+      // guion "—" queda centrado en su columna en vez de pegado a la
+      // izquierda (a petición de Miq, 2026-08-28) — solo en esos dos
+      // huecos, no en el resto de columnas que también pueden mostrar "—"
+      // (Desde no se toca).
       const amountLabel = row.amount != null
         ? `${row.amount.toFixed(2)} ${(row.currency ?? '').toUpperCase()} / ${row.interval === 'year' ? 'año' : 'mes'}`
         : '—';
+      const amountClass = row.amount != null ? '' : 'admin-col-center';
+      const renewsLabel = formatDate(row.currentPeriodEnd);
+      const renewsClass = row.currentPeriodEnd ? '' : 'admin-col-center';
       // "Desde": la fecha desde la que tiene el plan actual si la
       // tenemos (viene de admin-billing-overview, solo para planes de
       // pago/regalo); si no, la fecha de alta de la cuenta.
@@ -439,10 +414,9 @@ import Footer from '../components/Footer.astro';
               ${planOptions}
             </select>
           </td>
-          <td>${statusCell}</td>
-          <td>${escapeHtml(amountLabel)}</td>
+          <td class="${amountClass}">${escapeHtml(amountLabel)}</td>
           <td>${sinceLabel}</td>
-          <td>${formatDate(row.currentPeriodEnd)}</td>
+          <td class="${renewsClass}">${renewsLabel}</td>
           <td>
             <div class="admin-table-actions">
               ${row.approved === false
@@ -475,7 +449,7 @@ import Footer from '../components/Footer.astro';
 
   async function loadAdminTable() {
     if (!tableBody) return;
-    tableBody.innerHTML = '<tr><td colspan="10" class="admin-table-empty">Cargando…</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="9" class="admin-table-empty">Cargando…</td></tr>';
     try {
       // Tres llamadas: la lista completa de usuarios (admin-list-users,
       // de la app), el detalle de Stripe para los de pago/regalo
@@ -500,7 +474,7 @@ import Footer from '../components/Footer.astro';
       renderTable();
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error cargando los datos.';
-      tableBody.innerHTML = `<tr><td colspan="10" class="admin-table-empty">${escapeHtml(msg)}</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="9" class="admin-table-empty">${escapeHtml(msg)}</td></tr>`;
     }
   }
 

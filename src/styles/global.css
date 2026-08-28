@@ -1419,9 +1419,9 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 }
 .admin-note-input:focus{ outline:none; border-color:var(--accent); background:var(--white); }
 
-/* Píldora de Plan: mismo look que .admin-filter-chip/.admin-status-dot, con
-   un triangulito (blanco por defecto, marino sobre fondo blanco de
-   "Gratis" para que no desaparezca) que deja claro que es desplegable. */
+/* Píldora de Plan: mismo look que .admin-filter-chip, con un triangulito
+   (blanco por defecto, marino sobre fondo blanco de "Gratis" para que no
+   desaparezca) que deja claro que es desplegable. */
 .admin-plan-select{
   appearance:none; -webkit-appearance:none; -moz-appearance:none;
   font-family:inherit; font-size:12.5px; font-weight:600; cursor:pointer;
@@ -1493,12 +1493,6 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .admin-confirmed-checkbox:disabled{ cursor:not-allowed; opacity:.6; }
 
 .row-unlock-error{ color:var(--stamp-red); font-size:13.5px; margin:-6px 0 4px; }
-
-.admin-status-dot{
-  display:inline-block; width:9px; height:9px; border-radius:50%;
-  background:var(--accent); vertical-align:middle;
-}
-.admin-status-dot-warn{ background:var(--stamp-amber); }
 
 /* ---------- Auth modal ---------- */
 .auth-overlay{
