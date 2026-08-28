@@ -560,7 +560,13 @@ import Footer from '../components/Footer.astro';
   // Aprobar una cuenta pendiente.
   tableBody?.addEventListener('click', async (event) => {
     const target = event.target;
-    if (!(target instanceof HTMLElement)) return;
+    // Element, no HTMLElement: si el clic cae sobre el <svg>/<path> del
+    // icono (candado o papelera), el target es un SVGElement, que NO es
+    // instancia de HTMLElement — con ese guard el listener cortaba aquí
+    // mismo y closest('.lock-btn') no llegaba a ejecutarse nunca. Element
+    // es la clase común a ambos y basta para todo lo que sigue (classList,
+    // dataset y closest funcionan igual en SVGElement).
+    if (!(target instanceof Element)) return;
 
     if (target.classList.contains('admin-approve-btn')) {
       const userId = target.dataset.userId;
@@ -579,9 +585,10 @@ import Footer from '../components/Footer.astro';
       return;
     }
 
-    if (target.classList.contains('admin-delete-btn')) {
-      const userId = target.dataset.userId;
-      const email = target.dataset.email;
+    const deleteBtn = target.closest('.admin-delete-btn');
+    if (deleteBtn instanceof HTMLElement) {
+      const userId = deleteBtn.dataset.userId;
+      const email = deleteBtn.dataset.email;
       if (!userId) return;
       pendingDelete = { userId, email: email ?? '' };
       if (deleteText) deleteText.textContent = `¿Seguro que quieres eliminar la cuenta de ${email}? Se borran sus datos y su acceso, y no se puede deshacer.`;
