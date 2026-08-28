@@ -9,32 +9,38 @@
     </a>
 
     <div class="header-actions">
-      <button id="account-toggle" class="icon-btn account-btn" type="button" aria-label="Cuenta" aria-haspopup="dialog" aria-controls="auth-overlay">
-        <span class="account-icon-wrap">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.8"/>
-            <path d="M4.5 19.5c1.6-3.8 4.7-5.8 7.5-5.8s5.9 2 7.5 5.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
-          <span class="status-dot" aria-hidden="true"></span>
-        </span>
-        <span id="account-username" class="account-username"></span>
-      </button>
+      <!-- 2026-08-28 (Miq): "el interruptor de cerrar sesión, dentro de la
+           pastilla de usuario" — el botón de cerrar sesión pasa de ir suelto
+           al lado del icono de cuenta a compartir la misma píldora con él.
+           Van en un wrapper aparte (en vez de anidar un <button> dentro de
+           otro <button>, que no es válido en HTML) — el fondo de píldora
+           vive ahora en este div, no en #account-toggle (ver
+           .account-pill/.account-btn en global.css). -->
+      <div id="account-pill" class="account-pill">
+        <button id="account-toggle" class="icon-btn account-btn" type="button" aria-label="Cuenta" aria-haspopup="dialog" aria-controls="auth-overlay">
+          <span class="account-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M4.5 19.5c1.6-3.8 4.7-5.8 7.5-5.8s5.9 2 7.5 5.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            <span class="status-dot" aria-hidden="true"></span>
+          </span>
+          <span id="account-username" class="account-username"></span>
+        </button>
 
-      <!-- 2026-08-28 (Miq): botón de cerrar sesión, siempre visible junto al
-           nombre de la cuenta (antes vivía al fondo de la columna lateral de
-           /cuenta, que ahora desaparece). Icono típico de "power"
-           (semicírculo abierto arriba + rayita que lo corta), blanco sobre
-           círculo granate — mismo tono que el resto de acciones
-           destructivas del sitio (var(--stamp-red)). Solo tiene sentido con
-           sesión iniciada, así que empieza oculto (ver AuthModal.astro, que
-           lo muestra/oculta según el estado de la sesión, igual que ya hacía
-           con #menu-account-link). -->
-      <button id="header-logout-btn" class="icon-btn logout-icon-btn" type="button" aria-label="Cerrar sesión" hidden>
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 4v7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M7 6.3a7 7 0 1 0 10 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </button>
+        <!-- Icono típico de "power" (semicírculo abierto arriba + rayita
+             que lo corta), blanco sobre círculo granate — mismo tono que el
+             resto de acciones destructivas del sitio (var(--stamp-red)).
+             Solo tiene sentido con sesión iniciada, así que empieza oculto
+             (ver AuthModal.astro, que lo muestra/oculta según el estado de
+             la sesión). -->
+        <button id="header-logout-btn" class="logout-icon-btn" type="button" aria-label="Cerrar sesión" hidden>
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 4v7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M7 6.3a7 7 0 1 0 10 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
 
       <button class="icon-btn" type="button" aria-label="Carrito">
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -91,6 +97,20 @@
               <path d="M4.5 19.5c1.6-3.8 4.7-5.8 7.5-5.8s5.9 2 7.5 5.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
             </svg>
             <span>Cuenta</span>
+          </a>
+        </li>
+        <!-- 2026-08-28 (Miq): "un nuevo menu de preferencias... las
+             preferencias de color y las de idioma", sincronizadas con lo
+             que el usuario tiene elegido en la app (misma tabla
+             app_config — ver src/lib/preferences.js). Visible para
+             cualquier cuenta con sesión iniciada, no solo para el admin. -->
+        <li id="menu-item-preferencias" class="menu-account-item" hidden>
+          <a href="/cuenta#preferencias">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/>
+              <path d="M12 3.5v2.4M12 18.1v2.4M20.5 12h-2.4M5.9 12H3.5M17.7 6.3l-1.7 1.7M8 16l-1.7 1.7M17.7 17.7 16 16M8 8 6.3 6.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            </svg>
+            <span>Preferencias</span>
           </a>
         </li>
         <li id="menu-item-compras" class="menu-account-item" hidden>

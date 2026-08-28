@@ -149,14 +149,18 @@ const hasTurnstileKey = Boolean(turnstileSiteKey);
 <script>
   import { supabase, isSupabaseConfigured } from '../lib/supabaseClient.js';
   import { getMyProfile } from '../lib/billing.js';
+  import { getPreferences } from '../lib/preferences.js';
+  import { applyAccent } from '../lib/palette.js';
 
   const overlay = document.getElementById('auth-overlay');
   const closeBtn = document.querySelector('#auth-overlay .auth-close');
   const accountBtn = document.getElementById('account-toggle');
+  const accountPill = document.getElementById('account-pill');
   const accountUsernameEl = document.getElementById('account-username');
   const headerLogoutBtn = document.getElementById('header-logout-btn');
   const marketingMenuItems = Array.from(document.querySelectorAll('.menu-marketing-item'));
   const menuItemCuenta = document.getElementById('menu-item-cuenta');
+  const menuItemPreferencias = document.getElementById('menu-item-preferencias');
   const menuItemCompras = document.getElementById('menu-item-compras');
   let menuItemAdmin = document.getElementById('menu-item-admin');
 
@@ -467,6 +471,7 @@ const hasTurnstileKey = Boolean(turnstileSiteKey);
   async function renderSession(session) {
     const isSignedIn = Boolean(session?.user);
     accountBtn?.classList.toggle('is-connected', isSignedIn);
+    accountPill?.classList.toggle('is-connected', isSignedIn);
     if (accountUsernameEl) {
       accountUsernameEl.textContent = isSignedIn ? (session.user.email?.split('@')[0] ?? '') : '';
     }
@@ -475,9 +480,16 @@ const hasTurnstileKey = Boolean(turnstileSiteKey);
       if (item instanceof HTMLElement) item.hidden = isSignedIn;
     });
     if (menuItemCuenta instanceof HTMLElement) menuItemCuenta.hidden = !isSignedIn;
+    if (menuItemPreferencias instanceof HTMLElement) menuItemPreferencias.hidden = !isSignedIn;
     if (menuItemCompras instanceof HTMLElement) menuItemCompras.hidden = !isSignedIn;
 
-    if (!isSignedIn) return;
+    if (!isSignedIn) {
+      // Sin sesión, la web vuelve a su turquesa de marca de siempre (por si
+      // veníamos de tener aplicado el acento de una cuenta que acaba de
+      // cerrar sesión).
+      applyAccent(null);
+      return;
+    }
 
     const profile = await getMyProfile();
     if (profile?.is_admin) {
@@ -485,6 +497,21 @@ const hasTurnstileKey = Boolean(turnstileSiteKey);
     } else if (menuItemAdmin instanceof HTMLElement) {
       menuItemAdmin.remove();
       menuItemAdmin = null;
+    }
+
+    // 2026-08-28 (Miq): "un nuevo menu de preferencias... que éstas
+    // concuerden con las preferencias que tiene seleccionadas cada usuario
+    // en la app... el color debe ser el mismo tanto de fondo como de
+    // menús" — se lee app_config (src/lib/preferences.js, misma tabla que
+    // usa la app) y se aplica como color de cabecera/menú en TODA la web,
+    // no solo en /cuenta, porque este componente vive en Layout.astro y se
+    // carga en cada página. Si algo falla (tabla sin migrar, sin red…) no
+    // se rompe nada: se queda con el turquesa de marca de siempre.
+    try {
+      const prefs = await getPreferences();
+      applyAccent(prefs);
+    } catch (err) {
+      console.warn('[Copermiq] No se pudieron aplicar las preferencias de color:', err.message);
     }
   }
 

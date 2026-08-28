@@ -143,12 +143,26 @@ img{ max-width:100%; display:block; }
 .icon-btn svg{ width:20px; height:20px; }
 .icon-btn:hover{ background:rgba(233,240,247,0.1); }
 
-/* Icono de cuenta: circular por defecto, se convierte en píldora con
-   nombre + punto verde de "conectado" cuando hay sesión iniciada. */
+/* Contenedor compartido del icono de cuenta + el botón de cerrar sesión —
+   2026-08-28 (Miq): "el interruptor de cerrar sesión dentro de la pastilla
+   de usuario". El fondo de píldora vive aquí (no en .account-btn), porque
+   ahora la píldora aloja dos botones hermanos, no uno solo. Sin sesión
+   iniciada, no lleva estilo propio — #account-toggle se ve exactamente
+   igual que antes (círculo suelto de .icon-btn). */
+.account-pill{ display:inline-flex; align-items:center; }
+.account-pill.is-connected{
+  gap:2px; padding:2px; border-radius:999px;
+  background:rgba(233,240,247,0.1);
+}
+
+/* Icono de cuenta: circular por defecto, se convierte en la mitad
+   izquierda de la píldora (nombre + punto verde de "conectado") cuando hay
+   sesión iniciada — sin fondo propio, porque el de la píldora entera ya lo
+   pone .account-pill.is-connected de arriba. */
 .account-btn.is-connected{
   width:auto; height:34px;
-  padding:0 14px 0 4px; gap:8px;
-  background:rgba(233,240,247,0.1);
+  padding:0 10px 0 4px; gap:8px;
+  background:transparent;
 }
 .account-icon-wrap{ position:relative; display:inline-flex; width:20px; height:20px; flex-shrink:0; }
 .account-icon-wrap svg{ width:20px; height:20px; }
@@ -175,6 +189,38 @@ img{ max-width:100%; display:block; }
    muestra con sesión iniciada (ver AuthModal.astro). */
 .logout-icon-btn{ background:var(--stamp-red); color:#fff; }
 .logout-icon-btn:hover{ background:#7E2A21; }
+/* Dentro de la píldora compartida es más pequeño que un .icon-btn normal
+   (38px), para caber junto al icono de cuenta sin desbordar la altura de
+   la píldora (34px, igual que .account-btn.is-connected). */
+.account-pill .logout-icon-btn{ width:30px; height:30px; }
+.account-pill .logout-icon-btn svg{ width:16px; height:16px; }
+
+/* Acento de usuario — 2026-08-28, a petición de Miq: "el color debe ser el
+   mismo tanto de fondo como de menús", a juego con lo que el usuario tiene
+   elegido en la app (Preferencias → Interfaz). --user-accent-bg/fg los
+   pone src/lib/palette.js (applyAccent()) en <html>, y la clase
+   .has-user-accent en <body> es lo que activa este bloque — solo con
+   sesión iniciada y preferencias ya cargadas (ver AuthModal.astro); sin
+   eso, la cabecera/menú se quedan con el turquesa de marca de siempre
+   (var(--navy)). El botón de cerrar sesión (fondo granate, siempre igual)
+   se deja fuera a propósito: es una acción destructiva, no debe camuflarse
+   con el color elegido por el usuario. */
+body.has-user-accent .site-header,
+body.has-user-accent .site-menu{
+  background:var(--user-accent-bg);
+}
+body.has-user-accent .brand-name,
+body.has-user-accent .icon-btn,
+body.has-user-accent .account-username,
+body.has-user-accent .menu-nav-list a{
+  color:var(--user-accent-fg);
+}
+body.has-user-accent .menu-bar{
+  background:var(--user-accent-fg);
+}
+body.has-user-accent .status-dot{
+  border-color:var(--user-accent-bg);
+}
 
 /* Hamburguesa con animación de cruz */
 .menu-toggle{
@@ -1352,6 +1398,50 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .account-info-row{ display:flex; flex-wrap:wrap; gap:4px 10px; font-size:14.5px; }
 .account-info-row dt{ color:var(--ink-faint); min-width:140px; }
 .account-info-row dd{ margin:0; color:var(--ink); font-weight:600; }
+
+/* "Preferencias": color e idioma, sincronizados con app_config (misma
+   tabla que usa la app) — 2026-08-28, a petición de Miq. Vive dentro de
+   .account-info-panel, igual que "Cuenta"; estos estilos son propios (no
+   reutilizan .toggle-pill/.swatch de la demo de "A tu manera" en
+   Customization.astro porque esos dependen de variables --demo-* que solo
+   existen dentro de esa sección oscura). */
+.account-panel-desc{ margin:10px 0 0; font-size:14px; color:var(--ink-soft); max-width:520px; }
+.pref-section{ margin-top:28px; }
+.pref-section:first-of-type{ margin-top:18px; }
+.pref-section-title{ margin:0 0 12px; font-size:15px; font-weight:700; color:var(--ink); }
+
+.pref-swatch-row{ display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:16px; }
+.pref-swatch{
+  width:34px; height:34px; border-radius:50%; border:none; padding:0; cursor:pointer;
+  box-shadow:0 0 0 1px var(--paper-line);
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.pref-swatch:hover{ transform:translateY(-1px); }
+.pref-swatch.is-active{ box-shadow:0 0 0 2px var(--card), 0 0 0 4px var(--accent-deep); }
+.pref-swatch-add{
+  display:inline-flex; align-items:center; justify-content:center;
+  background:var(--paper); color:var(--ink-faint);
+  overflow:hidden;
+}
+.pref-swatch-add input[type="color"]{
+  width:140%; height:140%; border:none; padding:0; margin:0; cursor:pointer;
+  background:none;
+}
+
+.pref-tone-toggle, .pref-lang-toggle{
+  display:inline-flex; background:var(--paper); border:1px solid var(--paper-line);
+  border-radius:999px; padding:3px;
+}
+.pref-tone-option, .pref-lang-option{
+  font-family:inherit; font-size:13px; font-weight:600; padding:7px 16px; border-radius:999px;
+  color:var(--ink-faint); background:transparent; border:none; cursor:pointer;
+  transition:background .15s ease, color .15s ease;
+}
+.pref-tone-option.is-active, .pref-lang-option.is-active{ background:var(--navy); color:var(--navy-text); }
+
+.pref-lang-note{ margin:10px 0 0; font-size:13px; color:var(--ink-faint); }
+.pref-save-message{ margin:22px 0 0; font-size:13.5px; color:var(--accent-deep); }
+.pref-save-message.is-error{ color:var(--stamp-red); }
 
 /* ---------- Panel de administración ---------- */
 /* 2026-08-28 (Miq): "un poco más ancha" que el resto del contenido de la

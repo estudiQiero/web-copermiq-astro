@@ -108,6 +108,40 @@ import Footer from '../components/Footer.astro';
           </dl>
         </div>
 
+        <!-- "Preferencias": color e idioma, sincronizados con app_config
+             (misma tabla que usa la app en Preferencias → Interfaz) —
+             2026-08-28, a petición de Miq. El color elegido aquí se aplica
+             de inmediato a la cabecera y al menú de toda la web (ver
+             applyAccent() en src/lib/palette.js, invocada también desde
+             AuthModal.astro en cada página). El idioma se guarda y queda
+             sincronizado con la app, pero la propia web todavía no tiene
+             traducción — se avisa en el propio panel para no dar a
+             entender que cambia el idioma de esta página. -->
+        <div id="preferencias-panel" class="account-info-panel" hidden>
+          <h2 class="admin-panel-title">Preferencias</h2>
+          <p class="account-panel-desc">Se guardan en tu cuenta de Copermiq — el mismo color y el mismo idioma que elijas aquí los verás también en la app.</p>
+
+          <div class="pref-section">
+            <h3 class="pref-section-title">Color</h3>
+            <div class="pref-swatch-row" id="pref-swatch-row"></div>
+            <div class="pref-tone-toggle" id="pref-tone-toggle" role="group" aria-label="Tono">
+              <button type="button" class="pref-tone-option" data-tone="dark">Oscuro</button>
+              <button type="button" class="pref-tone-option" data-tone="light">Claro</button>
+            </div>
+          </div>
+
+          <div class="pref-section">
+            <h3 class="pref-section-title">Idioma</h3>
+            <div class="pref-lang-toggle" id="pref-lang-toggle" role="group" aria-label="Idioma">
+              <button type="button" class="pref-lang-option" data-lang="es">Castellano</button>
+              <button type="button" class="pref-lang-option" data-lang="ca">Català</button>
+            </div>
+            <p class="pref-lang-note">De momento esto solo cambia el idioma de la app — esta web todavía se ve solo en castellano.</p>
+          </div>
+
+          <p class="pref-save-message" id="pref-save-message" hidden></p>
+        </div>
+
         <!-- "Compras": de momento no hay nada que mostrar (no hay todavía
              compra de plantillas ni Stripe activo en la web). -->
         <div id="compras-panel" class="account-info-panel" hidden>
@@ -174,13 +208,20 @@ import Footer from '../components/Footer.astro';
     saveAdminUserNote,
     adminSetEmailConfirmed,
   } from '../lib/billing.js';
+  import { getPreferences, savePreferences } from '../lib/preferences.js';
+  import { PALETTE, applyAccent } from '../lib/palette.js';
 
   const main = document.getElementById('account-main');
   const adminPanel = document.getElementById('admin-panel');
   const cuentaPanel = document.getElementById('cuenta-panel');
+  const preferenciasPanel = document.getElementById('preferencias-panel');
   const comprasPanel = document.getElementById('compras-panel');
   const cuentaPanelEmail = document.getElementById('cuenta-panel-email');
   const cuentaPanelLastLogin = document.getElementById('cuenta-panel-last-login');
+  const prefSwatchRow = document.getElementById('pref-swatch-row');
+  const prefToneToggle = document.getElementById('pref-tone-toggle');
+  const prefLangToggle = document.getElementById('pref-lang-toggle');
+  const prefSaveMessage = document.getElementById('pref-save-message');
   const tableBody = document.getElementById('admin-table-body');
   const searchInput = document.getElementById('admin-search');
   const filterChips = Array.from(document.querySelectorAll('.admin-filter-chip'));
@@ -245,6 +286,17 @@ import Footer from '../components/Footer.astro';
 
   function formatDate(value) {
     return value ? new Date(value).toLocaleDateString('es-ES') : '—';
+  }
+
+  // "0,95€/mes" en vez de "0.95 EUR / mes" — símbolo en vez de código de
+  // moneda, y coma decimal en vez de punto (2026-08-28, a petición de
+  // Miq). El símbolo solo se da por sentado para euros: si algún día
+  // apareciera otra moneda en Stripe, se sigue viendo su código en vez de
+  // fingir que es €.
+  function formatAmount(amount, currency, interval) {
+    const symbol = (currency ?? '').toLowerCase() === 'eur' ? '€' : (currency ?? '').toUpperCase();
+    const period = interval === 'year' ? 'año' : 'mes';
+    return `${amount.toFixed(2).replace('.', ',')}${symbol}/${period}`;
   }
 
   function activeFilters() {
@@ -400,7 +452,7 @@ import Footer from '../components/Footer.astro';
       // global.css) todo queda en la misma línea vertical. 2026-08-28,
       // a petición de Miq. (Desde no se toca — sigue a la izquierda.)
       const amountLabel = row.amount != null
-        ? `${row.amount.toFixed(2)} ${(row.currency ?? '').toUpperCase()} / ${row.interval === 'year' ? 'año' : 'mes'}`
+        ? formatAmount(row.amount, row.currency, row.interval)
         : '—';
       const renewsLabel = formatDate(row.currentPeriodEnd);
       // "Desde": la fecha desde la que tiene el plan actual si la
@@ -736,7 +788,7 @@ import Footer from '../components/Footer.astro';
   // #admin sin ser admin, cae a la sección por defecto: Administración para
   // el admin, Cuenta para el resto — así una cuenta normal que entra
   // directamente en /cuenta (sin pasar por el menú) sigue viendo algo útil.
-  const VALID_PANELS = ['admin', 'cuenta', 'compras'];
+  const VALID_PANELS = ['admin', 'cuenta', 'preferencias', 'compras'];
 
   function currentPanelFromHash() {
     const hash = (window.location.hash || '').replace('#', '');
@@ -747,7 +799,135 @@ import Footer from '../components/Footer.astro';
     const target = (name === 'admin' && !currentUserIsAdmin) ? 'cuenta' : name;
     if (adminPanel instanceof HTMLElement) adminPanel.hidden = target !== 'admin';
     if (cuentaPanel instanceof HTMLElement) cuentaPanel.hidden = target !== 'cuenta';
+    if (preferenciasPanel instanceof HTMLElement) preferenciasPanel.hidden = target !== 'preferencias';
     if (comprasPanel instanceof HTMLElement) comprasPanel.hidden = target !== 'compras';
+  }
+
+  // ---------------------------------------------------------------------
+  // Panel "Preferencias" (2026-08-28, a petición de Miq): color e idioma,
+  // leídos/guardados en app_config (src/lib/preferences.js), la misma
+  // tabla que usa la app. El color elegido se aplica al instante a la
+  // cabecera/menú de esta misma página vía applyAccent() — la misma
+  // función que ya aplica AuthModal.astro en cada carga de página.
+  // ---------------------------------------------------------------------
+
+  let currentPrefs = null;
+
+  function renderPresetSwatches(prefs) {
+    if (!(prefSwatchRow instanceof HTMLElement)) return;
+    prefSwatchRow.innerHTML = '';
+    const tone = prefs.uiMode === 'light' ? 'light' : 'dark';
+
+    Object.entries(PALETTE).forEach(([key, def]) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pref-swatch';
+      btn.dataset.key = key;
+      btn.title = def.label;
+      btn.setAttribute('aria-label', def.label);
+      btn.style.background = def[tone].bg;
+      if (prefs.uiColor === key) btn.classList.add('is-active');
+      btn.addEventListener('click', () => selectColor(key, null));
+      prefSwatchRow.appendChild(btn);
+    });
+
+    // Colores personalizados ya guardados desde la app (hasta 4 huecos,
+    // `customColors`) — se pueden elegir aquí, pero no se crean ni se
+    // editan desde la web (eso se queda en la app, que es quien gestiona
+    // esos huecos y su bloqueo).
+    (Array.isArray(prefs.customColors) ? prefs.customColors : []).forEach((slot, index) => {
+      if (!slot?.hex) return;
+      const key = `custom:${index}`;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pref-swatch';
+      btn.dataset.key = key;
+      btn.title = 'Color personalizado';
+      btn.setAttribute('aria-label', 'Color personalizado');
+      btn.style.background = slot.hex;
+      if (prefs.uiColor === key) btn.classList.add('is-active');
+      btn.addEventListener('click', () => selectColor(key, null));
+      prefSwatchRow.appendChild(btn);
+    });
+
+    // "+" para elegir un color nuevo con el selector nativo del navegador.
+    const customLabel = document.createElement('label');
+    customLabel.className = 'pref-swatch pref-swatch-add';
+    customLabel.title = 'Color personalizado';
+    customLabel.setAttribute('aria-label', 'Elegir color personalizado');
+    if (prefs.uiColor === 'custom') {
+      customLabel.classList.add('is-active');
+      if (prefs.customColorHex) customLabel.style.background = prefs.customColorHex;
+    }
+    const customInput = document.createElement('input');
+    customInput.type = 'color';
+    customInput.value = prefs.customColorHex || '#14B8A6';
+    customInput.addEventListener('input', () => selectColor('custom', customInput.value));
+    customLabel.appendChild(customInput);
+    prefSwatchRow.appendChild(customLabel);
+  }
+
+  function updateToneToggle(prefs) {
+    prefToneToggle?.querySelectorAll('.pref-tone-option').forEach((btn) => {
+      const tone = prefs.uiMode === 'light' ? 'light' : 'dark';
+      btn.classList.toggle('is-active', btn.getAttribute('data-tone') === tone);
+    });
+  }
+
+  function updateLangToggle(prefs) {
+    prefLangToggle?.querySelectorAll('.pref-lang-option').forEach((btn) => {
+      btn.classList.toggle('is-active', btn.getAttribute('data-lang') === prefs.language);
+    });
+  }
+
+  async function persistPreferences(partial, successMessage) {
+    currentPrefs = { ...currentPrefs, ...partial };
+    // Previsualización al instante, sin esperar a que termine de guardar.
+    applyAccent(currentPrefs);
+    renderPresetSwatches(currentPrefs);
+    updateToneToggle(currentPrefs);
+    updateLangToggle(currentPrefs);
+
+    if (prefSaveMessage instanceof HTMLElement) {
+      prefSaveMessage.hidden = false;
+      prefSaveMessage.classList.remove('is-error');
+      prefSaveMessage.textContent = 'Guardando…';
+    }
+    try {
+      await savePreferences(partial);
+      if (prefSaveMessage instanceof HTMLElement) prefSaveMessage.textContent = successMessage;
+    } catch (err) {
+      if (prefSaveMessage instanceof HTMLElement) {
+        prefSaveMessage.classList.add('is-error');
+        prefSaveMessage.textContent = err.message || 'No se pudo guardar. Inténtalo de nuevo.';
+      }
+    }
+  }
+
+  function selectColor(uiColor, customColorHex) {
+    const partial = { uiColor };
+    if (uiColor === 'custom') partial.customColorHex = customColorHex ?? currentPrefs?.customColorHex ?? null;
+    persistPreferences(partial, 'Color guardado.');
+  }
+
+  prefToneToggle?.querySelectorAll('.pref-tone-option').forEach((btn) => {
+    btn.addEventListener('click', () => persistPreferences({ uiMode: btn.getAttribute('data-tone') }, 'Tono guardado.'));
+  });
+
+  prefLangToggle?.querySelectorAll('.pref-lang-option').forEach((btn) => {
+    btn.addEventListener('click', () => persistPreferences({ language: btn.getAttribute('data-lang') }, 'Idioma guardado.'));
+  });
+
+  async function loadPreferencesPanel() {
+    try {
+      currentPrefs = await getPreferences();
+    } catch (err) {
+      console.warn('[Copermiq] No se pudieron leer las preferencias:', err.message);
+      currentPrefs = { uiColor: 'verde', customColorHex: null, customColors: [], uiMode: 'dark', contentMode: 'light', language: 'es' };
+    }
+    renderPresetSwatches(currentPrefs);
+    updateToneToggle(currentPrefs);
+    updateLangToggle(currentPrefs);
   }
 
   function formatDateTime(value) {
@@ -772,6 +952,7 @@ import Footer from '../components/Footer.astro';
       currentUserIsAdmin = true;
       loadAdminTable();
     }
+    loadPreferencesPanel();
     showPanel(currentPanelFromHash() ?? (currentUserIsAdmin ? 'admin' : 'cuenta'));
   }
 
