@@ -186,9 +186,25 @@ img{ max-width:100%; display:block; }
    que el resto de acciones destructivas del sitio). A diferencia del resto
    de .icon-btn, este lleva su fondo siempre visible (no solo al hover), de
    forma que se distinga claramente del icono de cuenta de al lado. Solo se
-   muestra con sesión iniciada (ver AuthModal.astro). */
-.logout-icon-btn{ background:var(--stamp-red); color:#fff; }
+   muestra con sesión iniciada (ver AuthModal.astro).
+   2026-08-28 (Miq, 2ª vuelta): "redondo y sin marco ni relieve" — al
+   sacarlo de la clase compartida `.icon-btn` (para poder darle su propio
+   tamaño dentro de la píldora) se quedó sin ese reset y salía con el
+   botón por defecto del navegador (borde + relieve, esquinas rectas). Se
+   repite aquí el mismo reset, más `appearance:none` porque algunos
+   navegadores dibujan su propio borde/sombra nativos en <button> incluso
+   con `border:none`. */
+.logout-icon-btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:38px; height:38px; border-radius:999px;
+  border:none; padding:0; margin:0; cursor:pointer;
+  appearance:none; -webkit-appearance:none;
+  box-shadow:none;
+  background:var(--stamp-red); color:#fff;
+  transition:background .15s ease;
+}
 .logout-icon-btn:hover{ background:#7E2A21; }
+.logout-icon-btn svg{ width:20px; height:20px; }
 /* Dentro de la píldora compartida es más pequeño que un .icon-btn normal
    (38px), para caber junto al icono de cuenta sin desbordar la altura de
    la píldora (34px, igual que .account-btn.is-connected). */
