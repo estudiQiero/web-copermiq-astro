@@ -1315,26 +1315,34 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 /* 2026-08-21 (Miq): rediseñada como columna lateral fija + contenido, en
    vez del saludo centrado que había antes — ver el comentario largo al
    principio de cuenta.astro para el contexto completo (por qué, y qué
-   cambió en el icono de cuenta de la cabecera). */
+   cambió en el icono de cuenta de la cabecera).
+   2026-08-28 (Miq): la columna lateral pasa a ir "enganchada" a los tres
+   bordes — izquierda, cabecera arriba, footer abajo — sin esquinas
+   redondeadas, en vez de flotar como tarjeta con margen alrededor. Se
+   quita el `<div class="wrap account-shell">` que envolvía sidebar+
+   contenido (el `.wrap` metía 24px de margen a los lados, que es
+   justo lo que impedía que la columna tocase el borde real de la
+   ventana) — ahora `.account-page` (ya `flex:1 0 auto` dentro del body
+   flex-column, así que ya ocupa exactamente el hueco entre cabecera y
+   footer) es DIRECTAMENTE la fila flex de sidebar+contenido, a todo lo
+   ancho del viewport. Al ser flex con `align-items:stretch` (valor por
+   defecto, no hace falta declararlo), la propia sidebar se estira sola
+   hasta la altura de `.account-page` — sin `position:sticky` ni
+   `min-height` calculados a mano como antes. El contenido recupera su
+   `.wrap` (centrado, 1140px, con el padding de siempre) dentro de su
+   propia columna, para que la tabla de usuarios no quede pegada al
+   borde también. */
 .account-page{
   flex:1 0 auto;
-  padding:40px 24px 64px;
+  display:flex;
 }
-.account-shell{ display:flex; align-items:flex-start; gap:28px; }
-
 .account-sidebar{
   flex:0 0 240px; width:240px;
   display:flex; flex-direction:column; gap:28px;
   background:var(--navy); color:var(--navy-text);
-  border-radius:var(--radius-lg);
   padding:24px 18px;
-  position:sticky; top:96px;
-  /* Deja la columna tan alta como el viewport lo permita (menos la
-     cabecera/margen de arriba y algo de aire abajo), para que el botón de
-     "Cerrar sesión" quede pegado a la base de la columna —igual que en la
-     app— sin depender de que el contenido de al lado sea largo. */
-  min-height:calc(100vh - 220px);
 }
+.account-content-col{ flex:1; min-width:0; padding:40px 0 64px; }
 .account-sidebar-user{ display:flex; flex-direction:column; gap:4px; }
 .account-sidebar-label{ font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; color:rgba(233,240,247,0.6); }
 .account-sidebar-email{ font-family:'Zilla Slab', serif; font-weight:700; font-size:16px; line-height:1.3; word-break:break-word; }
@@ -1365,14 +1373,13 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .account-logout-btn svg{ width:17px; height:17px; flex-shrink:0; }
 .account-logout-btn:hover{ background:#7E2A21; }
 
-.account-content{ flex:1; min-width:0; }
 .account-empty-state{ color:var(--ink-faint); font-size:14.5px; padding:10px 2px; }
 
 @media (max-width:900px){
-  .account-shell{ flex-direction:column; }
+  .account-page{ flex-direction:column; }
   .account-sidebar{
     width:100%; flex-direction:row; align-items:center; flex-wrap:wrap;
-    position:static; min-height:0; gap:14px;
+    gap:14px;
   }
   .account-sidebar-user{ flex:1 1 auto; }
   .account-nav{ flex-direction:row; flex:0 0 auto; }

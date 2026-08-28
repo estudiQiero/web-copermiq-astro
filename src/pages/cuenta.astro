@@ -37,34 +37,35 @@ import Footer from '../components/Footer.astro';
   <Header />
 
   <main id="account-main" class="account-page" hidden>
-    <div class="wrap account-shell">
-      <aside class="account-sidebar">
-        <div class="account-sidebar-user">
-          <span class="account-sidebar-label">Tu cuenta</span>
-          <span class="account-sidebar-email" id="account-email">—</span>
-        </div>
+    <aside class="account-sidebar">
+      <div class="account-sidebar-user">
+        <span class="account-sidebar-label">Tu cuenta</span>
+        <span class="account-sidebar-email" id="account-email">—</span>
+      </div>
 
-        <nav class="account-nav" aria-label="Panel de cuenta">
-          <button type="button" class="account-nav-item is-active" id="account-nav-admin" hidden>
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.7"/>
-              <path d="M3.5 18c1.2-3 3.4-4.6 5.5-4.6s4.3 1.6 5.5 4.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-              <circle cx="17" cy="7.5" r="2.2" stroke="currentColor" stroke-width="1.7"/>
-              <path d="M14.8 13.2c1.9.4 3.5 1.9 4.4 4.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-            </svg>
-            <span>Administración</span>
-          </button>
-        </nav>
-
-        <button type="button" id="account-logout-btn" class="account-logout-btn">
+      <nav class="account-nav" aria-label="Panel de cuenta">
+        <button type="button" class="account-nav-item is-active" id="account-nav-admin" hidden>
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M9 4H6a2 2 0 00-2 2v12a2 2 0 002 2h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M16 15l4-3-4-3M20 12H9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M3.5 18c1.2-3 3.4-4.6 5.5-4.6s4.3 1.6 5.5 4.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            <circle cx="17" cy="7.5" r="2.2" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M14.8 13.2c1.9.4 3.5 1.9 4.4 4.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
           </svg>
-          <span>Cerrar sesión</span>
+          <span>Administración</span>
         </button>
-      </aside>
+      </nav>
 
+      <button type="button" id="account-logout-btn" class="account-logout-btn">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M9 4H6a2 2 0 00-2 2v12a2 2 0 002 2h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 15l4-3-4-3M20 12H9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Cerrar sesión</span>
+      </button>
+    </aside>
+
+    <div class="account-content-col">
+      <div class="wrap">
       <div class="account-content">
         <div id="admin-panel" class="admin-panel" hidden>
           <h2 class="admin-panel-title">Usuarios</h2>
@@ -117,6 +118,7 @@ import Footer from '../components/Footer.astro';
         <div id="account-empty-state" class="account-empty-state">
           <p>De momento no hay nada más que configurar aquí.</p>
         </div>
+      </div>
       </div>
     </div>
   </main>
