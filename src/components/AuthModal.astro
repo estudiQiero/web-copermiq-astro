@@ -148,12 +148,17 @@ const hasTurnstileKey = Boolean(turnstileSiteKey);
 
 <script>
   import { supabase, isSupabaseConfigured } from '../lib/supabaseClient.js';
+  import { getMyProfile } from '../lib/billing.js';
 
   const overlay = document.getElementById('auth-overlay');
   const closeBtn = document.querySelector('#auth-overlay .auth-close');
   const accountBtn = document.getElementById('account-toggle');
   const accountUsernameEl = document.getElementById('account-username');
-  const menuAccountLink = document.getElementById('menu-account-link');
+  const headerLogoutBtn = document.getElementById('header-logout-btn');
+  const marketingMenuItems = Array.from(document.querySelectorAll('.menu-marketing-item'));
+  const menuItemCuenta = document.getElementById('menu-item-cuenta');
+  const menuItemCompras = document.getElementById('menu-item-compras');
+  let menuItemAdmin = document.getElementById('menu-item-admin');
 
   const tabs = document.querySelectorAll('.auth-tab');
   const loginForm = document.getElementById('auth-login-form');
@@ -205,10 +210,6 @@ const hasTurnstileKey = Boolean(turnstileSiteKey);
   // 2026-08-21 (Miq): con sesión iniciada, el icono de cuenta debe llevar
   // DIRECTAMENTE a /cuenta — antes abría aquí mismo la confirmación de
   // cerrar sesión, y Miq no tenía ninguna forma rápida de llegar al panel.
-  // Cerrar sesión se ha movido a un botón fijo abajo del todo en la
-  // columna lateral de /cuenta (ver ese archivo) — el modal de
-  // confirmación (openLogoutConfirm, más abajo) sigue existiendo tal cual,
-  // solo cambia desde dónde se dispara.
   accountBtn?.addEventListener('click', () => {
     if (accountBtn.classList.contains('is-connected')) {
       window.location.href = '/cuenta';
@@ -216,6 +217,11 @@ const hasTurnstileKey = Boolean(turnstileSiteKey);
     }
     openModal();
   });
+  // 2026-08-28 (Miq): botón dedicado de cerrar sesión en la cabecera (icono
+  // de "power", junto al nombre de la cuenta) — sustituye al botón que
+  // vivía al fondo de la columna lateral de /cuenta, que desaparece con
+  // este mismo cambio.
+  headerLogoutBtn?.addEventListener('click', openLogoutConfirm);
   closeBtn?.addEventListener('click', closeModal);
   overlay?.addEventListener('click', (event) => {
     if (event.target === overlay) closeModal();
@@ -237,12 +243,10 @@ const hasTurnstileKey = Boolean(turnstileSiteKey);
     if (logoutOverlay && !logoutOverlay.hidden) closeLogoutConfirm();
   });
 
-  // 2026-08-21: el botón de "Cerrar sesión" ahora vive en la columna
-  // lateral de /cuenta (cuenta.astro), no aquí — pero el modal de
-  // confirmación (#logout-overlay) sigue viviendo en este componente,
-  // porque <AuthModal /> se incluye en TODAS las páginas vía Layout.astro
-  // y así el modal solo existe una vez. cuenta.astro dispara este evento
-  // en vez de duplicar la lógica del modal.
+  // Otros componentes pueden pedir la confirmación de cerrar sesión sin
+  // duplicar su lógica, disparando este evento — el modal (#logout-overlay)
+  // vive aquí porque <AuthModal /> se incluye en TODAS las páginas vía
+  // Layout.astro, así que solo existe una vez.
   document.addEventListener('copermiq:open-logout-confirm', openLogoutConfirm);
 
   tabs.forEach((tab) => {
@@ -450,16 +454,38 @@ const hasTurnstileKey = Boolean(turnstileSiteKey);
     setMessage('Cuenta creada. Revisa tu email para confirmarla antes de iniciar sesión.', 'success');
   });
 
-  // Refleja el estado de sesión en el icono de cuenta de la cabecera:
-  // nombre de usuario + punto verde de "conectado", y muestra/oculta el
-  // enlace "Mi cuenta" del menú (solo tiene sentido con sesión iniciada).
-  function renderSession(session) {
+  // Refleja el estado de sesión en la cabecera: nombre de usuario + punto
+  // verde de "conectado", el botón de cerrar sesión (icono "power"), y qué
+  // items tiene el menú principal. 2026-08-28 (Miq): con sesión iniciada el
+  // menú de marketing (Funciones, Precios…) no sirve de nada — se oculta
+  // entero y en su lugar aparecen Cuenta y Compras, más Administración
+  // SOLO para la cuenta con profiles.is_admin = true. Administración no se
+  // deja simplemente oculta para el resto de cuentas: en cuanto sabemos que
+  // no es admin, se quita del DOM del todo (element.remove()) — es un
+  // privilegio de administración, no un item "escondido" que cualquiera
+  // pueda encontrar inspeccionando la página.
+  async function renderSession(session) {
     const isSignedIn = Boolean(session?.user);
     accountBtn?.classList.toggle('is-connected', isSignedIn);
     if (accountUsernameEl) {
       accountUsernameEl.textContent = isSignedIn ? (session.user.email?.split('@')[0] ?? '') : '';
     }
-    if (menuAccountLink instanceof HTMLElement) menuAccountLink.hidden = !isSignedIn;
+    if (headerLogoutBtn instanceof HTMLElement) headerLogoutBtn.hidden = !isSignedIn;
+    marketingMenuItems.forEach((item) => {
+      if (item instanceof HTMLElement) item.hidden = isSignedIn;
+    });
+    if (menuItemCuenta instanceof HTMLElement) menuItemCuenta.hidden = !isSignedIn;
+    if (menuItemCompras instanceof HTMLElement) menuItemCompras.hidden = !isSignedIn;
+
+    if (!isSignedIn) return;
+
+    const profile = await getMyProfile();
+    if (profile?.is_admin) {
+      if (menuItemAdmin instanceof HTMLElement) menuItemAdmin.hidden = false;
+    } else if (menuItemAdmin instanceof HTMLElement) {
+      menuItemAdmin.remove();
+      menuItemAdmin = null;
+    }
   }
 
   if (supabase) {

@@ -167,6 +167,15 @@ img{ max-width:100%; display:block; }
 }
 .account-btn.is-connected .account-username{ display:inline; }
 
+/* Botón de cerrar sesión de la cabecera — 2026-08-28 (Miq): icono de
+   "power" en blanco sobre círculo granate (var(--stamp-red), mismo tono
+   que el resto de acciones destructivas del sitio). A diferencia del resto
+   de .icon-btn, este lleva su fondo siempre visible (no solo al hover), de
+   forma que se distinga claramente del icono de cuenta de al lado. Solo se
+   muestra con sesión iniciada (ver AuthModal.astro). */
+.logout-icon-btn{ background:var(--stamp-red); color:#fff; }
+.logout-icon-btn:hover{ background:#7E2A21; }
+
 /* Hamburguesa con animación de cruz */
 .menu-toggle{
   display:inline-flex; flex-direction:column; align-items:center; justify-content:center;
@@ -233,10 +242,15 @@ img{ max-width:100%; display:block; }
   gap:4px 6px; margin:0; padding:18px 0;
 }
 .menu-nav-list a{
-  display:block; padding:10px 16px; border-radius:8px;
+  display:flex; align-items:center; gap:10px;
+  padding:10px 16px; border-radius:8px;
   font-size:15px; color:var(--navy-text);
   transition:background .15s ease, color .15s ease;
 }
+/* Icono a la izquierda del texto — solo lo llevan los items de cuenta
+   (Administración/Cuenta/Compras); los de marketing no tienen svg dentro
+   del <a>, así que esta regla no les afecta. */
+.menu-account-item svg{ width:18px; height:18px; flex-shrink:0; }
 .menu-nav-list a:hover{ background:rgba(233,240,247,0.08); }
 
 /* ---------- Hero ---------- */
@@ -1313,85 +1327,45 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 
 /* ---------- Página de cuenta (/cuenta) ---------- */
 /* 2026-08-21 (Miq): rediseñada como columna lateral fija + contenido, en
-   vez del saludo centrado que había antes — ver el comentario largo al
-   principio de cuenta.astro para el contexto completo (por qué, y qué
-   cambió en el icono de cuenta de la cabecera).
-   2026-08-28 (Miq): la columna lateral pasa a ir "enganchada" a los tres
-   bordes — izquierda, cabecera arriba, footer abajo — sin esquinas
-   redondeadas, en vez de flotar como tarjeta con margen alrededor. Se
-   quita el `<div class="wrap account-shell">` que envolvía sidebar+
-   contenido (el `.wrap` metía 24px de margen a los lados, que es
-   justo lo que impedía que la columna tocase el borde real de la
-   ventana) — ahora `.account-page` (ya `flex:1 0 auto` dentro del body
-   flex-column, así que ya ocupa exactamente el hueco entre cabecera y
-   footer) es DIRECTAMENTE la fila flex de sidebar+contenido, a todo lo
-   ancho del viewport. Al ser flex con `align-items:stretch` (valor por
-   defecto, no hace falta declararlo), la propia sidebar se estira sola
-   hasta la altura de `.account-page` — sin `position:sticky` ni
-   `min-height` calculados a mano como antes. El contenido recupera su
-   `.wrap` (centrado, 1140px, con el padding de siempre) dentro de su
-   propia columna, para que la tabla de usuarios no quede pegada al
-   borde también. */
-.account-page{
-  flex:1 0 auto;
-  display:flex;
-}
-.account-sidebar{
-  flex:0 0 240px; width:240px;
-  display:flex; flex-direction:column; gap:28px;
-  background:var(--navy); color:var(--navy-text);
-  padding:24px 18px;
-}
-.account-content-col{ flex:1; min-width:0; padding:40px 0 64px; }
-.account-sidebar-user{ display:flex; flex-direction:column; gap:4px; }
-.account-sidebar-label{ font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; color:rgba(233,240,247,0.6); }
-.account-sidebar-email{ font-family:'Zilla Slab', serif; font-weight:700; font-size:16px; line-height:1.3; word-break:break-word; }
-
-.account-nav{ display:flex; flex-direction:column; gap:4px; flex:1; }
-.account-nav-item{
-  display:flex; align-items:center; gap:10px;
-  font-family:inherit; font-size:14px; font-weight:600; text-align:left;
-  padding:10px 12px; border-radius:10px; border:none; cursor:pointer;
-  background:transparent; color:rgba(233,240,247,0.75);
-  transition:background .15s ease, color .15s ease;
-}
-.account-nav-item svg{ width:19px; height:19px; flex-shrink:0; }
-.account-nav-item.is-active{ background:rgba(233,240,247,0.12); color:var(--navy-text); }
-
-/* Rojo granate a petición explícita de Miq, "como en la app" —
-   var(--stamp-red) ya es ese tono en la paleta del sitio (se usa en
-   borrado de cuentas, badges de error, etc.), así que no hace falta un
-   rojo nuevo. */
-.account-logout-btn{
-  display:flex; align-items:center; justify-content:center; gap:8px;
-  font-family:inherit; font-size:13.5px; font-weight:700;
-  padding:11px 14px; border-radius:10px; border:none; cursor:pointer;
-  background:var(--stamp-red); color:#fff;
-  margin-top:auto;
-  transition:background .15s ease;
-}
-.account-logout-btn svg{ width:17px; height:17px; flex-shrink:0; }
-.account-logout-btn:hover{ background:#7E2A21; }
+   vez del saludo centrado que había antes.
+   2026-08-28 (Miq): se quita del todo la columna lateral — el nombre de la
+   cuenta y "Cerrar sesión" pasan a la cabecera (ver .logout-icon-btn más
+   abajo, y Header.astro/AuthModal.astro), y la navegación entre secciones
+   pasa al menú principal del sitio. `.account-page` ya no necesita ser una
+   fila flex de sidebar+contenido: sigue con `flex:1 0 auto` (para que el
+   footer quede siempre al fondo, dentro del body flex-column) pero ahora es
+   directamente el contenedor de una única columna de contenido. */
+.account-page{ flex:1 0 auto; }
+.account-content{ padding:40px 0 64px; }
 
 .account-empty-state{ color:var(--ink-faint); font-size:14.5px; padding:10px 2px; }
 
-@media (max-width:900px){
-  .account-page{ flex-direction:column; }
-  .account-sidebar{
-    width:100%; flex-direction:row; align-items:center; flex-wrap:wrap;
-    gap:14px;
-  }
-  .account-sidebar-user{ flex:1 1 auto; }
-  .account-nav{ flex-direction:row; flex:0 0 auto; }
-  .account-logout-btn{ margin-top:0; flex:0 0 auto; }
-}
-
-/* ---------- Panel de administración ---------- */
-.admin-panel{
+/* "Cuenta": email + última conexión — misma tarjeta que .admin-panel para
+   que las tres secciones (Administración/Cuenta/Compras) se vean como
+   variantes del mismo panel. */
+.account-info-panel{
   width:100%;
-  background:var(--card); border:1px solid var(--paper-line); border-radius:var(--radius-lg);
+  background:var(--card); border:1px solid var(--paper-line); border-radius:6px;
   box-shadow:var(--shadow); padding:28px;
 }
+.account-info-list{ display:flex; flex-direction:column; gap:14px; margin:18px 0 0; }
+.account-info-row{ display:flex; flex-wrap:wrap; gap:4px 10px; font-size:14.5px; }
+.account-info-row dt{ color:var(--ink-faint); min-width:140px; }
+.account-info-row dd{ margin:0; color:var(--ink); font-weight:600; }
+
+/* ---------- Panel de administración ---------- */
+/* 2026-08-28 (Miq): "un poco más ancha" que el resto del contenido de la
+   web (que usa .wrap a 1140px) y con las esquinas menos redondeadas —
+   6px en vez de var(--radius-lg) (18px), a petición explícita. El
+   ensanche se hace en el propio .wrap de esta página (ver más abajo,
+   #account-main .wrap), no en var(--maxw) global, para no afectar al
+   resto del sitio. */
+.admin-panel{
+  width:100%;
+  background:var(--card); border:1px solid var(--paper-line); border-radius:6px;
+  box-shadow:var(--shadow); padding:28px;
+}
+#account-main .wrap{ max-width:1320px; }
 .admin-panel-title{ font-size:19px; margin:0 0 8px; }
 .admin-panel-note{ font-size:13.5px; color:var(--ink-faint); margin:0 0 22px; }
 .admin-table-wrap{ overflow-x:auto; }

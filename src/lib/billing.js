@@ -103,8 +103,18 @@ export async function getAdminBillingOverview() {
 // ---------------------------------------------------------------------
 
 // Todos los usuarios (no solo los de pago) — user_id, email, approved,
-// plan, created_at. Se cruza en el cliente con getAdminBillingOverview()
-// para completar importe/estado de Stripe donde aplique (ver cuenta.astro).
+// plan, created_at, email_confirmed. Se cruza en el cliente con
+// getAdminBillingOverview() para completar importe/estado de Stripe donde
+// aplique (ver cuenta.astro).
+//
+// email_confirmed: añadido el 2026-08-28 por la sesión de la app, en
+// respuesta a nuestra addenda del mismo día (columna "2F Ok" del panel de
+// Usuarios) — calculado de `auth.users.email_confirmed_at IS NOT NULL`, sin
+// tocar `profiles`. De momento solo está desplegado en el proyecto de
+// STAGING de Supabase; en producción `admin-list-users` todavía no lo
+// incluye, así que `u.email_confirmed` llega `undefined` hasta que Miq
+// decida promocionarlo — el `?? false` de abajo lo trata igual que "no
+// confirmado" mientras tanto, en vez de romper la tabla.
 export async function getAdminUsersList() {
   const data = await callFunction('admin-list-users');
   return (data.users ?? []).map((u) => ({
@@ -113,6 +123,7 @@ export async function getAdminUsersList() {
     approved: u.approved,
     plan: u.plan,
     createdAt: u.created_at,
+    emailConfirmed: u.email_confirmed ?? false,
   }));
 }
 
@@ -121,6 +132,16 @@ export async function getAdminUsersList() {
 // y profiles.plan_since; es la forma real de asignar 'regalo'.
 export async function adminSetPlan(userId, plan) {
   return callFunction('admin-set-plan', { userId, plan });
+}
+
+// Fuerza a mano el "2F Ok" (confirmado por email) de una cuenta — para
+// cuando el email real de confirmación no le llegó al usuario (spam, error
+// al escribirlo, etc.). Llama a admin-set-email-confirmed, la función que
+// despliega y mantiene la app (mismo patrón que el resto de admin-*, mismo
+// gate por profiles.is_admin) — añadida el 2026-08-28, de momento solo en
+// STAGING (ver comentario de getAdminUsersList).
+export async function adminSetEmailConfirmed(userId, confirmed) {
+  return callFunction('admin-set-email-confirmed', { userId, confirmed });
 }
 
 // Aprueba una cuenta pendiente (profiles.approved = true) — llama a
