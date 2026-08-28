@@ -1367,7 +1367,15 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 }
 #account-main .wrap{ max-width:1320px; }
 .admin-panel-title{ font-size:19px; margin:0 0 8px; }
-.admin-panel-note{ font-size:13.5px; color:var(--ink-faint); margin:0 0 22px; }
+/* Franja de recuento ("Se muestran X usuarios…") — de punta a punta del
+   panel (bordes negativos para atravesar el padding de .admin-panel),
+   entre dos líneas finas, en vez de un párrafo suelto. Sustituye al aviso
+   de texto que había aquí antes. 2026-08-28, a petición de Miq. */
+.admin-users-summary{
+  margin:14px -28px 22px; padding:12px 28px;
+  border-top:1px solid var(--paper-line); border-bottom:1px solid var(--paper-line);
+  font-size:13px; color:var(--ink-faint);
+}
 .admin-table-wrap{ overflow-x:auto; }
 .admin-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
 .admin-table th{
@@ -1450,6 +1458,16 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .admin-plan-select--premium{ background-color:#D9B45C; color:#463205; }
 .admin-plan-select--regalo{ background-color:#F0A9C6; color:#5C1638; }
 .admin-plan-select--admin{ background-color:#22D3EE; color:#063542; }
+
+/* Etiqueta fija "ADMIN" (fila del propio admin logueado): mismo look que
+   .admin-plan-select pero sin flecha ni comportamiento de desplegable —
+   es texto, no un <select>, porque su plan no se puede cambiar. Se
+   combina con .admin-plan-select--admin para el color. 2026-08-28, a
+   petición de Miq: "tal y como está, de color azul". */
+.admin-plan-fixed{
+  display:inline-block; font-family:inherit; font-size:12.5px; font-weight:600;
+  padding:6px 14px; border-radius:999px; letter-spacing:0.02em;
+}
 
 .admin-table-actions{ display:flex; align-items:center; justify-content:center; gap:8px; }
 .admin-approve-btn{

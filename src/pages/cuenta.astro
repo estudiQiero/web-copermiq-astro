@@ -44,9 +44,13 @@ import Footer from '../components/Footer.astro';
       <div class="account-content">
         <div id="admin-panel" class="admin-panel" hidden>
           <h2 class="admin-panel-title">Usuarios</h2>
-          <p class="admin-panel-note">
-            Todos los usuarios de Copermiq. Cambiar el plan o aprobar una cuenta aquí hace exactamente lo mismo que en el panel de la app (llama a las mismas funciones). Falta "desactivar" una cuenta ya aprobada — todavía no existe ese mecanismo en ningún lado. Cada fila empieza bloqueada: usa el candado de la derecha y escribe el email de esa cuenta para poder editarla. La columna "2F Ok" se marca sola cuando el usuario confirma su alta por email; el admin puede forzarla a mano si el correo no le llegó.
-          </p>
+          <!-- Recuento de usuarios mostrados — franja fina de punta a
+               punta (bordes arriba/abajo, no una tarjeta), entre el título
+               y los controles. El texto lo rellena JS: cambia según haya o
+               no pastillas de plan activas (ver updateUsersSummary() más
+               abajo) — 2026-08-28, a petición de Miq. Sustituye al párrafo
+               de aviso que había aquí antes. -->
+          <p class="admin-users-summary" id="admin-users-summary"></p>
 
           <div class="admin-controls">
             <input
@@ -253,6 +257,36 @@ import Footer from '../components/Footer.astro';
     actionMessage.classList.toggle('error', Boolean(isError));
   }
 
+  // Franja de recuento bajo el título "Usuarios" — 2026-08-28, a petición
+  // de Miq. `rows` ya viene filtrada por búsqueda + pastillas de plan (el
+  // resultado que de verdad se ve en la tabla); `filters` son las
+  // pastillas activas en ese momento. Sin ninguna pastilla activa: total
+  // sin más. Con una o más activas: desglose por cada plan activo, usando
+  // los mismos `rows` ya filtrados (así la suma de los desgloses siempre
+  // cuadra con lo que hay en pantalla).
+  function updateUsersSummary(rows, filters) {
+    const summaryEl = document.getElementById('admin-users-summary');
+    if (!summaryEl) return;
+
+    if (!filters.length) {
+      summaryEl.textContent = `Se muestran ${rows.length} usuario${rows.length === 1 ? '' : 's'} totales.`;
+      return;
+    }
+
+    const parts = filters.map((plan, index) => {
+      const count = rows.filter((row) => row.plan === plan).length;
+      const label = PLAN_LABELS[plan] ?? plan;
+      return index === 0
+        ? `${count} usuario${count === 1 ? '' : 's'} de la cuenta ${label}`
+        : `${count} de la cuenta ${label}`;
+    });
+
+    const text = parts.length === 1
+      ? parts[0]
+      : `${parts.slice(0, -1).join(', ')} y ${parts[parts.length - 1]}`;
+    summaryEl.textContent = `Se muestran ${text}.`;
+  }
+
   // Valor "ordenable" de una fila para cada columna con data-sort. Plan se
   // ordena por su etiqueta visible (no por el valor interno), para que el
   // orden alfabético coincida con lo que se ve en pantalla.
@@ -339,6 +373,18 @@ import Footer from '../components/Footer.astro';
       rows.sort((a, b) => compareRows(a, b, sortState.key, sortState.dir));
     }
 
+    // El admin (la propia cuenta logueada) siempre va primero, sea cual
+    // sea el orden o el filtro activo — a petición de Miq, 2026-08-28. Si
+    // la búsqueda/pastilla activa lo deja fuera de `rows`, simplemente no
+    // aparece (no está exento de los filtros, solo del orden).
+    const selfAdminIndex = rows.findIndex((row) => row.userId === currentUserId && currentUserIsAdmin);
+    if (selfAdminIndex > 0) {
+      const [selfRow] = rows.splice(selfAdminIndex, 1);
+      rows.unshift(selfRow);
+    }
+
+    updateUsersSummary(rows, filters);
+
     if (!rows.length) {
       tableBody.innerHTML = '<tr><td colspan="9" class="admin-table-empty">No hay usuarios que coincidan con la búsqueda/filtro.</td></tr>';
       return;
@@ -366,17 +412,21 @@ import Footer from '../components/Footer.astro';
       )).join('');
       const isSelf = row.userId === currentUserId;
       // admin-list-users no devuelve is_admin por usuario (solo lo sabemos
-      // de nuestra propia fila, vía getMyProfile) — así que la píldora
-      // cian de "Admin" solo se puede aplicar con seguridad a la fila del
-      // propio admin logueado; el resto se colorea por su plan real.
-      const planClass = (isSelf && currentUserIsAdmin) ? 'admin-plan-select--admin' : `admin-plan-select--${row.plan}`;
+      // de nuestra propia fila, vía getMyProfile) — así que la fila fija de
+      // "ADMIN" solo se puede aplicar con seguridad a la fila del propio
+      // admin logueado; el resto se colorea por su plan real.
+      const isSelfAdmin = isSelf && currentUserIsAdmin;
+      const planClass = `admin-plan-select--${row.plan}`;
 
       // Candado: todas las filas empiezan bloqueadas: solo la fila
       // desbloqueada (unlockedUserId) queda con su color normal e
       // interactiva — el resto se atenúa y queda inerte (ver .is-locked
       // en global.css). El propio botón de candado NUNCA se desactiva,
-      // para poder volver a desbloquear.
-      const locked = row.userId !== unlockedUserId;
+      // para poder volver a desbloquear. La fila del propio admin es la
+      // excepción: siempre desbloqueada, sin candado que pulsar — no tiene
+      // sentido pedirle que confirme su propio email para poder editarse
+      // (2026-08-28, a petición de Miq).
+      const locked = isSelfAdmin ? false : row.userId !== unlockedUserId;
       const disabledAttr = locked ? 'disabled' : '';
       // "2F Ok" (confirmado por email): dato real desde el 2026-08-28 —
       // ver getAdminUsersList() en billing.js. Igual que el resto de
@@ -411,9 +461,9 @@ import Footer from '../components/Footer.astro';
             />
           </td>
           <td>
-            <select class="admin-plan-select ${planClass}" data-user-id="${escapeHtml(row.userId ?? '')}" ${isSelf ? 'disabled' : disabledAttr}>
-              ${planOptions}
-            </select>
+            ${isSelfAdmin
+              ? '<span class="admin-plan-fixed admin-plan-select--admin">ADMIN</span>'
+              : `<select class="admin-plan-select ${planClass}" data-user-id="${escapeHtml(row.userId ?? '')}" ${isSelf ? 'disabled' : disabledAttr}>${planOptions}</select>`}
           </td>
           <td class="admin-col-center">${escapeHtml(amountLabel)}</td>
           <td>${sinceLabel}</td>
@@ -434,6 +484,7 @@ import Footer from '../components/Footer.astro';
             </div>
           </td>
           <td class="admin-col-lock">
+            ${isSelfAdmin ? '' : `
             <button
               type="button"
               class="lock-btn"
@@ -442,6 +493,7 @@ import Footer from '../components/Footer.astro';
               aria-label="${locked ? 'Bloqueado — pulsa para desbloquear' : 'Desbloqueado — pulsa para bloquear'}"
               title="${locked ? 'Bloqueado — pulsa para desbloquear' : 'Desbloqueado — pulsa para bloquear'}"
             >${locked ? ICON_LOCK_CLOSED : ICON_LOCK_OPEN}</button>
+            `}
           </td>
         </tr>
       `;
