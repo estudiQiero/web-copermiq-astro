@@ -9,14 +9,9 @@
 // Qué hace: si quien llama tiene profiles.is_admin = true, devuelve una
 // lista de todos los usuarios con plan de pago (o regalado) — email,
 // plan, estado, desde cuándo, y si tiene una suscripción de Stripe
-// asociada, también periodicidad/estado real de Stripe y si está marcada
-// para cancelar. Además, si el usuario tiene un cliente de Stripe
-// asociado, el total real pagado desde que se dio de alta (sumando sus
-// facturas pagadas) — 2026-08-29, a petición de Miq: la columna
-// "Importe" pasó a mostrar solo Mensual/Anual, y este total nuevo es el
-// que se ve en la columna "Total pagado". Es de solo lectura: no permite
-// cambiar nada (para eso ya existe el desplegable del panel de admin de
-// la app).
+// asociada, también importe/periodicidad/estado real de Stripe y si está
+// marcada para cancelar. Es de solo lectura: no permite cambiar nada
+// (para eso ya existe el desplegable del panel de admin de la app).
 //
 // Requiere estos secretos (Edge Functions → esta función → Secrets):
 //   - STRIPE_SECRET_KEY: la misma clave secreta de Stripe que las demás.
@@ -83,7 +78,7 @@ Deno.serve(async (req) => {
     // regalado. Los "gratis" no aportan nada a esta tabla.
     const { data: profiles, error: profilesError } = await supabaseAdmin
       .from("profiles")
-      .select("user_id, email, plan, status, stripe_customer_id, stripe_subscription_id, current_period_end, plan_since")
+      .select("user_id, email, plan, status, stripe_subscription_id, current_period_end, plan_since")
       .neq("plan", "gratis")
       .order("plan_since", { ascending: false, nullsFirst: false });
 
@@ -96,41 +91,11 @@ Deno.serve(async (req) => {
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "", { apiVersion: "2024-06-20" });
 
-    // Total real pagado por un cliente de Stripe desde siempre: suma
-    // amount_paid de todas sus facturas con status "paid", paginando de
-    // 100 en 100. Tope de 5 páginas (500 facturas) como salvaguarda ante
-    // un cliente con un histórico anómalamente largo — de sobra para
-    // cualquier caso real aquí. Se calcula por customer, no por
-    // suscripción, para que el total sobreviva a una cancelación (la
-    // suscripción puede desaparecer; las facturas ya pagadas, no).
-    async function sumTotalPaid(customerId) {
-      let total = 0;
-      let currency = null;
-      let startingAfter;
-      for (let page = 0; page < 5; page += 1) {
-        const invoices = await stripe.invoices.list({
-          customer: customerId,
-          status: "paid",
-          limit: 100,
-          starting_after: startingAfter,
-        });
-        for (const invoice of invoices.data) {
-          total += invoice.amount_paid ?? 0;
-          if (!currency && invoice.currency) currency = invoice.currency;
-        }
-        if (!invoices.has_more || invoices.data.length === 0) break;
-        startingAfter = invoices.data[invoices.data.length - 1].id;
-      }
-      return { total: total / 100, currency };
-    }
-
     // Para cada fila con una suscripción real de Stripe, se pide el
-    // periodicidad/estado en vivo. Si falla una consulta puntual (p. ej.
-    // una suscripción borrada en Stripe pero no aún en profiles), no tira
-    // abajo el resto de la tabla — esa fila se queda sin esos datos
-    // extra. El total pagado se calcula aparte, con su propio try/catch,
-    // porque depende del cliente de Stripe (stripe_customer_id), no de la
-    // suscripción — así un fallo en uno no afecta al otro.
+    // importe/periodicidad/estado en vivo. Si falla una consulta puntual
+    // (p. ej. una suscripción borrada en Stripe pero no aún en profiles),
+    // no tira abajo el resto de la tabla — esa fila se queda sin esos
+    // datos extra.
     const rows = await Promise.all(
       (profiles ?? []).map(async (profile) => {
         const base = {
@@ -144,19 +109,7 @@ Deno.serve(async (req) => {
           amount: null,
           currency: null,
           interval: null,
-          totalPaid: null,
-          totalPaidCurrency: null,
         };
-
-        if (profile.stripe_customer_id) {
-          try {
-            const { total, currency } = await sumTotalPaid(profile.stripe_customer_id);
-            base.totalPaid = total;
-            base.totalPaidCurrency = currency;
-          } catch (e) {
-            console.error("No se pudo sumar el total pagado en Stripe para", profile.email, e);
-          }
-        }
 
         if (!profile.stripe_subscription_id) return base;
 

@@ -78,8 +78,7 @@ import Footer from '../components/Footer.astro';
                   <th class="admin-col-center" title="Se marca sola cuando el usuario confirma su alta por email; el admin puede forzarla a mano si el correo no le llegó.">2F Ok</th>
                   <th>Nota</th>
                   <th data-sort="plan">Plan <span class="admin-sort-indicator"></span></th>
-                  <th class="admin-col-center" data-sort="interval">Periodicidad <span class="admin-sort-indicator"></span></th>
-                  <th class="admin-col-center" data-sort="totalPaid" title="Total real pagado en Stripe desde que se dio de alta">Total pagado <span class="admin-sort-indicator"></span></th>
+                  <th class="admin-col-center" data-sort="amount">Importe <span class="admin-sort-indicator"></span></th>
                   <th data-sort="since">Desde <span class="admin-sort-indicator"></span></th>
                   <th class="admin-col-center" data-sort="renews">Renueva <span class="admin-sort-indicator"></span></th>
                   <th class="admin-col-center"><span class="sr-only">Acciones</span></th>
@@ -87,7 +86,7 @@ import Footer from '../components/Footer.astro';
                 </tr>
               </thead>
               <tbody id="admin-table-body">
-                <tr><td colspan="10" class="admin-table-empty">Cargando…</td></tr>
+                <tr><td colspan="9" class="admin-table-empty">Cargando…</td></tr>
               </tbody>
             </table>
           </div>
@@ -313,28 +312,10 @@ import Footer from '../components/Footer.astro';
   // Miq). El símbolo solo se da por sentado para euros: si algún día
   // apareciera otra moneda en Stripe, se sigue viendo su código en vez de
   // fingir que es €.
-  // "Periodicidad": ya no se muestra el importe (dato sensible que no
-  // aporta nada a un vistazo de admin), solo si el usuario paga
-  // mensual o anualmente — 2026-08-29, a petición de Miq.
-  function formatInterval(interval) {
-    if (interval === 'year') return 'Anual';
-    if (interval === 'month') return 'Mensual';
-    return '—';
-  }
-
-  // "Total pagado": suma real de las facturas pagadas en Stripe desde el
-  // alta (viene ya calculada de admin-billing-overview, ver
-  // sumTotalPaid() ahí) — a diferencia del antiguo importe, este es un
-  // total sin "/mes" ni "/año" porque no es una cuota periódica.
-  // "0,95€" en vez de "0.95 EUR" — símbolo en vez de código de moneda, y
-  // coma decimal en vez de punto (2026-08-28, a petición de Miq). El
-  // símbolo solo se da por sentado para euros: si algún día apareciera
-  // otra moneda en Stripe, se sigue viendo su código en vez de fingir que
-  // es €.
-  function formatTotalPaid(total, currency) {
-    if (total == null) return '—';
+  function formatAmount(amount, currency, interval) {
     const symbol = (currency ?? '').toLowerCase() === 'eur' ? '€' : (currency ?? '').toUpperCase();
-    return `${total.toFixed(2).replace('.', ',')}${symbol}`;
+    const period = interval === 'year' ? 'año' : 'mes';
+    return `${amount.toFixed(2).replace('.', ',')}${symbol}/${period}`;
   }
 
   function activeFilters() {
@@ -386,10 +367,8 @@ import Footer from '../components/Footer.astro';
         return (row.email ?? '').toLowerCase();
       case 'plan':
         return (PLAN_LABELS[row.plan] ?? row.plan ?? '').toLowerCase();
-      case 'interval':
-        return row.interval ? formatInterval(row.interval).toLowerCase() : null;
-      case 'totalPaid':
-        return row.totalPaid ?? null;
+      case 'amount':
+        return row.amount ?? null;
       case 'since':
         return row.planSince ?? row.createdAt ?? null;
       case 'renews':
@@ -478,22 +457,22 @@ import Footer from '../components/Footer.astro';
     updateUsersSummary(rows, filters);
 
     if (!rows.length) {
-      tableBody.innerHTML = '<tr><td colspan="10" class="admin-table-empty">No hay usuarios que coincidan con la búsqueda/filtro.</td></tr>';
+      tableBody.innerHTML = '<tr><td colspan="9" class="admin-table-empty">No hay usuarios que coincidan con la búsqueda/filtro.</td></tr>';
       return;
     }
 
     tableBody.innerHTML = rows.map((row) => {
-      // Periodicidad, Total pagado y Renueva: centradas siempre, tengan o
-      // no dato real — centrar solo el guion "—" cuando faltaba el dato
-      // (primer intento) quedaba descolgado, porque el ancho de la
-      // columna lo marca la fila con el valor real más largo y ese valor
-      // seguía a la izquierda: dos alineaciones distintas en la misma
-      // columna. Centrando también la cabecera (ver el <th> y
-      // .admin-table th.admin-col-center en global.css) todo queda en la
-      // misma línea vertical. 2026-08-28, a petición de Miq. (Desde no se
-      // toca — sigue a la izquierda.)
-      const periodLabel = formatInterval(row.interval);
-      const totalPaidLabel = formatTotalPaid(row.totalPaid, row.totalPaidCurrency ?? row.currency);
+      // Importe y Renueva: centradas siempre, tengan o no dato real —
+      // centrar solo el guion "—" cuando faltaba el dato (primer intento)
+      // quedaba descolgado, porque el ancho de la columna lo marca la fila
+      // con el valor real más largo y ese valor seguía a la izquierda: dos
+      // alineaciones distintas en la misma columna. Centrando también la
+      // cabecera (ver el <th> y .admin-table th.admin-col-center en
+      // global.css) todo queda en la misma línea vertical. 2026-08-28,
+      // a petición de Miq. (Desde no se toca — sigue a la izquierda.)
+      const amountLabel = row.amount != null
+        ? formatAmount(row.amount, row.currency, row.interval)
+        : '—';
       const renewsLabel = formatDate(row.currentPeriodEnd);
       // "Desde": la fecha desde la que tiene el plan actual si la
       // tenemos (viene de admin-billing-overview, solo para planes de
@@ -557,8 +536,7 @@ import Footer from '../components/Footer.astro';
               ? '<span class="admin-plan-fixed admin-plan-select--admin">ADMIN</span>'
               : `<select class="admin-plan-select ${planClass}" data-user-id="${escapeHtml(row.userId ?? '')}" ${isSelf ? 'disabled' : disabledAttr}>${planOptions}</select>`}
           </td>
-          <td class="admin-col-center">${escapeHtml(periodLabel)}</td>
-          <td class="admin-col-center">${escapeHtml(totalPaidLabel)}</td>
+          <td class="admin-col-center">${escapeHtml(amountLabel)}</td>
           <td>${sinceLabel}</td>
           <td class="admin-col-center">${renewsLabel}</td>
           <td>
@@ -595,7 +573,7 @@ import Footer from '../components/Footer.astro';
 
   async function loadAdminTable() {
     if (!tableBody) return;
-    tableBody.innerHTML = '<tr><td colspan="10" class="admin-table-empty">Cargando…</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="9" class="admin-table-empty">Cargando…</td></tr>';
     try {
       // Tres llamadas: la lista completa de usuarios (admin-list-users,
       // de la app), el detalle de Stripe para los de pago/regalo
@@ -620,7 +598,7 @@ import Footer from '../components/Footer.astro';
       renderTable();
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error cargando los datos.';
-      tableBody.innerHTML = `<tr><td colspan="10" class="admin-table-empty">${escapeHtml(msg)}</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="9" class="admin-table-empty">${escapeHtml(msg)}</td></tr>`;
     }
   }
 

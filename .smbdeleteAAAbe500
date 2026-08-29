@@ -4,20 +4,6 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://copermiq.com',
   compressHTML: true,
-  // Infraestructura de idiomas — 2026-08-29, a petición de Miq (ver
-  // src/i18n/README.md). Español sin prefijo en la URL (es el idioma en
-  // el que está escrita toda la web hoy); català bajo /ca/. Todavía no
-  // hay ninguna página bajo /ca/, así que esto no cambia nada visible
-  // por ahora — solo deja las rutas listas para cuando se vaya
-  // traduciendo. Añadir un idioma más adelante (euskera, gallego...) es
-  // solo añadirlo a `locales`.
-  i18n: {
-    defaultLocale: 'es',
-    locales: ['es', 'ca'],
-    routing: {
-      prefixDefaultLocale: false,
-    },
-  },
   integrations: [
     sitemap({
       // /cuenta es el panel de login/administración, no contenido de

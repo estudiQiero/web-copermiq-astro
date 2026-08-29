@@ -1,0 +1,66 @@
+{
+  "_comment": "Subconjunto del diccionario de la app (Diccionarios/lang-ca.js, I18N_CA) relevante para copermiq-web — solo los términos que un usuario ve en AMBOS sitios (navegación, nombres de plan, acciones de cuenta/autenticación), para que no diverjan al pasar de uno a otro. NO es una copia completa del diccionario de la app: el vocabulario fiscal interno (modelos, IVA, IRPF...) no aparece en la web y se ha dejado fuera a propósito. Cada término es un objeto con una clave por idioma (además del español, que es la clave de arriba); para añadir un idioma nuevo (euskera, gallego...) se añade una clave más DENTRO de cada término ya existente, no un fichero nuevo — así un término nunca puede tener la traducción de un idioma sin la de otro por descuido. Sincronizado por última vez el 2026-08-29 desde el addenda 'addenda-app-a-web-glosario-catalan-2026-08-29' que pasó Miq (343 líneas del diccionario completo de la app en ese momento). Ver README.md de esta carpeta para cómo usar esto y cómo volver a sincronizar cuando la app añada términos nuevos.",
+
+  "doNotTranslate": [
+    "Copermiq",
+    "VERI*FACTU",
+    "Verifactu",
+    "Pro",
+    "Premium"
+  ],
+
+  "terms": {
+    "Negocio": { "ca": "Negoci" },
+    "Facturación": { "ca": "Facturació" },
+    "Inicio": { "ca": "Inici" },
+    "Mi negocio": { "ca": "El meu negoci" },
+    "Clientes": { "ca": "Clients" },
+    "Facturas": { "ca": "Factures" },
+    "Presupuestos": { "ca": "Pressupostos" },
+    "Gastos": { "ca": "Despeses" },
+    "Proveedores": { "ca": "Proveïdors" },
+    "Categorías": { "ca": "Categories" },
+    "Libros registro": { "ca": "Llibres registre" },
+    "Preferencias": { "ca": "Preferències" },
+    "Ajustes": { "ca": "Ajustos" },
+    "Cuenta": { "ca": "Compte" },
+    "Usuario": { "ca": "Usuari" },
+    "Usuarios": { "ca": "Usuaris" },
+    "Interfaz": { "ca": "Interfície" },
+    "Seguridad": { "ca": "Seguretat" },
+    "Idioma": { "ca": "Idioma" },
+    "Color": { "ca": "Color" },
+
+    "Gratis": { "ca": "Gratuït" },
+    "Regalo": { "ca": "Regal" },
+
+    "Entrar": { "ca": "Entra" },
+    "Crear cuenta": { "ca": "Crea un compte" },
+    "¿No tienes cuenta?": { "ca": "No tens compte?" },
+    "Crear una": { "ca": "Crea'n un" },
+    "¿Ya tienes cuenta?": { "ca": "Ja tens compte?" },
+    "¿Has olvidado tu contraseña?": { "ca": "Has oblidat la contrasenya?" },
+    "Volver al login": { "ca": "Torna a l'inici de sessió" },
+    "Cerrar sesión": { "ca": "Tanca la sessió" },
+    "¿Cerrar la sesión?": { "ca": "Vols tancar la sessió?" },
+    "Confirmar": { "ca": "Confirma" },
+    "Cancelar": { "ca": "Cancel·la" },
+
+    "Guardar cambios": { "ca": "Desa els canvis" },
+    "Editar": { "ca": "Edita" },
+    "Eliminar": { "ca": "Elimina" },
+    "Descargar PDF": { "ca": "Baixa el PDF" },
+    "Eliminar cuenta": { "ca": "Elimina el compte" },
+    "Borrar todos los datos": { "ca": "Esborra totes les dades" },
+    "¿Eliminar tu cuenta de Copermiq de forma permanente? Se borrarán todos tus datos y tu acceso quedará desactivado.": { "ca": "Vols eliminar el teu compte de Copermiq de forma permanent? S'esborraran totes les teves dades i el teu accés quedarà desactivat." },
+
+    "Pasar a Pro": { "ca": "Passa a Pro" },
+    "Pasar a Premium": { "ca": "Passa a Premium" },
+    "Gestionar mi suscripción": { "ca": "Gestiona la meva subscripció" },
+    "Pasa a un plan de pago para desbloquear más funciones.": { "ca": "Passa a un pla de pagament per desbloquejar més funcions." },
+    "Copia de seguridad": { "ca": "Còpia de seguretat" },
+    "Próximamente": { "ca": "Properament" },
+
+    "Contabilidad Personal, por Miq": { "ca": "Comptabilitat Personal, per en Miq" }
+  }
+}
