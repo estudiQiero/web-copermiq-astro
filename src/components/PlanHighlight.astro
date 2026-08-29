@@ -77,8 +77,10 @@ const content = {
       'Para quien quiere ir un paso más allá: libros registro listos para tu gestor, personalización completa y soporte prioritario.',
     features: [
       'Libros registro (facturas emitidas y recibidas)',
-      'Escanear gasto con IA (rellena el gasto solo)',
+      { text: 'Escáner de gasto con IA (rellena el gasto con foto)', badge: 'En proceso' },
+      'Gestor avanzado de clientes (ERP)',
       'Colores de marca personalizables',
+      'Copias de seguridad en la nube de Google Drive',
       'Soporte prioritario',
     ],
   },
@@ -93,14 +95,20 @@ const content = {
       <h2>{content.heading}</h2>
       <p>{content.description}</p>
       <ul class="plan-highlight-list">
-        {content.features.map((f) => (
-          <li>
-            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d={CHECK_ICON_PATH} stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>{f}</span>
-          </li>
-        ))}
+        {content.features.map((f) => {
+          const feature = typeof f === 'string' ? { text: f, badge: null } : f;
+          return (
+            <li>
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d={CHECK_ICON_PATH} stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>
+                {feature.text}
+                {feature.badge && <span class="pc-badge-soon">{feature.badge}</span>}
+              </span>
+            </li>
+          );
+        })}
       </ul>
     </div>
 

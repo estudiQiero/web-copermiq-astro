@@ -45,7 +45,8 @@ const groups = [
       { label: 'Categorías de gasto personalizables', free: DASH, sub: CHECK, premium: CHECK },
       { label: 'IVA por inversión del sujeto pasivo (proveedores extranjeros)', free: DASH, sub: CHECK, premium: CHECK },
       { label: 'Moneda extranjera en gastos', free: DASH, sub: CHECK, premium: CHECK },
-      { label: 'Escanear gasto con IA (rellena el gasto solo)', free: DASH, sub: DASH, premium: CHECK },
+      { label: 'Escáner de gasto con IA (rellena el gasto con foto)', free: DASH, sub: DASH, premium: CHECK, badge: 'En proceso' },
+      { label: 'Gestor avanzado de clientes (ERP)', free: DASH, sub: DASH, premium: CHECK },
     ],
   },
   {
@@ -63,6 +64,7 @@ const groups = [
       { label: 'Copia de seguridad manual (JSON)', free: CHECK, sub: CHECK, premium: CHECK },
       { label: 'Copia de seguridad automática (email)', free: DASH, sub: CHECK, premium: CHECK },
       { label: 'Datos alojados en la UE (Frankfurt)', free: CHECK, sub: CHECK, premium: CHECK },
+      { label: 'Copias de seguridad en la nube de Google Drive', free: DASH, sub: DASH, premium: CHECK },
     ],
   },
   {
@@ -82,8 +84,8 @@ const groups = [
   <div class="wrap section-head">
     <h2>Compara los planes al detalle</h2>
     <p>
-      Todo lo marcado aquí existe ya en la app — con una sola excepción,
-      marcada abajo, que llega muy pronto.
+      Todo lo marcado aquí existe ya en la app — con las excepciones
+      marcadas abajo, que llegan muy pronto.
     </p>
   </div>
 
@@ -115,8 +117,11 @@ const groups = [
               <th scope="colgroup" colspan="4">{group.title}</th>
             </tr>
             {group.rows.map((row) => (
-              <tr>
-                <th scope="row" class="pc-feature-col">{row.label}</th>
+              <tr class:list={{ 'pc-row-soon': Boolean(row.badge) }}>
+                <th scope="row" class="pc-feature-col">
+                  {row.label}
+                  {row.badge && <span class="pc-badge-soon">{row.badge}</span>}
+                </th>
                 <td class:list={{ 'pc-yes': row.free === CHECK, 'pc-no': row.free === DASH }}>{row.free}</td>
                 <td class:list={['pc-highlight-col', { 'pc-yes': row.sub === CHECK, 'pc-no': row.sub === DASH }]}>{row.sub}</td>
                 <td class:list={{ 'pc-yes': row.premium === CHECK, 'pc-no': row.premium === DASH }}>{row.premium}</td>
