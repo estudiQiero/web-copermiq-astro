@@ -1436,10 +1436,10 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
    `.has-user-accent`). La clase `has-content-dark` la pone/quita
    applyContentMode() (src/lib/palette.js) en <body>.
    Redefine aquí los mismos tokens de superficie/texto que ya usan
-   .admin-panel/.account-info-panel/la tabla de usuarios/etc.
-   (--card/--paper/--paper-line/--ink*/--white): como esos selectores
-   viven SIEMPRE dentro de #account-main (o de los 2 modales propios de
-   esta página, incluidos aquí también), heredan estos valores sin tener
+   .admin-panel/.account-info-panel/la tabla de usuarios/etc. (--card,
+   --paper, --paper-line, --ink, --ink-soft, --ink-faint y --white): como
+   esos selectores viven SIEMPRE dentro de #account-main (o de los 2
+   modales propios de esta página, incluidos aquí también), heredan estos valores sin tener
    que reescribir cada uno por separado. Paleta oscura propia de esta web
    — no pretende ser pixel-igual a la de la app, de la que solo conocemos
    el nombre del campo (`contentMode`), no sus hex exactos — construida a
