@@ -217,18 +217,26 @@ img{ max-width:100%; display:block; }
    pone src/lib/palette.js (applyAccent()) en <html>, y la clase
    .has-user-accent en <body> es lo que activa este bloque — solo con
    sesión iniciada y preferencias ya cargadas (ver AuthModal.astro); sin
-   eso, la cabecera/menú se quedan con el turquesa de marca de siempre
-   (var(--navy)). El botón de cerrar sesión (fondo granate, siempre igual)
-   se deja fuera a propósito: es una acción destructiva, no debe camuflarse
-   con el color elegido por el usuario. */
+   eso, la cabecera/menú/footer se quedan con el turquesa de marca de
+   siempre (var(--navy)). El botón de cerrar sesión (fondo granate, siempre
+   igual) se deja fuera a propósito: es una acción destructiva, no debe
+   camuflarse con el color elegido por el usuario.
+   2026-08-29 (Miq): "el footer también tiene que cambiar de color junto
+   con la cabecera" — añadido aquí mismo, reutilizando --user-accent-bg/fg;
+   los tonos más suaves del footer (tagline, copy, enlaces) usaban rgba()
+   fijos sobre el turquesa de marca, así que aquí se recalculan esos mismos
+   niveles de opacidad con `color-mix()` sobre el fg elegido, en vez de
+   quedarse con el rgba original (pensado solo para --navy-text). */
 body.has-user-accent .site-header,
-body.has-user-accent .site-menu{
+body.has-user-accent .site-menu,
+body.has-user-accent footer{
   background:var(--user-accent-bg);
 }
 body.has-user-accent .brand-name,
 body.has-user-accent .icon-btn,
 body.has-user-accent .account-username,
-body.has-user-accent .menu-nav-list a{
+body.has-user-accent .menu-nav-list a,
+body.has-user-accent footer{
   color:var(--user-accent-fg);
 }
 body.has-user-accent .menu-bar{
@@ -236,6 +244,22 @@ body.has-user-accent .menu-bar{
 }
 body.has-user-accent .status-dot{
   border-color:var(--user-accent-bg);
+}
+body.has-user-accent footer{
+  border-top-color:color-mix(in srgb, var(--user-accent-fg) 14%, transparent);
+}
+body.has-user-accent .footer-brand span{
+  color:var(--user-accent-fg);
+}
+body.has-user-accent .footer-tagline,
+body.has-user-accent .footer-copy{
+  color:color-mix(in srgb, var(--user-accent-fg) 60%, transparent);
+}
+body.has-user-accent .footer-links a{
+  color:color-mix(in srgb, var(--user-accent-fg) 75%, transparent);
+}
+body.has-user-accent .footer-links a:hover{
+  color:var(--user-accent-fg);
 }
 
 /* Hamburguesa con animación de cruz */
@@ -1400,6 +1424,45 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 .account-page{ flex:1 0 auto; }
 .account-content{ padding:40px 0 64px; }
 
+/* "Fondo" claro/oscuro de /cuenta (contentMode en app_config) —
+   2026-08-29, a petición de Miq: "el color del fondo, que tenemos un
+   botón dedicado para pasarlo de claro a oscuro" — DISTINTO del color de
+   acento (uiColor/uiMode, que solo cambia cabecera/menú, ver más arriba
+   `.has-user-accent`). La clase `has-content-dark` la pone/quita
+   applyContentMode() (src/lib/palette.js) en <body>.
+   Redefine aquí los mismos tokens de superficie/texto que ya usan
+   .admin-panel/.account-info-panel/la tabla de usuarios/etc.
+   (--card/--paper/--paper-line/--ink*/--white): como esos selectores
+   viven SIEMPRE dentro de #account-main (o de los 2 modales propios de
+   esta página, incluidos aquí también), heredan estos valores sin tener
+   que reescribir cada uno por separado. Paleta oscura propia de esta web
+   — no pretende ser pixel-igual a la de la app, de la que solo conocemos
+   el nombre del campo (`contentMode`), no sus hex exactos — construida a
+   partir de los grises oscuros que ya existían en el sitio (--dark-gray)
+   y del "casi blanco" que ya se usa para texto sobre fondo oscuro en el
+   resto de la web. No toca nada fuera de esta página: el resto del sitio
+   no tiene todavía un modo oscuro completo. */
+body.has-content-dark #account-main{
+  --card:#23262B;
+  --paper:#181B1E;
+  --paper-line:#383C42;
+  --ink:#F3F5F2;
+  --ink-soft:rgba(243,245,242,0.75);
+  --ink-faint:rgba(243,245,242,0.55);
+  --white:#23262B;
+  background:var(--paper);
+}
+body.has-content-dark #delete-user-overlay,
+body.has-content-dark #row-unlock-overlay{
+  --card:#23262B;
+  --paper:#181B1E;
+  --paper-line:#383C42;
+  --ink:#F3F5F2;
+  --ink-soft:rgba(243,245,242,0.75);
+  --ink-faint:rgba(243,245,242,0.55);
+  --white:#23262B;
+}
+
 .account-empty-state{ color:var(--ink-faint); font-size:14.5px; padding:10px 2px; }
 
 /* "Cuenta": email + última conexión — misma tarjeta que .admin-panel para
@@ -1455,7 +1518,10 @@ footer .wrap{ display:flex; align-items:center; justify-content:space-between; f
 }
 .pref-tone-option.is-active, .pref-lang-option.is-active{ background:var(--navy); color:var(--navy-text); }
 
-.pref-lang-note{ margin:10px 0 0; font-size:13px; color:var(--ink-faint); }
+/* 2026-08-29: renombrado de .pref-lang-note a .pref-hint — ya no es solo
+   para el aviso de idioma, también aclara la diferencia entre "Color"
+   (tono del acento) y "Fondo" (contentMode), a petición de Miq. */
+.pref-hint{ margin:10px 0 0; font-size:13px; color:var(--ink-faint); }
 .pref-save-message{ margin:22px 0 0; font-size:13.5px; color:var(--accent-deep); }
 .pref-save-message.is-error{ color:var(--stamp-red); }
 

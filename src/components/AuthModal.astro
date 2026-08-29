@@ -150,7 +150,7 @@ const hasTurnstileKey = Boolean(turnstileSiteKey);
   import { supabase, isSupabaseConfigured } from '../lib/supabaseClient.js';
   import { getMyProfile } from '../lib/billing.js';
   import { getPreferences } from '../lib/preferences.js';
-  import { applyAccent } from '../lib/palette.js';
+  import { applyAccent, applyContentMode } from '../lib/palette.js';
 
   const overlay = document.getElementById('auth-overlay');
   const closeBtn = document.querySelector('#auth-overlay .auth-close');
@@ -484,10 +484,11 @@ const hasTurnstileKey = Boolean(turnstileSiteKey);
     if (menuItemCompras instanceof HTMLElement) menuItemCompras.hidden = !isSignedIn;
 
     if (!isSignedIn) {
-      // Sin sesión, la web vuelve a su turquesa de marca de siempre (por si
-      // veníamos de tener aplicado el acento de una cuenta que acaba de
-      // cerrar sesión).
+      // Sin sesión, la web vuelve a su turquesa de marca y fondo claro de
+      // siempre (por si veníamos de tener aplicado el acento/fondo de una
+      // cuenta que acaba de cerrar sesión).
       applyAccent(null);
+      applyContentMode(null);
       return;
     }
 
@@ -505,13 +506,17 @@ const hasTurnstileKey = Boolean(turnstileSiteKey);
     // menús" — se lee app_config (src/lib/preferences.js, misma tabla que
     // usa la app) y se aplica como color de cabecera/menú en TODA la web,
     // no solo en /cuenta, porque este componente vive en Layout.astro y se
-    // carga en cada página. Si algo falla (tabla sin migrar, sin red…) no
-    // se rompe nada: se queda con el turquesa de marca de siempre.
+    // carga en cada página. applyContentMode() (2026-08-29) es el "botón
+    // dedicado" de fondo claro/oscuro que ya tiene la app — un ajuste
+    // aparte del color, solo con efecto dentro de /cuenta (ver
+    // global.css). Si algo falla (tabla sin migrar, sin red…) no se rompe
+    // nada: se queda con el turquesa de marca y el fondo claro de siempre.
     try {
       const prefs = await getPreferences();
       applyAccent(prefs);
+      applyContentMode(prefs);
     } catch (err) {
-      console.warn('[Copermiq] No se pudieron aplicar las preferencias de color:', err.message);
+      console.warn('[Copermiq] No se pudieron aplicar las preferencias de color/fondo:', err.message);
     }
   }
 

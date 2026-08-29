@@ -76,3 +76,21 @@ export function applyAccent(prefs) {
   document.documentElement.style.setProperty('--user-accent-fg', fg);
   document.body?.classList.add('has-user-accent');
 }
+
+// Aplica (o quita) el "fondo claro/oscuro" — `contentMode` en app_config,
+// el botón dedicado que la app ya tiene para esto, DISTINTO del color de
+// acento (uiColor/uiMode de arriba): esto no cambia ningún color, solo si
+// el fondo/tarjetas/texto de las páginas de /cuenta se ven en claro o en
+// oscuro (2026-08-29, a petición de Miq: "hay que identificar bien... lo
+// que es cambio claro/oscuro de fondo o de tono de colores" — de ahí que
+// sea una función y una clase de <body> completamente separadas de
+// applyAccent). Clase `has-content-dark` en <body>, que es lo que activa
+// la paleta oscura de global.css (solo dentro de #account-main y los
+// modales propios de esa página — no toca el resto de la web, que no
+// tiene aún un modo oscuro completo). Pasar `null` (sin sesión) vuelve al
+// fondo claro de siempre.
+export function applyContentMode(prefs) {
+  if (typeof document === 'undefined') return;
+  const isDark = prefs?.contentMode === 'dark';
+  document.body?.classList.toggle('has-content-dark', isDark);
+}

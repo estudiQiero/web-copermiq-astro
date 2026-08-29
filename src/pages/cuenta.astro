@@ -119,15 +119,33 @@ import Footer from '../components/Footer.astro';
              entender que cambia el idioma de esta página. -->
         <div id="preferencias-panel" class="account-info-panel" hidden>
           <h2 class="admin-panel-title">Preferencias</h2>
-          <p class="account-panel-desc">Se guardan en tu cuenta de Copermiq — el mismo color y el mismo idioma que elijas aquí los verás también en la app.</p>
+          <p class="account-panel-desc">Se guardan en tu cuenta de Copermiq — el mismo color, fondo e idioma que elijas aquí los verás también en la app.</p>
 
           <div class="pref-section">
             <h3 class="pref-section-title">Color</h3>
             <div class="pref-swatch-row" id="pref-swatch-row"></div>
-            <div class="pref-tone-toggle" id="pref-tone-toggle" role="group" aria-label="Tono">
+            <div class="pref-tone-toggle" id="pref-tone-toggle" role="group" aria-label="Tono del color">
               <button type="button" class="pref-tone-option" data-tone="dark">Oscuro</button>
               <button type="button" class="pref-tone-option" data-tone="light">Claro</button>
             </div>
+            <p class="pref-hint">Es el matiz del color que ves arriba, en la cabecera y el menú — no cambia el fondo de esta página (eso es "Fondo", más abajo).</p>
+          </div>
+
+          <!-- 2026-08-29 (Miq): "el color del fondo, que tenemos un botón
+               dedicado para pasarlo de claro a oscuro" — el botón real de
+               la app (contentMode en app_config), aparte del color de
+               arriba. Miq pidió explícitamente distinguir bien los dos:
+               este solo cambia claro/oscuro de esta página (fondo,
+               tarjetas, texto), no el color en sí. Sin efecto todavía en
+               el resto de la web (ver applyContentMode() en
+               src/lib/palette.js). -->
+          <div class="pref-section">
+            <h3 class="pref-section-title">Fondo</h3>
+            <div class="pref-tone-toggle" id="pref-bg-toggle" role="group" aria-label="Fondo de la página">
+              <button type="button" class="pref-tone-option" data-bg="light">Claro</button>
+              <button type="button" class="pref-tone-option" data-bg="dark">Oscuro</button>
+            </div>
+            <p class="pref-hint">Cambia el fondo de Administración, Cuenta, Preferencias y Compras entre claro y oscuro — no el color de la cabecera/menú (eso es "Color", más arriba).</p>
           </div>
 
           <div class="pref-section">
@@ -136,7 +154,7 @@ import Footer from '../components/Footer.astro';
               <button type="button" class="pref-lang-option" data-lang="es">Castellano</button>
               <button type="button" class="pref-lang-option" data-lang="ca">Català</button>
             </div>
-            <p class="pref-lang-note">De momento esto solo cambia el idioma de la app — esta web todavía se ve solo en castellano.</p>
+            <p class="pref-hint">De momento esto solo cambia el idioma de la app — esta web todavía se ve solo en castellano.</p>
           </div>
 
           <p class="pref-save-message" id="pref-save-message" hidden></p>
@@ -209,7 +227,7 @@ import Footer from '../components/Footer.astro';
     adminSetEmailConfirmed,
   } from '../lib/billing.js';
   import { getPreferences, savePreferences } from '../lib/preferences.js';
-  import { PALETTE, applyAccent } from '../lib/palette.js';
+  import { PALETTE, applyAccent, applyContentMode } from '../lib/palette.js';
 
   const main = document.getElementById('account-main');
   const adminPanel = document.getElementById('admin-panel');
@@ -220,6 +238,7 @@ import Footer from '../components/Footer.astro';
   const cuentaPanelLastLogin = document.getElementById('cuenta-panel-last-login');
   const prefSwatchRow = document.getElementById('pref-swatch-row');
   const prefToneToggle = document.getElementById('pref-tone-toggle');
+  const prefBgToggle = document.getElementById('pref-bg-toggle');
   const prefLangToggle = document.getElementById('pref-lang-toggle');
   const prefSaveMessage = document.getElementById('pref-save-message');
   const tableBody = document.getElementById('admin-table-body');
@@ -874,6 +893,16 @@ import Footer from '../components/Footer.astro';
     });
   }
 
+  // "Fondo" (contentMode) — deliberadamente una función y un toggle
+  // aparte de updateToneToggle()/uiMode: son dos preferencias distintas
+  // (ver el aviso de Miq del 2026-08-29 sobre no confundirlas).
+  function updateBgToggle(prefs) {
+    prefBgToggle?.querySelectorAll('.pref-tone-option').forEach((btn) => {
+      const mode = prefs.contentMode === 'dark' ? 'dark' : 'light';
+      btn.classList.toggle('is-active', btn.getAttribute('data-bg') === mode);
+    });
+  }
+
   function updateLangToggle(prefs) {
     prefLangToggle?.querySelectorAll('.pref-lang-option').forEach((btn) => {
       btn.classList.toggle('is-active', btn.getAttribute('data-lang') === prefs.language);
@@ -884,8 +913,10 @@ import Footer from '../components/Footer.astro';
     currentPrefs = { ...currentPrefs, ...partial };
     // Previsualización al instante, sin esperar a que termine de guardar.
     applyAccent(currentPrefs);
+    applyContentMode(currentPrefs);
     renderPresetSwatches(currentPrefs);
     updateToneToggle(currentPrefs);
+    updateBgToggle(currentPrefs);
     updateLangToggle(currentPrefs);
 
     if (prefSaveMessage instanceof HTMLElement) {
@@ -911,7 +942,11 @@ import Footer from '../components/Footer.astro';
   }
 
   prefToneToggle?.querySelectorAll('.pref-tone-option').forEach((btn) => {
-    btn.addEventListener('click', () => persistPreferences({ uiMode: btn.getAttribute('data-tone') }, 'Tono guardado.'));
+    btn.addEventListener('click', () => persistPreferences({ uiMode: btn.getAttribute('data-tone') }, 'Tono del color guardado.'));
+  });
+
+  prefBgToggle?.querySelectorAll('.pref-tone-option').forEach((btn) => {
+    btn.addEventListener('click', () => persistPreferences({ contentMode: btn.getAttribute('data-bg') }, 'Fondo guardado.'));
   });
 
   prefLangToggle?.querySelectorAll('.pref-lang-option').forEach((btn) => {
@@ -927,7 +962,9 @@ import Footer from '../components/Footer.astro';
     }
     renderPresetSwatches(currentPrefs);
     updateToneToggle(currentPrefs);
+    updateBgToggle(currentPrefs);
     updateLangToggle(currentPrefs);
+    applyContentMode(currentPrefs);
   }
 
   function formatDateTime(value) {
