@@ -96,14 +96,14 @@ import Footer from '../components/Footer.astro';
         <!-- "Cuenta": email + última conexión — sustituye al antiguo
              saludo/estado vacío genérico. -->
         <div id="cuenta-panel" class="account-info-panel" hidden>
-          <h2 class="admin-panel-title">Cuenta</h2>
+          <h2 class="admin-panel-title" data-i18n="Cuenta">Cuenta</h2>
           <dl class="account-info-list">
             <div class="account-info-row">
-              <dt>Email</dt>
+              <dt data-i18n="Email">Email</dt>
               <dd id="cuenta-panel-email">—</dd>
             </div>
             <div class="account-info-row">
-              <dt>Última conexión</dt>
+              <dt data-i18n="Última conexión">Última conexión</dt>
               <dd id="cuenta-panel-last-login">—</dd>
             </div>
           </dl>
@@ -119,17 +119,17 @@ import Footer from '../components/Footer.astro';
              traducción — se avisa en el propio panel para no dar a
              entender que cambia el idioma de esta página. -->
         <div id="preferencias-panel" class="account-info-panel" hidden>
-          <h2 class="admin-panel-title">Preferencias</h2>
-          <p class="account-panel-desc">Se guardan en tu cuenta de Copermiq — el mismo color, fondo e idioma que elijas aquí los verás también en la app.</p>
+          <h2 class="admin-panel-title" data-i18n="Preferencias">Preferencias</h2>
+          <p class="account-panel-desc" data-i18n="Se guardan en tu cuenta de Copermiq — el mismo color, fondo e idioma que elijas aquí los verás también en la app.">Se guardan en tu cuenta de Copermiq — el mismo color, fondo e idioma que elijas aquí los verás también en la app.</p>
 
           <div class="pref-section">
-            <h3 class="pref-section-title">Color</h3>
+            <h3 class="pref-section-title" data-i18n="Color">Color</h3>
             <div class="pref-swatch-row" id="pref-swatch-row"></div>
             <div class="pref-tone-toggle" id="pref-tone-toggle" role="group" aria-label="Tono del color">
-              <button type="button" class="pref-tone-option" data-tone="dark">Oscuro</button>
-              <button type="button" class="pref-tone-option" data-tone="light">Claro</button>
+              <button type="button" class="pref-tone-option" data-tone="dark" data-i18n="Oscuro">Oscuro</button>
+              <button type="button" class="pref-tone-option" data-tone="light" data-i18n="Claro">Claro</button>
             </div>
-            <p class="pref-hint">Es el matiz del color que ves arriba, en la cabecera y el menú — no cambia el fondo de esta página (eso es "Fondo", más abajo).</p>
+            <p class="pref-hint" data-i18n="Es el matiz del color que ves arriba, en la cabecera y el menú — no cambia el fondo de esta página (eso es &quot;Fondo&quot;, más abajo).">Es el matiz del color que ves arriba, en la cabecera y el menú — no cambia el fondo de esta página (eso es "Fondo", más abajo).</p>
           </div>
 
           <!-- 2026-08-29 (Miq): "el color del fondo, que tenemos un botón
@@ -141,21 +141,21 @@ import Footer from '../components/Footer.astro';
                el resto de la web (ver applyContentMode() en
                src/lib/palette.js). -->
           <div class="pref-section">
-            <h3 class="pref-section-title">Fondo</h3>
+            <h3 class="pref-section-title" data-i18n="Fondo">Fondo</h3>
             <div class="pref-tone-toggle" id="pref-bg-toggle" role="group" aria-label="Fondo de la página">
-              <button type="button" class="pref-tone-option" data-bg="light">Claro</button>
-              <button type="button" class="pref-tone-option" data-bg="dark">Oscuro</button>
+              <button type="button" class="pref-tone-option" data-bg="light" data-i18n="Claro">Claro</button>
+              <button type="button" class="pref-tone-option" data-bg="dark" data-i18n="Oscuro">Oscuro</button>
             </div>
-            <p class="pref-hint">Cambia el fondo de Administración, Cuenta, Preferencias y Compras entre claro y oscuro — no el color de la cabecera/menú (eso es "Color", más arriba).</p>
+            <p class="pref-hint" data-i18n="Cambia el fondo de Administración, Cuenta, Preferencias y Compras entre claro y oscuro — no el color de la cabecera/menú (eso es &quot;Color&quot;, más arriba).">Cambia el fondo de Administración, Cuenta, Preferencias y Compras entre claro y oscuro — no el color de la cabecera/menú (eso es "Color", más arriba).</p>
           </div>
 
           <div class="pref-section">
-            <h3 class="pref-section-title">Idioma</h3>
+            <h3 class="pref-section-title" data-i18n="Idioma">Idioma</h3>
             <div class="pref-lang-toggle" id="pref-lang-toggle" role="group" aria-label="Idioma">
               <button type="button" class="pref-lang-option" data-lang="es">Castellano</button>
               <button type="button" class="pref-lang-option" data-lang="ca">Català</button>
             </div>
-            <p class="pref-hint">De momento esto solo cambia el idioma de la app — esta web todavía se ve solo en castellano.</p>
+            <p class="pref-hint" data-i18n="Cambia también la cabecera, el menú y tu panel de cuenta — el resto de la web todavía se ve solo en castellano.">Cambia también la cabecera, el menú y tu panel de cuenta — el resto de la web todavía se ve solo en castellano.</p>
           </div>
 
           <p class="pref-save-message" id="pref-save-message" hidden></p>
@@ -164,8 +164,8 @@ import Footer from '../components/Footer.astro';
         <!-- "Compras": de momento no hay nada que mostrar (no hay todavía
              compra de plantillas ni Stripe activo en la web). -->
         <div id="compras-panel" class="account-info-panel" hidden>
-          <h2 class="admin-panel-title">Compras</h2>
-          <p class="account-empty-state">Todavía no has comprado nada.</p>
+          <h2 class="admin-panel-title" data-i18n="Compras">Compras</h2>
+          <p class="account-empty-state" data-i18n="Todavía no has comprado nada.">Todavía no has comprado nada.</p>
         </div>
       </div>
     </div>
@@ -229,6 +229,7 @@ import Footer from '../components/Footer.astro';
   } from '../lib/billing.js';
   import { getPreferences, savePreferences } from '../lib/preferences.js';
   import { PALETTE, applyAccent, applyContentMode } from '../lib/palette.js';
+  import { applyLanguage } from '../i18n/index.js';
 
   const main = document.getElementById('account-main');
   const adminPanel = document.getElementById('admin-panel');
@@ -936,6 +937,7 @@ import Footer from '../components/Footer.astro';
     // Previsualización al instante, sin esperar a que termine de guardar.
     applyAccent(currentPrefs);
     applyContentMode(currentPrefs);
+    applyLanguage(currentPrefs.language);
     renderPresetSwatches(currentPrefs);
     updateToneToggle(currentPrefs);
     updateBgToggle(currentPrefs);
@@ -987,6 +989,7 @@ import Footer from '../components/Footer.astro';
     updateBgToggle(currentPrefs);
     updateLangToggle(currentPrefs);
     applyContentMode(currentPrefs);
+    applyLanguage(currentPrefs.language);
   }
 
   function formatDateTime(value) {

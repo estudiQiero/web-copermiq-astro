@@ -124,11 +124,11 @@ const hasTurnstileKey = Boolean(turnstileSiteKey);
         <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
       </svg>
     </button>
-    <h3 id="logout-title" class="auth-heading">Cerrar sesión</h3>
-    <p class="logout-text">¿Seguro que quieres cerrar tu sesión?</p>
+    <h3 id="logout-title" class="auth-heading" data-i18n="Cerrar sesión">Cerrar sesión</h3>
+    <p class="logout-text" data-i18n="¿Seguro que quieres cerrar tu sesión?">¿Seguro que quieres cerrar tu sesión?</p>
     <div class="logout-actions">
-      <button type="button" id="logout-cancel" class="btn btn-ghost">Cancelar</button>
-      <button type="button" id="logout-confirm" class="btn btn-primary">Cerrar sesión</button>
+      <button type="button" id="logout-cancel" class="btn btn-ghost" data-i18n="Cancelar">Cancelar</button>
+      <button type="button" id="logout-confirm" class="btn btn-primary" data-i18n="Cerrar sesión">Cerrar sesión</button>
     </div>
   </div>
 </div>
@@ -151,6 +151,7 @@ const hasTurnstileKey = Boolean(turnstileSiteKey);
   import { getMyProfile } from '../lib/billing.js';
   import { getPreferences } from '../lib/preferences.js';
   import { applyAccent, applyContentMode } from '../lib/palette.js';
+  import { applyLanguage } from '../i18n/index.js';
 
   const overlay = document.getElementById('auth-overlay');
   const closeBtn = document.querySelector('#auth-overlay .auth-close');
@@ -489,6 +490,7 @@ const hasTurnstileKey = Boolean(turnstileSiteKey);
       // cuenta que acaba de cerrar sesión).
       applyAccent(null);
       applyContentMode(null);
+      applyLanguage(null);
       return;
     }
 
@@ -515,8 +517,9 @@ const hasTurnstileKey = Boolean(turnstileSiteKey);
       const prefs = await getPreferences();
       applyAccent(prefs);
       applyContentMode(prefs);
+      applyLanguage(prefs?.language);
     } catch (err) {
-      console.warn('[Copermiq] No se pudieron aplicar las preferencias de color/fondo:', err.message);
+      console.warn('[Copermiq] No se pudieron aplicar las preferencias de color/fondo/idioma:', err.message);
     }
   }
 

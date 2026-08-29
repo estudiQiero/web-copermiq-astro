@@ -1,17 +1,21 @@
 // ================= i18n: utilidades compartidas =================
-// Infraestructura mínima para traducir copermiq-web a más de un idioma,
+// Infraestructura para traducir copermiq-web a más de un idioma,
 // empezando por català — 2026-08-29, a petición de Miq, para que el
 // vocabulario compartido con la app (nombres de plan, "Facturas",
 // "Crear cuenta"...) no diverja entre los dos sitios cuando alguien pasa
 // de uno a otro. Ver también STYLE-GUIDE.md (registro, patrones de
 // frase) y shared-glossary.json (los términos en sí).
 //
-// De momento esto NO está conectado a ninguna página — es solo la base
-// (rutas ya declaradas en astro.config.mjs + estos helpers) para la fase
-// siguiente, en la que cada componente cambiará su texto fijo en español
-// por una llamada a glossaryTerm() (para vocabulario compartido con la
-// app) o a su propio diccionario de claves semánticas (para copy propio
-// de la web, sin equivalente en la app).
+// Fase 2 (mismo día): cabecera, menú de cuenta y panel de cuenta/
+// preferencias/compras ya usan esto de verdad — cada texto traducible
+// lleva un atributo `data-i18n="Texto exacto en español"` en el propio
+// .astro, y applyLanguage() (más abajo) recorre esos elementos y les pone
+// la traducción cuando toca. Se llama desde AuthModal.astro (que vive en
+// cada página) igual que ya se hace con applyAccent()/applyContentMode():
+// al iniciar sesión con el idioma guardado en app_config, al cambiarlo
+// desde Preferencias, y de vuelta a español al cerrar sesión. El copy de
+// marketing (Funciones, Precios...) todavía no usa este mecanismo — esa
+// es la fase siguiente.
 // ==================================================================
 
 import glossary from './shared-glossary.json';
@@ -34,4 +38,20 @@ export function glossaryTerm(term, locale) {
 // los nombres de plan salvo "Gratis"/"Regalo") — ver STYLE-GUIDE.md.
 export function isBrandTerm(term) {
   return glossary.doNotTranslate?.includes(term) ?? false;
+}
+
+
+// Aplica el idioma a todos los elementos ya traducidos de la página
+// (marcados con `data-i18n="Texto exacto en español"` en el propio
+// .astro — ver Header.astro, AuthModal.astro y cuenta.astro para
+// ejemplos). No toca nada que no lleve ese atributo, así que es seguro
+// llamarla en cada página aunque la mayoría del copy (marketing) todavía
+// no esté traducido — simplemente no hay ningún `data-i18n` que tocar
+// ahí y no pasa nada.
+export function applyLanguage(locale) {
+  if (typeof document === 'undefined') return;
+  document.querySelectorAll('[data-i18n]').forEach((el) => {
+    const term = el.getAttribute('data-i18n');
+    if (term) el.textContent = glossaryTerm(term, locale);
+  });
 }
