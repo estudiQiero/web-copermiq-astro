@@ -222,11 +222,17 @@ img{ max-width:100%; display:block; }
    igual) se deja fuera a propósito: es una acción destructiva, no debe
    camuflarse con el color elegido por el usuario.
    2026-08-29 (Miq): "el footer también tiene que cambiar de color junto
-   con la cabecera" — añadido aquí mismo, reutilizando --user-accent-bg/fg;
-   los tonos más suaves del footer (tagline, copy, enlaces) usaban rgba()
-   fijos sobre el turquesa de marca, así que aquí se recalculan esos mismos
-   niveles de opacidad con `color-mix()` sobre el fg elegido, en vez de
-   quedarse con el rgba original (pensado solo para --navy-text). */
+   con la cabecera" — añadido aquí mismo, reutilizando --user-accent-bg/fg.
+   Los tonos más suaves del footer (tagline, copy, enlaces) usaban rgba()
+   fijos sobre el turquesa de marca; para no depender de conocer los
+   canales r/g/b del fg elegido (que puede ser cualquier hex, no solo
+   --navy-text) se usa `opacity` en el propio elemento en vez de intentar
+   calcular un rgba/color-mix — más simple y evita además el color-mix(),
+   que rompió el build en Netlify: lightningcss (el minificador CSS de
+   Astro/Vite en producción) no lo procesó bien ("[lightningcss minify]
+   Unexpected token CloseParenthesis"), aunque en local no daba ningún
+   error. El borde superior del footer se deja con su rgba() fijo de
+   siempre (no vale la pena "colorearlo" también por una línea de 1px). */
 body.has-user-accent .site-header,
 body.has-user-accent .site-menu,
 body.has-user-accent footer{
@@ -245,21 +251,20 @@ body.has-user-accent .menu-bar{
 body.has-user-accent .status-dot{
   border-color:var(--user-accent-bg);
 }
-body.has-user-accent footer{
-  border-top-color:color-mix(in srgb, var(--user-accent-fg) 14%, transparent);
-}
 body.has-user-accent .footer-brand span{
   color:var(--user-accent-fg);
 }
 body.has-user-accent .footer-tagline,
 body.has-user-accent .footer-copy{
-  color:color-mix(in srgb, var(--user-accent-fg) 60%, transparent);
+  color:var(--user-accent-fg);
+  opacity:0.6;
 }
 body.has-user-accent .footer-links a{
-  color:color-mix(in srgb, var(--user-accent-fg) 75%, transparent);
+  color:var(--user-accent-fg);
+  opacity:0.75;
 }
 body.has-user-accent .footer-links a:hover{
-  color:var(--user-accent-fg);
+  opacity:1;
 }
 
 /* Hamburguesa con animación de cruz */
