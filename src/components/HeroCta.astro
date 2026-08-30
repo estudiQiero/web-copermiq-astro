@@ -4,25 +4,43 @@
 // para que se perciba como su propio módulo. Antes este mismo contenido
 // (botón + 2 ticks) vivía oculto dentro del Hero y, por separado, duplicado
 // en el panel del menú hamburguesa — ahora vive solo aquí.
+//
+// 2026-08-29 (Miq) — concepto LT: se añade un segundo botón, secundario
+// (.btn-ghost-on-navy, ya existente en el sitio para este mismo fondo
+// navy), explicando que al entrar se empieza en una versión LT (Verifactu
+// desactivado): se puede probar todo con libertad y sin ninguna
+// obligación fiscal porque se trabaja con contenido ficticio, no
+// facturación real — con un clic se pasa a la versión Basic 100%
+// operativa cuando el usuario esté listo. De 2 a 3 ticks de confianza
+// (ver grid-template-columns en global.css, actualizado a 3 columnas).
 const APP_URL = 'https://app.copermiq.com';
 ---
 
 <section class="hero-cta-band">
   <div class="wrap">
-    <a class="btn btn-on-navy" href={APP_URL} target="_blank" rel="noopener">Usa Copermiq gratis para siempre</a>
+    <div class="hero-cta-buttons">
+      <a class="btn btn-on-navy" href={APP_URL} target="_blank" rel="noopener">Usa Copermiq gratis para siempre</a>
+      <a class="btn btn-ghost-on-navy" href={APP_URL} target="_blank" rel="noopener">Prueba ahora la versión LT</a>
+    </div>
 
     <div class="hero-cta-trust">
       <div class="hero-cta-trust-item">
         <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M4 10.5L8 14.5L16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span>Es una web app: añádela a la pantalla de inicio de iPhone o Android para un mejor rendimiento y experiencia de usuario.</span>
+        <span>Añade la url de la web a la pantalla de inicio de iPhone o Android, convirtiendo la web en webapp, para un mejor rendimiento y experiencia de usuario.</span>
       </div>
       <div class="hero-cta-trust-item">
         <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M4 10.5L8 14.5L16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span>Gratis de por vida en su versión completa. Extras opcionales muy asequibles por suscripción mensual —personalización de la interfaz, facturas sin pie de página— para quien quiera ir más allá.</span>
+        <span>Prueba todas las funciones de la app con el contenido ficticio que te ofrecemos — al no ser datos reales, no conlleva ninguna obligación fiscal ni se transmite nada a Hacienda. ¡Te va a encantar!</span>
+      </div>
+      <div class="hero-cta-trust-item">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 10.5L8 14.5L16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Copermiq es gratis de por vida. Activa Basic con Verifactu, o adquiere Pro o Premium para extras opcionales muy asequibles. Suscripción mensual o anual, para quien quiera mayor comodidad.</span>
       </div>
     </div>
   </div>

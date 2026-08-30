@@ -418,7 +418,10 @@ body.has-user-accent .footer-links a:hover{
 /* Mismo azul marino que el Hero y sin borde/línea entre ambos (a propósito:
    no debe leerse como un bloque nuevo con separación física), pero con su
    propio padding generoso para que "respire" y se perciba como su propio
-   módulo — botón centrado y los dos ticks de confianza en 2 columnas. */
+   módulo — botones centrados y los ticks de confianza en columnas.
+   2026-08-29/30 (Miq) — concepto LT: de 1 a 2 botones (el segundo,
+   secundario, con .btn-ghost-on-navy) y de 2 a 3 ticks; .hero-cta-trust
+   pasa de grid de 2 a 3 columnas. */
 .hero-cta-band{
   background:var(--navy);
   color:var(--navy-text);
@@ -428,15 +431,22 @@ body.has-user-accent .footer-links a:hover{
   display:flex; flex-direction:column; align-items:center;
   gap:32px; text-align:center;
 }
+.hero-cta-buttons{
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:center;
+  gap:14px;
+}
 .hero-cta-trust{
-  display:grid; grid-template-columns:1fr 1fr; gap:18px 40px;
-  max-width:760px; width:100%;
+  display:grid; grid-template-columns:repeat(3,1fr); gap:18px 32px;
+  max-width:980px; width:100%;
 }
 .hero-cta-trust-item{ display:flex; align-items:flex-start; gap:10px; text-align:left; font-size:13.5px; color:rgba(233,240,247,0.65); line-height:1.5; }
 .hero-cta-trust-item svg{ width:16px; height:16px; margin-top:2px; color:var(--accent-bright); flex-shrink:0; }
 
-@media (max-width:640px){
+@media (max-width:860px){
   .hero-cta-trust{ grid-template-columns:1fr; max-width:440px; }
+}
+@media (max-width:520px){
+  .hero-cta-buttons{ flex-direction:column; align-items:stretch; width:100%; max-width:340px; }
 }
 
 /* ---------- Trust strip ---------- */
