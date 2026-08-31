@@ -37,8 +37,9 @@ en sí.
 - **"Hacienda" → "Hisenda"**, sin artículo en la mayoría de casos ("a
   Hisenda", no "a la Hisenda").
 - **Marcas y nombres propios que NO se traducen**: "Copermiq",
-  "VERI*FACTU" / "Verifactu", los nombres de plan "Pro" y "Premium" (se
-  quedan igual). Sí se traducen "Gratis" → "Gratuït" y "Regalo" → "Regal"
+  "VERI*FACTU" / "Verifactu", y los nombres de plan "LT", "Basic", "Pro"
+  y "Premium" (se quedan igual — "Basic" sustituye a "Gratis" desde el
+  2026-08-31, ver Pricing.astro). Sí se traduce "Regalo" → "Regal"
   (lista completa en `doNotTranslate` dentro de `shared-glossary.json`).
 - **Ortografía cuidada**: ela geminada con punt volat donde toca
   ("Cancel·la", "sol·licitud"), elisiones correctas ("l'IBAN",

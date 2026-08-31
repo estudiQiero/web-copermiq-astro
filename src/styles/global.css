@@ -688,8 +688,9 @@ section{ padding:96px 0; }
 }
 
 /* ---------- Bandas de plan (Pro / Premium) ----------
-   Van seguidas justo después de Funciones (que muestra el plan Gratis),
-   para contar los 3 planes de un tirón: Gratis → Pro → Premium — a
+   Van seguidas justo después de Funciones (que ahora muestra el plan
+   Basic, antes "Gratis" — rename 2026-08-31, ver Pricing.astro), para
+   contar los 3 planes de un tirón: Basic → Pro → Premium — a
    petición de Miq del 2026-08-22. Colores NO inventados: son los mismos
    tokens que ya usa el panel de admin para identificar cada plan
    (.admin-plan-select--suscripcion/--premium más abajo en este archivo):
@@ -1626,8 +1627,9 @@ body.has-content-dark #row-unlock-overlay{
 .admin-note-input:focus{ outline:none; border-color:var(--accent); background:var(--white); }
 
 /* Píldora de Plan: mismo look que .admin-filter-chip, con un triangulito
-   (blanco por defecto, marino sobre fondo blanco de "Gratis" para que no
-   desaparezca) que deja claro que es desplegable. */
+   (blanco por defecto, marino sobre fondo blanco de "Basic", antes
+   "Gratis" — rename 2026-08-31, para que no desaparezca) que deja claro
+   que es desplegable. */
 .admin-plan-select{
   appearance:none; -webkit-appearance:none; -moz-appearance:none;
   font-family:inherit; font-size:12.5px; font-weight:600; cursor:pointer;

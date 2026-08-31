@@ -7,10 +7,12 @@ import WhyCopermiq from '../components/WhyCopermiq.astro';
 import Features from '../components/Features.astro';
 import PlanHighlight from '../components/PlanHighlight.astro';
 import Customization from '../components/Customization.astro';
-import HowItWorks from '../components/HowItWorks.astro';
+// HowItWorks y FinalCta: import comentado, ver nota junto al <Layout>
+// más abajo — se dejan de renderizar de momento, sin borrar del repo.
+// import HowItWorks from '../components/HowItWorks.astro';
 import ProductPreview from '../components/ProductPreview.astro';
 import Security from '../components/Security.astro';
-import FinalCta from '../components/FinalCta.astro';
+// import FinalCta from '../components/FinalCta.astro';
 import Pricing from '../components/Pricing.astro';
 import Footer from '../components/Footer.astro';
 // FAQ.astro ya no se usa aquí — 2026-08-20: toda su FAQ (y la de precios,
@@ -19,26 +21,46 @@ import Footer from '../components/Footer.astro';
 // recuperar algo puntual; Miq puede borrarlo cuando quiera.
 ---
 
-<!-- Orden 2026-08-23 (tercera ronda): Miq pidió que "Empieza hoy" (FinalCta)
-     vaya "justo después del hero". HeroCta comparte fondo navy con Hero sin
-     separación visual entre ambas (ver comentario de HeroCta.astro) — se
-     interpreta como un único bloque "hero", así que FinalCta se coloca justo
-     después de ese bloque completo (Hero + HeroCta), antes de Features. Si
-     Miq quería decir literalmente entre Hero y HeroCta, avisar para
-     moverlo. -->
+<!-- Reorden 2026-08-31, a partir del repaso sección a sección que hizo
+     Miq de toda la home (continuidad, repeticiones, incoherencias entre
+     secciones). Esquema acordado: Hero, HeroCta, Inicio de un vistazo,
+     Funciones (con las cápsulas Pro/Premium pegadas, para explicar LT →
+     Basic → Pro → Premium de un tirón), Seguridad, A tu manera, La
+     historia, Planes.
+
+     - ProductPreview sube justo después de HeroCta (antes iba después de
+       Funciones y las 2 cápsulas de plan) — para que se vea el producto
+       real antes de pedir ninguna mejora de plan.
+     - Security sube por delante de Customization (antes iba después) —
+       después de contar qué hace la app, resuelve primero "¿puedo
+       confiar mis datos aquí?" antes de pasar a algo más ligero como
+       personalización.
+     - WhyCopermiq sube justo antes de Pricing (antes era la última
+       sección de toda la página) — contar el porqué/la filosofía de
+       Copermiq justo antes de los precios refuerza la propia lógica de
+       unos precios tan bajos, en vez de dejarlo como lectura opcional al
+       final de todo, donde casi nadie llega.
+     - FinalCta y HowItWorks se quitan del render (no se borran del
+       repo): FinalCta porque su solapamiento con Funciones y su posición
+       actual ("Empieza hoy" nada más entrar, antes de explicar nada)
+       está pendiente de decidir; HowItWorks porque se solapa con
+       Funciones (numeración, rectificativas) y Miq quiere fusionar/
+       repartir ese contenido entre las dos antes de volver a mostrarlo.
+       Recuperar cualquiera de las dos es tan simple como descomentar su
+       import y su línea aquí abajo. -->
 <Layout>
   <Header />
   <Hero />
   <HeroCta />
-  <FinalCta />
+  <ProductPreview />
   <Features />
   <PlanHighlight plan="pro" />
   <PlanHighlight plan="premium" />
-  <ProductPreview />
-  <HowItWorks />
   <Security />
   <Customization />
-  <Pricing />
   <WhyCopermiq />
+  <Pricing />
+  <!-- <FinalCta /> -->
+  <!-- <HowItWorks /> -->
   <Footer />
 </Layout>

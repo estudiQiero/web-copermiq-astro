@@ -20,6 +20,20 @@
 // "Planes". Las cápsulas de precio y la tabla comparativa ya llevan su
 // propio fondo blanco opaco, así que solo se aclaró a blanco lo que queda
 // directamente sobre el gris (eyebrow/título/intro y la nota final).
+//
+// Rename 2026-08-31, a petición de Miq: el plan que se mostraba como
+// "Gratis" pasa a llamarse "Basic". Mismo caso que el rename de "Pro" de
+// más arriba — el identificador interno (`key: 'free'`, y en Supabase/
+// cuenta.astro el valor `'gratis'`) NO cambia, solo el nombre visible.
+// El motivo: Miq introduce un nuevo plan de entrada, "LT" (ver
+// HeroCta.astro), con las mismas funciones que Basic pero con Verifactu
+// desactivado — así se puede probar la app sin ninguna implicación
+// fiscal antes de "dar el salto" a Basic. LT y Basic son los dos
+// gratuitos (0 €); la única diferencia entre ambos es Verifactu
+// apagado/encendido. LT no tiene columna propia en la tabla de precios
+// ni en la comparativa (no es un plan que se "elija" como tal, es el
+// estado inicial por el que pasa todo el mundo) — se explica en el copy
+// de HeroCta, no aquí.
 import PlanComparison from './PlanComparison.astro';
 
 const APP_URL = 'https://app.copermiq.com';
@@ -27,7 +41,7 @@ const APP_URL = 'https://app.copermiq.com';
 const plans = [
   {
     key: 'free',
-    name: 'Gratis',
+    name: 'Basic',
     price: '0 €',
     period: 'para siempre',
     description: 'Lo esencial para empezar a facturar y controlar tus gastos. Sin sorpresas de cobros adicionales. Usa Copermiq tanto como quieras. ¡Barra libre!',
@@ -48,7 +62,7 @@ const plans = [
     },
     description: 'Funciones avanzadas para cuando tu actividad crece. (Lista final de características aún por definir.)',
     features: [
-      'Todo lo del plan Gratis',
+      'Todo lo del plan Basic',
       'Facturas periódicas / recurrentes',
       'Facturas sin pie de página',
       'Copias de seguridad automáticas',

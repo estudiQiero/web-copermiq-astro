@@ -61,7 +61,7 @@ import Footer from '../components/Footer.astro';
               autocomplete="off"
             />
             <div class="admin-filter-chips" role="group" aria-label="Filtrar por plan">
-              <button type="button" class="admin-filter-chip" data-plan="gratis">Gratis</button>
+              <button type="button" class="admin-filter-chip" data-plan="gratis">Basic</button>
               <button type="button" class="admin-filter-chip" data-plan="suscripcion">Pro</button>
               <button type="button" class="admin-filter-chip" data-plan="regalo">Regalo</button>
               <button type="button" class="admin-filter-chip" data-plan="premium">Premium</button>
@@ -275,8 +275,10 @@ import Footer from '../components/Footer.astro';
   // pago real (asignado a mano por un admin), añadido el 2026-08-08.
   // 'suscripcion' es el valor real en la base de datos (no cambia); "Pro"
   // es solo la etiqueta que se muestra, para que coincida con el nombre
-  // público del plan (renombrado el 2026-08-19).
-  const PLAN_LABELS = { gratis: 'Gratis', suscripcion: 'Pro', regalo: 'Regalo', premium: 'Premium' };
+  // público del plan (renombrado el 2026-08-19). Mismo caso, 2026-08-31:
+  // el valor 'gratis' NO cambia, solo su etiqueta, que pasa de "Gratis" a
+  // "Basic" (nuevo nombre público del plan, ver Pricing.astro).
+  const PLAN_LABELS = { gratis: 'Basic', suscripcion: 'Pro', regalo: 'Regalo', premium: 'Premium' };
 
   // Icono "trash-can" de Font Awesome Free (solid), incrustado como SVG
   // en vez de cargar la fuente de iconos entera solo para este botón —

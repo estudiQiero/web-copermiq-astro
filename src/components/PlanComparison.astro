@@ -22,9 +22,20 @@ const DASH = '—';
 // Fila destacada, sin grupo propio, justo debajo de la cabecera — así
 // viene en la página 4 del PDF real que pasó Miq el 2026-08-22 (no al
 // final de la tabla, como se entendió en un primer momento).
+//
+// Corrección 2026-08-31: esta fila llevaba `soon: true` Y los 3 planes en
+// CHECK a la vez — la plantilla ni siquiera leía ese campo, pintaba la
+// etiqueta "Próximamente" a pedales siempre, así que la fila se
+// contradecía a sí misma (✓ en los tres planes + "aún no está"). Con el
+// nuevo plan LT (ver HeroCta.astro y Pricing.astro), esto por fin tiene
+// una explicación limpia: Verifactu está apagado solo en LT (que no
+// tiene columna propia aquí, es el estado inicial antes de "dar el
+// salto"), y encendido de verdad desde Basic (antes "Gratis") en
+// adelante — así que para los tres planes que sí aparecen en esta tabla,
+// el CHECK ya no es contradictorio, es la realidad.
 const verifactuRow = {
   label: 'Cumplimiento Verifactu (facturación electrónica antifraude)',
-  free: CHECK, sub: CHECK, premium: CHECK, soon: true,
+  free: CHECK, sub: CHECK, premium: CHECK,
 };
 
 const groups = [
@@ -95,16 +106,15 @@ const groups = [
         <thead>
           <tr>
             <th scope="col" class="pc-feature-col">Funcionalidad</th>
-            <th scope="col">Gratis</th>
+            <th scope="col">Basic</th>
             <th scope="col" class="pc-highlight-col">Pro</th>
             <th scope="col">Premium</th>
           </tr>
         </thead>
         <tbody>
-          <tr class="pc-row-soon">
+          <tr>
             <th scope="row" class="pc-feature-col">
               {verifactuRow.label}
-              <span class="pc-badge-soon">Próximamente</span>
             </th>
             <td class:list={{ 'pc-yes': verifactuRow.free === CHECK }}>{verifactuRow.free}</td>
             <td class:list={['pc-highlight-col', { 'pc-yes': verifactuRow.sub === CHECK }]}>{verifactuRow.sub}</td>
