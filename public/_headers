@@ -1,8 +1,0 @@
-# Cabeceras propias de Netlify (se copian tal cual desde public/ a la raíz
-# del deploy). 2026-08-30 (Miq): el JSON de contenido ficticio de la banda
-# CTA (LT) no debe indexarse ni aparecer en buscadores aunque alguien
-# consiga el enlace por otra vía que no sea la propia web — Disallow en
-# robots.txt evita que lo rastreen, esta cabecera evita que lo indexen
-# aunque lo encuentren igualmente enlazado desde algún sitio externo.
-/contenido-ficticio-lt-7pl29i4ep8.json
-  X-Robots-Tag: noindex, nofollow

@@ -438,12 +438,11 @@ body.has-user-accent .footer-links a:hover{
   max-width:980px; width:100%;
 }
 .hero-cta-trust-item{ display:flex; align-items:flex-start; gap:10px; text-align:left; font-size:13.5px; color:rgba(233,240,247,0.65); line-height:1.5; }
-/* 2026-08-30 (Miq): enlace al JSON de contenido ficticio dentro del
-   segundo tick — mismo tono que el check de confianza (--accent-bright)
-   en vez del azul de enlace por defecto, que desentonaría sobre navy. */
-.hero-cta-trust-item a{ color:var(--accent-bright); text-decoration:underline; text-underline-offset:2px; }
-.hero-cta-trust-item a:hover{ text-decoration-thickness:2px; }
 .hero-cta-trust-item svg{ width:16px; height:16px; margin-top:2px; color:var(--accent-bright); flex-shrink:0; }
+/* 2026-08-31: se quita el estilo de enlace de .hero-cta-trust-item — el
+   segundo tick ya no enlaza a ningún JSON descargable (ver HeroCta.astro,
+   el contenido ficticio ahora se ofrece integrado en la app). Ningún tick
+   lleva enlace de momento, así que no hace falta la regla. */
 
 @media (max-width:860px){
   .hero-cta-trust{ grid-template-columns:1fr; max-width:440px; }

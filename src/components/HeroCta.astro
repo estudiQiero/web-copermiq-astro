@@ -17,17 +17,14 @@
 // botones (este + uno secundario) pero Miq prefirió sustituir el CTA
 // original por el de LT en vez de añadir uno nuevo al lado.
 const APP_URL = 'https://app.copermiq.com';
-// 2026-08-30 (Miq) — el segundo tick enlaza (en negrita) al JSON real de
-// contenido ficticio que carga la app en modo LT, servido como archivo
-// estático de la propia web (sin Supabase: es solo para consulta/descarga,
-// la app no necesita leerlo desde aquí). No debe ser "público" en el
-// sentido de indexable/encontrable — de ahí el sufijo aleatorio en el
-// nombre (nadie lo adivina escribiendo la URL) y las reglas de
-// noindex en robots.txt y public/_headers (ver ambos archivos). Sigue
-// siendo un archivo público de verdad en el sentido técnico (no hay
-// login) — cualquiera con el enlace puede descargarlo, que es lo que
-// se pidió: "que se pueda enlazar y descargar".
-const DEMO_CONTENT_URL = '/contenido-ficticio-lt-7pl29i4ep8.json';
+// 2026-08-31 (Miq) — el segundo tick ya no enlaza a ningún JSON
+// descargable: el contenido ficticio se ofrece ahora integrado en la
+// propia app (todo el que entra en LT se encuentra datos ficticios de
+// serie, que puede borrar cuando quiera), así que no hace falta que la
+// web sirva ni enlace un archivo aparte. El JSON (contenido-ficticio-lt-
+// 7pl29i4ep8.json) y las reglas de noindex que llevaba en robots.txt y
+// public/_headers (borrado entero, solo tenía esa regla) se eliminaron
+// del todo, a petición de Miq, al dejar de usarse.
 ---
 
 <section class="hero-cta-band">
@@ -39,19 +36,19 @@ const DEMO_CONTENT_URL = '/contenido-ficticio-lt-7pl29i4ep8.json';
         <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M4 10.5L8 14.5L16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span>Añade la url de la web —https://app.copermiq.com— a la pantalla de inicio de iPhone o Android, convirtiendo la web en webapp, para un mejor rendimiento y experiencia de usuario.</span>
+        <span>Para una mejor y completa experiencia de usuario, añade la url de la web —https://app.copermiq.com— a la pantalla de inicio de iPhone o Android, convirtiendo la web en webapp.</span>
       </div>
       <div class="hero-cta-trust-item">
         <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M4 10.5L8 14.5L16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span>Prueba todas las funciones de Copermiq con la versión LT, para testeo, y descarga e importa <a href={DEMO_CONTENT_URL} target="_blank" rel="noopener nofollow"><strong>el contenido ficticio (.json) que te ofrecemos</strong></a> —al no ser datos reales, no conlleva obligación fiscal—. ¡Te va a sorprender!</span>
+        <span>Prueba todas las funciones de Copermiq en la versión LT, sin Verifactu, con datos ficticios. Verás qué rápido empiezas a generar facturas y clientes. ¡Te va a sorprender!</span>
       </div>
       <div class="hero-cta-trust-item">
         <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M4 10.5L8 14.5L16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span>Copermiq es gratis de por vida. Tras la prueba, activa Basic con Verifactu. Si quieres más funciones, adquiere Pro o Premium para extras opcionales muy asequibles. Suscripción mensual o anual. Sin permanencia.</span>
+        <span>Copermiq es gratis de por vida. Tras la prueba con LT, activa el plan Basic gratuito con Verifactu. Si quieres más funciones, adquiere Pro o Premium para extras opcionales muy asequibles. Suscripción mensual o anual. Sin permanencia.</span>
       </div>
     </div>
   </div>

@@ -1,5 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /contenido-ficticio-lt-7pl29i4ep8.json
 
 Sitemap: https://copermiq.com/sitemap-index.xml
